@@ -26,3 +26,25 @@
 *.exe
 *.out
 *.app
+
+# Build result
+Debug/
+
+# Visual studio cache dir
+.vs/
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+.vs
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
