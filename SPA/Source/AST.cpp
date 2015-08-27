@@ -9,7 +9,7 @@ AST::~AST() {
 }
 
 vector<TNode* > AST::getTree() {
-	return AST::tree;
+	return tree;
 }
 
 void AST::addRoot(TNode* root){
@@ -17,7 +17,7 @@ void AST::addRoot(TNode* root){
 }
 
 void AST::addChild(int parIndex, TNode* child) {
-	TNode* par = AST::tree.at(parIndex);
+	TNode* par = tree.at(parIndex);
 	(*par).setChild(child);
-	AST::tree.push_back(child);
+	tree.push_back(child);
 }
