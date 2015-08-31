@@ -7,17 +7,17 @@
 using namespace std;
 class GNode {
 private:
-	string procedure;
+	//string procedure;
 	int line;
 	vector<GNode* > child;
 	vector<GNode* > parent;
 
 public:
-	GNode(string procedure, int line);		//construction
+	GNode(int line);		//construction
 	
 	~GNode();		//destruction
 	
-	void setProcedure(string procedure);
+	//void setProcedure(string procedure);
 
 	void setLine(int line);
 
@@ -25,7 +25,7 @@ public:
 
 	void setParent(GNode* parent);
 
-	string getProcedure();
+	//string getProcedure();
 
 	int getLine();
 
