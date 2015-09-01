@@ -164,6 +164,7 @@
     <ClCompile Include="..\Source\GNode.cpp" />
     <ClCompile Include="..\Source\ModifyTable.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
+    <ClCompile Include="..\Source\Test.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />
     <ClCompile Include="..\Source\UseTable.cpp" />
     <ClCompile Include="..\Source\Utility.cpp" />
