@@ -14,7 +14,7 @@ private:
 	int line;		//code line that appears the Node
 	TNode* parent;
 	vector<TNode* > childList;		
-
+	
 public:
 	TNode(string value, string type, int line); //constructor
 	
@@ -39,6 +39,7 @@ public:
 	TNode* getParent();
 
 	vector<TNode* > getChildList();
+	bool equals(TNode obj);		//check if 2 nodes are equals (line, value, type)
 };
 
 #endif

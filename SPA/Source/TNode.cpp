@@ -1,53 +1,62 @@
 #include "TNode.h"
 #include <vector>
+#include <string>
 
 	TNode::TNode(string value, string type, int line) {
-		TNode::value = value;
-		TNode::type = type;
-		TNode::line = line;
-		TNode::parent = NULL;
+		value = value;
+		type = type;
+		line = line;
+		parent = NULL;
 	}
 
 	TNode::~TNode() {
 	}
 	
 	void TNode::setValue(string val) {
-		TNode::value = val;
+		value = val;
 	}
 
 	void TNode::setType(string type) {
-		TNode::type = type;
+		type = type;
 	}
 
 	void TNode::setLine(int line) {
-		TNode::line = line;
+		line = line;
 	}
 
 	void TNode::setParent(TNode* par) {
-		TNode::parent = par;
+		parent = par;
 	}
 
 	void TNode::setChild(TNode* child) {
-		TNode::childList.push_back(child);
+		childList.push_back(child);
 	}
 
 	string TNode::getValue() {
-		return TNode::value;
+		return value;
 	}
 
 	string TNode::getType() {
-		return TNode::type;
+		return type;
 	}
 	
 	int TNode::getLine() {
-		return TNode::line;
+		return line;
 	}
 
 	TNode* TNode::getParent() {
-		return TNode::parent;
+		return parent;
 	}
 
 	vector<TNode* > TNode::getChildList() {
-		return TNode::childList;
+		return childList;
 	}
 
+	bool TNode::equals(TNode obj) {
+		if (value == obj.getValue() && type == obj.getType()
+			&& line == obj.getLine()) {
+			return true;
+		}
+		return false;
+	}
+	

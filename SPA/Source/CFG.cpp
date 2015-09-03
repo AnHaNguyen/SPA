@@ -10,7 +10,7 @@ CFG::CFG(string proc) {
 CFG::~CFG() {
 }
 
-int CFG::stmtNo() {
+int CFG::size() {
 	return cfg.size();
 }
 

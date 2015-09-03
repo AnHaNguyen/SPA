@@ -11,7 +11,7 @@ private:
 public: CFG(string procedure);
 		~CFG();
 		string getProcedure();
-		int stmtNo();	//size of CFG
+		int size();	//size of CFG
 		void addToGraph(int lineNo);
 		void makeChild(int lineNo, int parentLine);
 		void makeParent(int lineNo, int childLine);
