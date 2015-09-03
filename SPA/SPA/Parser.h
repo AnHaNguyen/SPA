@@ -12,7 +12,8 @@ public:
 
 private:
 	bool checkNextLine(char nextLine);
-	void Parser::error()
+	void Parser::error();
+	bool Parser::checkEmptyLine(string line);
 	//~Parser();
 };
 
