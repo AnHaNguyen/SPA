@@ -13,7 +13,7 @@ public:
 	AST();
 	~AST();
 	vector<TNode* > getTree();		//return tree
-	void addToTree(TNode* node);	//add a node  to AST
+	bool addToTree(TNode* node);	//add a node  to AST
 	void makeChild(TNode* par, TNode* child);	//add a child to a node in AST
 	void makeParent(TNode* child, TNode* par);	//add parent to a node in AST
 	void printTree();	//printout tree

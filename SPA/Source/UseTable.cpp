@@ -10,6 +10,11 @@ UseTable::~UseTable() {
 }
 
 void UseTable::add(int lineNo, string var) {
+	if (isContained(lineNo) == false) {
+		UseEntry_t *entry = new UseEntry_t(lineNo, var);
+		useTable.push_back(*entry);
+		return;
+	}
 	for (unsigned i = 0; i < useTable.size(); i++) {
 		if (useTable.at(i).lineNo == lineNo) {
 			useTable.at(i).usedVar.push_back(var);
@@ -45,4 +50,13 @@ vector<string> UseTable::getUsed(int lineNo) {
 		}
 	}
 	return returnList;
+}
+
+bool UseTable::isContained(int lineNo) {
+	for (unsigned i = 0; i < useTable.size(); i++) {
+		if (useTable.at(i).lineNo == lineNo) {
+			return true;
+		}
+	}
+	return false;
 }

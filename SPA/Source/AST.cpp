@@ -12,8 +12,12 @@ vector<TNode* > AST::getTree() {
 	return tree;
 }
 
-void AST::addToTree(TNode* node){
+bool AST::addToTree(TNode* node){
+	if (isContained(node)) {
+		return false;
+	}
 	tree.push_back(node);
+	return true;
 }
 
 void AST::makeChild(TNode* par, TNode* child) {

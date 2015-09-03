@@ -1,3 +1,6 @@
+#ifndef STMTLIST_H
+#define STMTLIST_H
+
 #include <string>
 #include <vector>
 
@@ -22,3 +25,5 @@ public:
 		vector<int> getLinesOfProc(string procedure);		//get all stmt of a proc
 		vector<int> getLinesOfType(string type);	//get all stmt of a type
 };
+
+#endif

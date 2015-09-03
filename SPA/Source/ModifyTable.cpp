@@ -10,6 +10,11 @@ ModifyTable::~ModifyTable() {
 }
 
 void ModifyTable::add(int lineNo, string var) {
+	if (isContained(lineNo) == false) {
+		ModifyEntry_t *entry = new ModifyEntry_t(lineNo, var);
+		modifyTable.push_back(*entry);
+		return;
+	}
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
 		if (modifyTable.at(i).lineNo == lineNo) {
 			modifyTable.at(i).modifiedVar.push_back(var);
@@ -45,4 +50,13 @@ vector<string> ModifyTable::getModified(int lineNo) {
 		}
 	}
 	return returnList;
+}
+
+bool ModifyTable::isContained(int lineNo) {
+	for (unsigned i = 0; i < modifyTable.size(); i++) {
+		if (modifyTable.at(i).lineNo == lineNo) {
+			return true;
+		}
+	}
+	return false;
 }

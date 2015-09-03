@@ -9,6 +9,10 @@ using namespace std;
 typedef struct callEntry_t {
 	string caller;
 	vector<string> callees;
+	callEntry_t(string caller, string callee) {
+		callEntry_t::caller = caller;
+		callEntry_t::callees.push_back(callee);
+	}
 } callEntry;
 
 class CallTable {
@@ -22,6 +26,7 @@ public:
 	vector<string> getCallees(string caller);
 	vector<string> getCallers(string callee);
 	int size();
+	bool isContained(string caller);
 };
 
 

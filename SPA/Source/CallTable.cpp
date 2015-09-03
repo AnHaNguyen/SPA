@@ -10,6 +10,11 @@ CallTable::~CallTable() {
 }
 
 void CallTable::add(string caller, string callee) {
+	if (isContained(caller) == false) {
+		callEntry_t *entry = new callEntry_t(caller, callee);
+		callTable.push_back(*entry);
+		return;
+	}
 	for (unsigned i = 0; i < callTable.size(); i++) {
 		if (callTable.at(i).caller == caller) {
 			callTable.at(i).callees.push_back(callee);
@@ -44,4 +49,13 @@ vector<string> CallTable::getCallers(string callee) {
 
 int CallTable::size() {
 	return callTable.size();
+}
+
+bool CallTable::isContained(string caller) {
+	for (unsigned i = 0; i < callTable.size(); i++) {
+		if (callTable.at(i).caller == caller) {
+			return true;
+		}
+	}
+	return false;
 }
