@@ -28,7 +28,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -149,6 +148,7 @@
     <ClInclude Include="..\Source\AST.h" />
     <ClInclude Include="..\Source\CallTable.h" />
     <ClInclude Include="..\Source\CFG.h" />
+    <ClInclude Include="..\Source\DesignExtractor.h" />
     <ClInclude Include="..\Source\GNode.h" />
     <ClInclude Include="..\Source\ModifyTable.h" />
     <ClInclude Include="..\Source\ParentTable.h" />
@@ -168,6 +168,7 @@
     <ClCompile Include="..\Source\AST.cpp" />
     <ClCompile Include="..\Source\CallTable.cpp" />
     <ClCompile Include="..\Source\CFG.cpp" />
+    <ClCompile Include="..\Source\DesignExtractor.cpp" />
     <ClCompile Include="..\Source\GNode.cpp" />
     <ClCompile Include="..\Source\ModifyTable.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp" />
