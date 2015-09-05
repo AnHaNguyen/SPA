@@ -10,7 +10,7 @@ typedef struct UseEntry_t {
 	int lineNo;
 	vector<string> usedVar;
 	UseEntry_t(int lineNo, string var) {
-		UseEntry_t::lineNo == lineNo;
+		UseEntry_t::lineNo = lineNo;
 		UseEntry_t::usedVar.push_back(var);
 	}
 } UseEntry;

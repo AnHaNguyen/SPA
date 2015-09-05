@@ -12,7 +12,7 @@ private:
 	string value;	//value of Node, can be null
 	string type;	//Type of Node
 	int line;		//code line that appears the Node
-	TNode* parent;
+	TNode* parent;	//represent the parent on the tree( not relationship parent)
 	vector<TNode* > childList;		
 	
 public:

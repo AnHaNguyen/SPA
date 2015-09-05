@@ -42,7 +42,7 @@ vector<int> UseTable::getUser(string var) {
 			}
 		}
 	}
-	return Utility::removeDuplicate(returnList);
+	return returnList;
 }
 
 vector<string> UseTable::getUsed(int lineNo) {

@@ -3,9 +3,9 @@
 #include <string>
 
 	TNode::TNode(string value, string type, int line) {
-		value = value;
-		type = type;
-		line = line;
+		TNode::value = value;
+		TNode::type = type;
+		TNode::line = line;
 		parent = NULL;
 	}
 
@@ -17,11 +17,11 @@
 	}
 
 	void TNode::setType(string type) {
-		type = type;
+		TNode::type = type;
 	}
 
 	void TNode::setLine(int line) {
-		line = line;
+		TNode::line = line;
 	}
 
 	void TNode::setParent(TNode* par) {

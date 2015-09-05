@@ -2,6 +2,10 @@
 #include <string>
 #include "AST.h"
 
+int main() {
+	return 0; //stub
+}
+
 AST::AST() {
 }
 
@@ -65,6 +69,10 @@ TNode* AST::findParent(TNode* child) {
 bool AST::isContained(TNode* node) {
 	for (unsigned i = 0; i < tree.size(); i++) {
 		if ((*node).equals(*tree.at(i))) {
+			node->setParent(tree.at(i)->getParent());
+			for (unsigned j = 0; j < tree.at(i)->getChildList().size(); j++) {
+				node->setChild(tree.at(i)->getChildList().at(j));
+			}
 			return true;
 		}
 	}

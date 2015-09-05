@@ -42,7 +42,7 @@ vector<int> ModifyTable::getModifier(string var) {
 			}
 		}
 	}
-	return Utility::removeDuplicate(returnList);
+	return returnList;
 }
 
 vector<string> ModifyTable::getModified(int lineNo) {

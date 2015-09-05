@@ -1,6 +1,8 @@
 #ifndef FOLLOWTABLE_H
 #define FOLLOWTABLE_H
 
+#include <vector>
+#include <string>
 using namespace std;
 typedef struct FollowEntry_t {		//follow(prev,next)
 	int prev;
