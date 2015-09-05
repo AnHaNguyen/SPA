@@ -21,7 +21,7 @@ private: vector<UseEntry_t> useTable;
 public:
 	UseTable();
 	~UseTable();
-	void add(int lineNo, string var);
+	bool add(int lineNo, string var);
 	vector<int> getUser(string var);
 	vector<string> getUsed(int line);
 	//void printTable();

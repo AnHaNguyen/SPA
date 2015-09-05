@@ -9,20 +9,24 @@ UseTable::UseTable() {
 UseTable::~UseTable() {
 }
 
-void UseTable::add(int lineNo, string var) {
+bool UseTable::add(int lineNo, string var) {
 	if (isContained(lineNo) == false) {
 		UseEntry_t *entry = new UseEntry_t(lineNo, var);
 		useTable.push_back(*entry);
-		return;
+		return true;
 	}
 	for (unsigned i = 0; i < useTable.size(); i++) {
 		if (useTable.at(i).lineNo == lineNo) {
+			for (unsigned j = 0; j < useTable.at(i).usedVar.size(); j++) {
+				if (useTable.at(i).usedVar.at(j) == var) {
+					return false;
+				}
+			}
 			useTable.at(i).usedVar.push_back(var);
-			useTable.at(i).usedVar =
-				Utility::removeDuplicate(useTable.at(i).usedVar);
 			break;
 		}
 	}
+	return true;
 }
 
 int UseTable::size() {

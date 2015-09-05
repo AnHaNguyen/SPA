@@ -9,20 +9,24 @@ ModifyTable::ModifyTable() {
 ModifyTable::~ModifyTable() {
 }
 
-void ModifyTable::add(int lineNo, string var) {
+bool ModifyTable::add(int lineNo, string var) {
 	if (isContained(lineNo) == false) {
 		ModifyEntry_t *entry = new ModifyEntry_t(lineNo, var);
 		modifyTable.push_back(*entry);
-		return;
+		return true;
 	}
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
 		if (modifyTable.at(i).lineNo == lineNo) {
+			for (unsigned j = 0; j < modifyTable.at(i).modifiedVar.size(); j++) {
+				if (modifyTable.at(i).modifiedVar.at(j) == var) {
+					return false;
+				}
+			}
 			modifyTable.at(i).modifiedVar.push_back(var);
-			modifyTable.at(i).modifiedVar = 
-				Utility::removeDuplicate(modifyTable.at(i).modifiedVar);
 			break;
 		}
 	}
+	return true;
 }
 
 int ModifyTable::size() {
