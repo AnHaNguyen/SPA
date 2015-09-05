@@ -32,11 +32,29 @@ public:
     void setSymbolTable(vector<string> terms);
 
     int getSymbolIndex(vector< vector<string> > table, string str);
+	string getSynType(vector< vector<string> > table, string str);
+	bool isValidSuchThatAttribute(string syn, string first, string second);
+	bool isValidPatternAttribute(string syn, string first, string second);
+	bool isValidIdent(string str);
+	bool isValidSynonym(vector< vector<string> > table, string str);
+	bool isValidName(string str);
+	bool isValidStmtRef(vector< vector<string> > table, string str);
+	bool isValidEntRef(vector< vector<string> > table, string str);
+	bool isValidExpressionSpec(string str);
+	bool isAssign(string str);
+	bool isInSymbolTable(vector< vector<string> > table, string str);
+	bool isInteger(string str);
+	bool containWord(string str, string arr[], int size);
+	string toLowerCase(string str);
+
     vector<string> stringToVector(string str, string delimiter);
     string removeSpace(string str);
     string getFirstToken(string str);
     string removeFirstToken(string str);
-    string trim(string str);
+    string trim(string str);	
+	
+	void printTable(vector<string> table);
+	void printDoubleTable(vector< vector<string> > table);
 };
 
 #endif
