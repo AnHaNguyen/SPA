@@ -27,6 +27,9 @@ namespace UnitTesting
 			Assert::AreEqual(modTable.isContained(0), true);
 			Assert::AreEqual(modTable.isContained(1), false);
 
+			Assert::AreEqual(modTable.isModified(0, "x"), true);
+			Assert::AreEqual(modTable.isModified(0, "z"), false);
+			Assert::AreEqual(modTable.isModified(1, "x"), false);
 		}
 	};
 }

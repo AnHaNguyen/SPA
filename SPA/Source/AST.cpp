@@ -17,9 +17,11 @@ vector<TNode* > AST::getTree() {
 }
 
 bool AST::addToTree(TNode* node){
-	if (isContained(node)) {
-		return false;
-	}
+	/*for (unsigned i = 0; i < tree.size(); i++) {		//to check if a node inside tree already
+		if (tree.at(i)->equals(*node)) {
+			return false;
+		}
+	}*/
 	tree.push_back(node);
 	return true;
 }

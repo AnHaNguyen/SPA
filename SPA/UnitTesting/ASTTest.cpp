@@ -46,7 +46,6 @@ namespace UnitTesting
 			tree.makeParent(node3, node1);
 			Assert::AreEqual(tree.addToTree(node1),true);
 			tree.makeParent(node4, node1);
-			Assert::AreEqual(tree.addToTree(node1),false);
 			tree.makeParent(node1, procNode);
 			tree.addToTree(procNode);
 
@@ -66,6 +65,8 @@ namespace UnitTesting
 			Assert::AreEqual(tree.isContained(node3), true);
 			Assert::AreEqual(tree.isContained(node4), true);
 			Assert::AreEqual(node4->getChildList().at(0)->equals(*node3), true);
+
+			Assert::AreEqual(tree.isContained(node3), true);
 		}
 	};
 }

@@ -19,7 +19,9 @@ public:
 	void printTree();	//printout tree
 	vector<TNode* > findChild(TNode* parent);	//return all child of a node
 	TNode* findParent(TNode* child);	//return parent of a node
-	bool isContained(TNode* node); //return true if Node is inside Tree, false otherwise
+	bool isContained(TNode* node); //return true if tree contained a node with same value, type, lineNo, 
+									// then update pointer of node
+									//to add another method checking a tree contained a node (value, type, line, parent)
 };
 
 #endif

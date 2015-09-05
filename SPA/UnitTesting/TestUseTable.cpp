@@ -27,6 +27,9 @@ namespace UnitTesting
 			Assert::AreEqual(useTable.isContained(0), true);
 			Assert::AreEqual(useTable.isContained(1), false);
 
+			Assert::AreEqual(useTable.isUsed(0, "x"), true);
+			Assert::AreEqual(useTable.isUsed(0, "z"), false);
+			Assert::AreEqual(useTable.isUsed(1, "x"), false);
 		}
 	};
 }

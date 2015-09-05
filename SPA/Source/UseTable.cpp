@@ -64,3 +64,16 @@ bool UseTable::isContained(int lineNo) {
 	}
 	return false;
 }
+
+bool UseTable::isUsed(int line, string var) {
+	if (isContained(line) == false) {
+		return false;
+	}
+	vector <string> usedList = getUsed(line);
+	for (unsigned i = 0; i < usedList.size(); i++) {
+		if (usedList.at(i) == var) {
+			return true;
+		}
+	}
+	return false;
+}

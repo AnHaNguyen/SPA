@@ -64,3 +64,16 @@ bool ModifyTable::isContained(int lineNo) {
 	}
 	return false;
 }
+
+bool ModifyTable::isModified(int line, string var) {
+	if (isContained(line) == false) {
+		return false;
+	}
+	vector <string> modifiedList = getModified(line);
+	for (unsigned i = 0; i < modifiedList.size(); i++) {
+		if (modifiedList.at(i) == var) {
+			return true;
+		}
+	}
+	return false;
+}

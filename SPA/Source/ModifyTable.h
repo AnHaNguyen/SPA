@@ -24,6 +24,7 @@ public:
 	bool add(int lineNo, string var);
 	vector<int> getModifier(string var);		//return all modifier which modify a var
 	vector<string> getModified(int line);		//return all modified var of a line
+	bool isModified(int line, string var);		//check if a line modifies a var
 	//void printTable();
 	int size();
 	bool isContained(int lineNo);			//check if a line is contained in the table

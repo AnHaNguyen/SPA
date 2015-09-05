@@ -22,8 +22,9 @@ public:
 	UseTable();
 	~UseTable();
 	bool add(int lineNo, string var);
-	vector<int> getUser(string var);
-	vector<string> getUsed(int line);
+	vector<int> getUser(string var);		//get the list of line that uses var
+	vector<string> getUsed(int line);		//get the list of var used in a line
+	bool isUsed(int line, string var);			//check if line uses var
 	//void printTable();
 	int size();
 	bool isContained(int lineNo);
