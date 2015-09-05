@@ -5,6 +5,7 @@
 #include "QueryPreprocessor.h"
 
 string designEntity[] = {"assign","stmt","while","variable","constant","prog_line"};
+string keywords[] = { "such that", "pattern" };
 
 QueryPreprocessor::QueryPreprocessor(){
 }
@@ -12,110 +13,198 @@ QueryPreprocessor::QueryPreprocessor(){
 QueryPreprocessor::~QueryPreprocessor(){
 }
 
-QueryTree* QueryPreprocessor::startProcess(string input){
-    input = trim(input);
-    input = removeMultipleSpace(input);
-	//cout << input << endl;
+void QueryPreprocessor::start(string declare, string input) {
+	QueryTree* tree = startProcess(declare, input);
 
-    if(isValidDeclaration(input) && isValidSuchThat(input) &&
-       isValidPattern(input) && isValidSelection(input)){
+	// PQLEvaluator(tree);
 
-        setDeclarationTable(input);
-	//	cout << "-----declaration table----" << endl;
-	//	printTable(declarations);
+}
 
-        setSuchThatTable(input);
+QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
+	declare = trim(declare);
+	declare = removeMultipleSpace(declare);
+	input = trim(input);
+	input = removeMultipleSpace(input);
+
+
+	QueryTree* tree = new QueryTree();
+
+	if (isValidDeclaration(declare)) {
+		setDeclarationTable(declare);
+		//  cout << "-----declaration table----" << endl;
+		//  printTable(declarations);
+	}
+	else {
+		cout << "wrong declare" << endl;
+		tree->setValidity(false);
+		return tree;
+	}
+
+	if (isValidSelection(input)) {
+		setResultTable(input); 
+		//	cout << "-----selection table----" << endl;
+		//	printTable(selections);
+	}
+	else {
+		cout << "wrong select" << endl;
+		tree->setValidity(false); 
+		return tree;
+	}
+
+	setSuchThatTable(input);
 	//	cout << "-----suchThat table----" << endl;
 	//	printTable(relations);
 
-        setPatternTable(input);
+	setPatternTable(input);
 	//	cout << "-----pattern table----" << endl;
 	//	printTable(patterns);
 
-        setResultTable(input);
-	//	cout << "-----result table----" << endl;
-	//	printTable(selections);
 
-        QueryTree* tree =  new QueryTree();
-        tree->setSymbolTable(declarations);
-        tree->setPattern(patterns);
-        tree->setResult(selections);
-        tree->setSuchThat(relations);
+
+	if (isValidSuchThat() && isValidPattern()) {
+		tree->setSymbolTable(declarations);
+		tree->setPattern(patterns);
+		tree->setResult(selections);
+		tree->setSuchThat(relations);
 		return tree;
-    }
+	}
+
     else{
-        QueryTree* emptyTree =  new QueryTree();
-        emptyTree->setValidity(false);
-        return emptyTree;
+        tree->setValidity(false);
+        return tree;
     }
 }
 
-bool QueryPreprocessor::isValidDeclaration(string input){
-	
-    string str = input;
-    if(str.find(";")==string::npos && str.find("boolean")==string::npos){
-        return false;
-    }
+bool QueryPreprocessor::isValidDeclaration(string declare){
+	string str = declare;
+	if (str.find(";") == string::npos) {
+		return false;
+	}
 
-    vector<string> temp = stringToVector(str, ";");
-    if(temp.size()<2){
-        return false;
-    }
-
-    for(int i=0; i<temp.size()-1; i++){
-        temp[i] = trim(temp[i]);
-        int numWords = countWords(temp[i], " ");
-        if(numWords<2){
-            return false;
-        }
-        string firstWord = getFirstToken(temp[i]);
-        firstWord = trim(firstWord);
-        firstWord = toLowerCase(firstWord);
-        string remainWord = removeFirstToken(temp[i]);
-        remainWord = trim(remainWord);
-        if(!containWord(firstWord, designEntity, 6)){
-            return false;
-        }
-        if(remainWord.find(",")!=string::npos){
-            if(countWords(remainWord, ",")<2){
-                return false;
-            }
-            if(remainWord.at(remainWord.size()-1)==','){
-                return false;
-            }
-        }
-        else{
-            if(countWords(remainWord, " ")>1){
-                return false;
-            }
-        }
-    }
-    return true;
+	vector<string> temp = stringToVector(str, ";");
+	for (int i = 0; i<temp.size() - 1; i++) {
+		temp[i] = trim(temp[i]);
+		int numWords = countWords(temp[i], " ");
+		if (numWords<2) {
+			return false;
+		}
+		string firstWord = getFirstToken(temp[i]);
+		firstWord = trim(firstWord);
+		firstWord = toLowerCase(firstWord);
+		string remainWord = removeFirstToken(temp[i]);
+		remainWord = trim(remainWord);
+		if (!containWord(firstWord, designEntity, 6)) {
+			return false;
+		}
+		if (remainWord.find(",") != string::npos) {
+			if (countWords(remainWord, ",")<2) {
+				return false;
+			}
+			vector<string> aroundComma = stringToVector(remainWord, ",");
+			if (aroundComma[aroundComma.size() - 1] == "") {
+				return false;
+			}
+		}
+		else {
+			if (countWords(remainWord, " ")>1) {
+				return false;
+			}
+		}
+	}
+	if (temp[temp.size() - 1] != "") {
+		return false;
+	}
+	return true;
 }
-
 bool QueryPreprocessor::isValidSelection(string input){
-	//to be implemented.....
+	vector<string> extractSelect = extractContent(input, "select");
+	extractSelect[1] = trim(extractSelect[1]); 
+	if (extractSelect[1] == "") {
+		return false;
+	}
+
+	if (countWords(extractSelect[1], " ") > 1) {
+		return false;
+	}
+	return true;
+}
+bool QueryPreprocessor::isValidSuchThat(){
+	for (int i = 0; i < relations.size(); i++) {
+		string clause = relations[i];
+		if (clause.find("(") == string::npos || clause.find(")") == string::npos
+			|| clause.find(",") == string::npos) {
+			cout << "wrong such that" << endl;
+			return false; 
+		}
+	}
+	return true;
+}
+bool QueryPreprocessor::isValidPattern(){
+	for (int i = 0; i < patterns.size(); i++) {
+		string clause = patterns[i];
+		if (clause.find("(") == string::npos || clause.find(")") == string::npos
+			|| clause.find(",") == string::npos) {
+			cout << "wrong pattern" << endl;
+			return false;
+		}
+	}
 	return true;
 }
 
-bool QueryPreprocessor::isValidSuchThat(string input){
-	//to be implemented.....
-	return true;
-
+int QueryPreprocessor::identifyKeyword(string str) {
+	int minIndex = 999999;
+	for (int i = 0; i<sizeof(keywords) / sizeof(string); i++) {
+		if (str.find(keywords[i]) != string::npos) {
+			if (minIndex>str.find(keywords[i])) {
+				minIndex = str.find(keywords[i]);
+			}
+		}
+	}
+	return minIndex;
 }
 
-bool QueryPreprocessor::isValidPattern(string input){
-	//to be implemented.....
-	return true;
+//vector:  [clause][content][remain]
+vector<string> QueryPreprocessor::extractContent(string str, string clause) {
+	int keywordStart;
+	int keywordEnd;
+	int nextWordStart;
+	string nextWord;
+	string content;
+	string remain;
+	vector<string> separation;
 
+	if (str.find(clause) == string::npos) {
+		separation.push_back("");
+		separation.push_back("");
+		separation.push_back("");
+		return separation;
+	}
+
+	separation.push_back(clause);
+	keywordStart = str.find(clause);
+	keywordEnd = keywordStart + clause.size() - 1;
+	string removeKeyword = str.substr(keywordEnd + 1);
+
+	if (identifyKeyword(removeKeyword) == 999999) {
+		separation.push_back(removeKeyword);
+		separation.push_back("");
+		return separation;
+	}
+
+	nextWordStart = identifyKeyword(removeKeyword);
+	content = removeKeyword.substr(0, nextWordStart);
+	remain = removeKeyword.substr(nextWordStart);
+	separation.push_back(content);
+	separation.push_back(remain);
+
+	return separation;
 }
 
+void QueryPreprocessor::setDeclarationTable(string declare){
 
-void QueryPreprocessor::setDeclarationTable(string input){
 
-
-    string str = removeMultipleSpace(input);
-    str = toLowerCase(str);
+    string str = removeMultipleSpace(declare);
+    //str = toLowerCase(str);
 
     declarations = stringToVector(str, ";");
 	
@@ -129,55 +218,42 @@ void QueryPreprocessor::setDeclarationTable(string input){
 void QueryPreprocessor::setSuchThatTable(string input){
 
     string str = removeMultipleSpace(input);
-    str = toLowerCase(str);
+   // str = toLowerCase(str);
 
-    string result;
-    if(str.find("such that ")!=string::npos){
-        vector<string> words = stringToVector(str, "such that ");
-        string stringAfterThat = words[1];
-        vector<string> wordsAfterThat = stringToVector(stringAfterThat, ")");
-        result = wordsAfterThat[0] + ")";
-		result = trim(result);
-		relations.push_back(result);
+	vector <string> extractSuchThat = extractContent(str, "such that");
+
+	string content = extractSuchThat[1];
+    if(content!=""){
+		content = trim(content);
+		relations.push_back(content);
     }
 }
 
 void QueryPreprocessor::setPatternTable(string input){
 
-    string str = removeMultipleSpace(input);
-    str = toLowerCase(str);
+	string str = removeMultipleSpace(input);
+	// str = toLowerCase(str);
 
-    string result;
-    if(str.find("pattern ")!=string::npos){
-        vector<string> words = stringToVector(str, "pattern ");
-        string stringAfterPattern = words[1];
-        vector<string> wordsAfterPattern = stringToVector(stringAfterPattern, ")");
-        result = wordsAfterPattern[0] + ")";
-		result = trim(result);
-		patterns.push_back(result);
-    }
+	vector <string> extractPattern = extractContent(str, "pattern");
+
+	string content = extractPattern[1];
+	if (content != "") {
+		content = trim(content);
+		patterns.push_back(content);
+	}
 }
 
 void QueryPreprocessor::setResultTable(string input){
 
-    string str = removeMultipleSpace(input);
-    str = toLowerCase(str);
+	string str = removeMultipleSpace(input);
+	// str = toLowerCase(str);
 
-    string result;
-    if(str.find("select")!=string::npos){
-        vector<string> words = stringToVector(str, "select ");
-        string stringAfterSelect = words[1];
-        vector<string> wordsAfterSelect = stringToVector(stringAfterSelect, " ");
-        result = wordsAfterSelect[0];
-    }
-    else{
-        result = "";
-    }
-    result = trim(result);
-    selections.push_back(result);
+	vector <string> extractSuchThat = extractContent(str, "select");
+
+	string content = extractSuchThat[1];
+	content = trim(content);
+	selections.push_back(content);
 }
-
-
 
 vector<string> QueryPreprocessor::stringToVector(string original, string delimiter){
 
@@ -226,11 +302,14 @@ string QueryPreprocessor::trim(string str){
 string QueryPreprocessor::removeMultipleSpace(string str){
 
     string result = "";
-    for(int i=0; i<str.size(); i++){
+    for(int i=0; i<str.size()-1; i++){
         if(!(str.at(i)==' ' && str.at(i+1)==' ')){
             result = result + str.at(i);
         }
     }
+	if (str.at(str.size() - 1) != ' ') {
+		result = result + str.at(str.size() - 1);
+	}
     return result;
 }
 
