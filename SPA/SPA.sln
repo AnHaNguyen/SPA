@@ -5,7 +5,20 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SPA", "SPA\SPA.vcxproj", "{95F919A7-DE06-41F8-850A-E3936A3B62D5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTesting", "UnitTesting\UnitTesting.vcxproj", "{73C541C6-9DEE-4968-A53E-0AEDE2A9A486}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoTester", "AutoTester\AutoTester.vcxproj", "{20A7FBF3-D972-4220-A6AA-960484999FBB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81} = {DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTesting", "UnitTesting\UnitTesting.vcxproj", "{74CA3A41-F84C-4C47-B882-5EBF60895525}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81} = {DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IntegrationTesting", "IntegrationTesting\IntegrationTesting.vcxproj", "{09AD1D74-2D3C-42AE-B4E0-52A792A27E60}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81} = {DC21A1EA-D2C6-4D14-A2B4-E025B64BDE81}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
