@@ -100,10 +100,10 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ast->makeChild(curParent, leftVar);
 	ast->addToTree(leftVar);
 
-	processRightSideAssign(rightSide, lineNumber);
+	processRightSideAssign(curParent, rightSide, lineNumber);
 }
 
-void DesignExtractor::processRightSideAssign(string rightSide, int lineNumber){
+void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide, int lineNumber){
 	vector<int> plusList;
 
 	// Find the position of each plus sign
@@ -113,29 +113,31 @@ void DesignExtractor::processRightSideAssign(string rightSide, int lineNumber){
 		if(posOfPlus != string::npos){
 			plusList.push_back(posOfPlus);
 		} else {
+			// Fake plus sign
+			plusList.push_back(rightSide.length());
 			break;
 		}
 	}
-
 	
-	if(plusList.size() > 1){
-		string leftVar = rightSide.substr(0, plusList.at(0));
-		TNode* leftVarNode = new TNode(leftVar, VARIABLE, lineNumber);
+
+	// Create subtree of assignment
+	string leftVar = rightSide.substr(0, plusList.at(0) - 1);
+	TNode* leftVarNode = new TNode(leftVar, VARIABLE, lineNumber);
+	ast->addToTree(leftVarNode);
+
+	for(unsigned i = 0; i < plusList.size() - 1; i++){
+		string rightVar = rightSide.substr(plusList.at(i) + 1, plusList.at(i+1) - 1);	
+		TNode* rightVarNode = new TNode(rightVar, VARIABLE, lineNumber);
+		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
+
+		ast->addToTree(rightVarNode);
+		ast->makeChild(plusNode, rightVarNode);
+		ast->makeChild(plusNode, leftVarNode);
+
+		leftVarNode = plusNode;
 		ast->addToTree(leftVarNode);
-
-		for(unsigned i = 0; i < plusList.size(); i++){
-			string rightVar = rightSide.substr(plusList.at(i), plusList.at(i+1));	
-			TNode* rightVarNode = new TNode(rightVar, VARIABLE, lineNumber);
-			TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
-
-			ast->addToTree(rightVarNode);
-			ast->addToTree(plusNode);
-			ast->makeChild(plusNode, rightVarNode);
-			ast->makeChild(plusNode, leftVarNode);
-
-			leftVarNode = plusNode;
-		}
-	} else {
-
 	}
+
+	// Stick subtree to main tree
+	ast->makeChild(curParent, leftVarNode);
 }

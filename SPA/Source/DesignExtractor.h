@@ -37,7 +37,7 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
-	void processRightSideAssign(string rightSide, int lineNumber);
+	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
 
 public:
 	DesignExtractor();
