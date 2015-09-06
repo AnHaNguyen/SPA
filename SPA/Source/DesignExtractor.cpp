@@ -159,22 +159,46 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 	ast->makeChild(curParent, leftVarNode);
 }
 
+//-------------------Create Follow Table-------------------//
 void DesignExtractor::processFollowRelationship(){
-
-
 	for(unsigned i = 1; i <= stmtLstNumber; i++){
 		string value = convertStmtLstNumber(i);
 		TNode* parent = new TNode(value, STMTLST, 0);
 
 		vector<TNode*> childLst = ast->findChild(parent);
-		for(unsigned j = 0; j < childLst.size(); j++){
+		for(unsigned j = 0; j < childLst.size() - 1; j++){
+			TNode* preChild = childLst.at(j);
+			TNode* nextChild = childLst.at(j + 1);
 
+			int prev = preChild->getLine();
+			int next = nextChild->getLine();
+
+			followTable->addToTable(prev, next);
 		}
 	}
 }
 
+//--------------------Create Parent Table---------------------//
 void DesignExtractor::processParentRelationship(){
+	for(unsigned i = 1; i <= stmtLstNumber; i++) {
+		string value = convertStmtLstNumber(i);
+		TNode* stmtLst = new TNode(value, STMTLST, 0);
 
+		TNode* parStmtLst = ast->findParent(stmtLst);
+		string typeOfPar = parStmtLst->getType();
+		int parLine = parStmtLst->getLine();
+
+		if(typeOfPar.compare(WHILE)){
+			vector<TNode*> childStmtLst = ast->findChild(stmtLst);
+
+			for(unsigned j = 0; j < childStmtLst.size(); j++){
+				TNode* child = childStmtLst.at(j);
+				int childLine = child->getLine();
+
+				parentTable->addToTable(parLine, childLine);
+			}
+		}
+	}
 }
 
 string DesignExtractor::convertStmtLstNumber(int stmtLstNumber){
