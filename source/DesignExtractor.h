@@ -45,8 +45,8 @@ private:
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
 	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
-	void processFollowRelationship(AST* ast);
-	void processParentRelationship(AST* ast);
+	FollowTable* processFollowRelationship(AST* ast);
+	ParentTable* processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
 
