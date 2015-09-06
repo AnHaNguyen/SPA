@@ -13,9 +13,13 @@ Parser::Parser()
 {
 }
 
-bool Parser::parseInput(string fName) {
+bool Parser::parseInput(std::string fName) {
 	result(fName);
 	return true;
+}
+
+bool Parser::checkEmptyLine(std::string line) {
+
 }
 
 bool Parser::checkNextLine(char nextLine) {
@@ -28,7 +32,7 @@ void Parser::error() {
 	exit(1);
 }
 
-vector<string> Parser::result(string fName) {
+vector<string> Parser::result(std::string fName) {
 	std::ifstream file(fName);
 	std::string str;
 	vector<string> stringList;
