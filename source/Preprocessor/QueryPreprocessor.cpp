@@ -5,6 +5,8 @@
 #include "QueryPreprocessor.h"
 //#include "QueryHandler.h"
 
+using namespace std;
+
 string designEntity[] = {"assign","stmt","while","variable","constant","prog_line"};
 string keywords[] = { "such that", "pattern" };
 
