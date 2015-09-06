@@ -77,3 +77,7 @@ bool ModifyTable::isModified(int line, string var) {
 	}
 	return false;
 }
+
+vector<ModifyEntry_t> ModifyTable::getTable() {
+	return modifyTable;
+}

@@ -77,3 +77,7 @@ bool UseTable::isUsed(int line, string var) {
 	}
 	return false;
 }
+
+vector<UseEntry_t> UseTable::getTable() {
+	return useTable;
+}

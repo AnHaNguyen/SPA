@@ -28,5 +28,6 @@ public:
 	//void printTable();
 	int size();
 	bool isContained(int lineNo);
+	vector<UseEntry_t> getTable();
 };
 #endif
