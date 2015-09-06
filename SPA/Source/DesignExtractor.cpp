@@ -9,17 +9,6 @@
 
 using namespace std;
 
-/*int main(){
-	vector<string> input;
-	input.at(0) = "procedure First";
-	cout << "input = " << input.at(0) << endl;
-
-	DesignExtractor obj;
-	obj.checkStmType(input);
-
-	system("PAUSE");
-}*/
-
 DesignExtractor::DesignExtractor(){}
 
 DesignExtractor::DesignExtractor(AST* a){
@@ -136,7 +125,6 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 			break;
 		}
 	}
-	
 
 	// Create subtree of assignment
 	string leftVar = rightSide.substr(0, plusList.at(0) - 1);
