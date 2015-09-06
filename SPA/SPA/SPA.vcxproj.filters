@@ -60,6 +60,9 @@
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AST.cpp">
@@ -92,7 +95,6 @@
     <ClCompile Include="..\Source\CFG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -106,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
