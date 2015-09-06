@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int main(){
+/*int main(){
 	vector<string> input;
 	input.at(0) = "procedure First";
 	cout << "input = " << input.at(0) << endl;
@@ -18,7 +18,7 @@ int main(){
 	obj.checkStmType(input);
 
 	system("PAUSE");
-}
+}*/
 
 DesignExtractor::DesignExtractor(){}
 
@@ -29,7 +29,13 @@ DesignExtractor::DesignExtractor(AST* a){
 }
 
 //-------------------------AST-------------------------//
-void DesignExtractor::checkStmType(vector<string> input){
+AST* DesignExtractor::buildAST(vector<string> input){
+	processAST(input);
+
+	return ast;
+}
+
+void DesignExtractor::processAST(vector<string> input){
 	for(unsigned i = 0; i < input.size(); i++){
 		string curLine = input.at(lineNumber);
 		cout << "input = " << curLine <<endl;
@@ -159,8 +165,10 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 	ast->makeChild(curParent, leftVarNode);
 }
 
-//-------------------Create Follow Table-------------------//
-void DesignExtractor::processFollowRelationship(){
+//-------------------Create Follow Table---------------------//
+FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
+	FollowTable* followTable;
+
 	for(unsigned i = 1; i <= stmtLstNumber; i++){
 		string value = convertStmtLstNumber(i);
 		TNode* parent = new TNode(value, STMTLST, 0);
@@ -176,10 +184,14 @@ void DesignExtractor::processFollowRelationship(){
 			followTable->addToTable(prev, next);
 		}
 	}
+
+	return followTable;
 }
 
-//--------------------Create Parent Table---------------------//
-void DesignExtractor::processParentRelationship(){
+//--------------------Create Parent Table-------------------//
+ParentTable* DesignExtractor::processParentRelationship(AST* ast){
+	ParentTable* parentTable;
+
 	for(unsigned i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
 		TNode* stmtLst = new TNode(value, STMTLST, 0);
@@ -199,8 +211,20 @@ void DesignExtractor::processParentRelationship(){
 			}
 		}
 	}
+
+	return parentTable;
 }
 
+// Getter
+FollowTable* getFollowTable(AST* ast){
+	return processFollowRelationship(ast);
+}
+
+ParentTable* getParentTable(AST* ast){
+	return processParentRelationship(ast);
+}
+
+// Smaller modules
 string DesignExtractor::convertStmtLstNumber(int stmtLstNumber){
 	stmtLstNumber++;
 	ostringstream osstream;

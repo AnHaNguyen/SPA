@@ -28,6 +28,7 @@ const string OPEN_BRACKET = "{";
 const string CLOSE_BRACKET = "}";
 const string SEMICOLON = ";";
 const string EQUAL = "=";
+
 const string PLUS = "+";
 const string PLUS_TEXT = "plus";
 
