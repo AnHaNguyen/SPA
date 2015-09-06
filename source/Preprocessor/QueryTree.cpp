@@ -202,8 +202,8 @@ bool QueryTree::isInSymbolTable(vector< vector<string> > table, string str) {
 }
 
 bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second) {
-	string firstType = toLowerCase(getSynType(symbolTable, first)); 
-	string secondType = toLowerCase(getSynType(symbolTable, second));
+	string firstType = getSynType(symbolTable, first);
+	string secondType = getSynType(symbolTable, second);
 
 	if (!containWord(syn, relations, 6)) {
 		return false;
@@ -361,6 +361,13 @@ bool QueryTree::isValidEntRef(vector< vector<string> > table, string str) {
 bool QueryTree::isValidExpressionSpec(string str) {
 	if (str == "_") {
 		return true;
+	}
+
+	if (str.at(0)=='\"' && str.at(str.size()-1)=='\"') {
+		string insideQuotes = str.substr(1, str.size() - 2);
+		if (insideQuotes.find("_") == string::npos) {
+			return true;
+		}
 	}
 
 	if (str.size() <= 4) {
