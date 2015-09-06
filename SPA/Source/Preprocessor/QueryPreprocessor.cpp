@@ -3,6 +3,7 @@
 #include <iostream>
 #include "QueryTree.h"
 #include "QueryPreprocessor.h"
+//#include "QueryHandler.h"
 
 string designEntity[] = {"assign","stmt","while","variable","constant","prog_line"};
 string keywords[] = { "such that", "pattern" };
@@ -13,10 +14,18 @@ QueryPreprocessor::QueryPreprocessor(){
 QueryPreprocessor::~QueryPreprocessor(){
 }
 
-void QueryPreprocessor::start(string declare, string input) {
+void QueryPreprocessor::start(string line) {
+
+	string declare = "", input = "";
+	if (line.find("Select") != string::npos) {
+		vector<string> seperate = stringToVector(line, "Select");
+		declare = trim(seperate[0]);
+		input = trim(seperate[1]);
+	}
 	QueryTree* tree = startProcess(declare, input);
 
-	// PQLEvaluator(tree);
+	//QueryHandler handler;
+	//handler.queryRec(tree);
 
 }
 
@@ -90,7 +99,6 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 		}
 		string firstWord = getFirstToken(temp[i]);
 		firstWord = trim(firstWord);
-		firstWord = toLowerCase(firstWord);
 		string remainWord = removeFirstToken(temp[i]);
 		remainWord = trim(remainWord);
 		if (!containWord(firstWord, designEntity, 6)) {
@@ -202,9 +210,7 @@ vector<string> QueryPreprocessor::extractContent(string str, string clause) {
 
 void QueryPreprocessor::setDeclarationTable(string declare){
 
-
     string str = removeMultipleSpace(declare);
-    //str = toLowerCase(str);
 
     declarations = stringToVector(str, ";");
 	
@@ -218,7 +224,6 @@ void QueryPreprocessor::setDeclarationTable(string declare){
 void QueryPreprocessor::setSuchThatTable(string input){
 
     string str = removeMultipleSpace(input);
-   // str = toLowerCase(str);
 
 	vector <string> extractSuchThat = extractContent(str, "such that");
 
@@ -232,7 +237,6 @@ void QueryPreprocessor::setSuchThatTable(string input){
 void QueryPreprocessor::setPatternTable(string input){
 
 	string str = removeMultipleSpace(input);
-	// str = toLowerCase(str);
 
 	vector <string> extractPattern = extractContent(str, "pattern");
 
@@ -246,7 +250,6 @@ void QueryPreprocessor::setPatternTable(string input){
 void QueryPreprocessor::setResultTable(string input){
 
 	string str = removeMultipleSpace(input);
-	// str = toLowerCase(str);
 
 	vector <string> extractSuchThat = extractContent(str, "select");
 

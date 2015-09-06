@@ -21,7 +21,7 @@ public:
     void setPatternTable(string str);
 	void setResultTable(string str);
 
-	void start(string declare, string input);
+	void start(string line);
     QueryTree* startProcess(string declare, string input);
     bool isValidDeclaration(string str);
 	bool isValidSelection(string str);
@@ -41,8 +41,6 @@ public:
 	string removeFirstToken(string str);
 
 	void printTable(vector<string> table);
-
-
 };
 
 
