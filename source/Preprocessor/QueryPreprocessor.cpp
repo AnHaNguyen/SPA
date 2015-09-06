@@ -20,7 +20,7 @@ void QueryPreprocessor::start(string line) {
 	if (line.find("Select") != string::npos) {
 		vector<string> seperate = stringToVector(line, "Select");
 		declare = trim(seperate[0]);
-		input = trim(seperate[1]);
+		input = trim("Select" + seperate[1]);
 	}
 	QueryTree* tree = startProcess(declare, input);
 
