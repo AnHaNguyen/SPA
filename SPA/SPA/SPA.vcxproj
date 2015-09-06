@@ -161,6 +161,7 @@
     <ClInclude Include="..\Source\UseTable.h" />
     <ClInclude Include="..\Source\Utility.h" />
     <ClInclude Include="..\Source\VarTable.h" />
+    <ClInclude Include="Parser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AST.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="..\Source\UseTable.cpp" />
     <ClCompile Include="..\Source\Utility.cpp" />
     <ClCompile Include="..\Source\VarTable.cpp" />
+    <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
