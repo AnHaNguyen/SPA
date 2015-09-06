@@ -62,3 +62,7 @@ bool ParentTable::isContained(int line) {
 	}
 	return false;
 }
+
+vector<ParentEntry_t> ParentTable::getTable() {
+	return parentTable;
+}

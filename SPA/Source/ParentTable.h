@@ -23,6 +23,7 @@ public:	ParentTable();
 		int getParent(int child);			//get Parent, return -1 if not found
 		int size();
 		bool isContained(int lineNo);
+		vector<ParentEntry_t> getTable();
 };
 
 #endif

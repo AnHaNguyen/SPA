@@ -47,3 +47,7 @@ bool FollowTable::isContained(int prev) {
 	}
 	return false;
 }
+
+vector<FollowEntry_t> FollowTable::getTable() {
+	return followTable;
+}

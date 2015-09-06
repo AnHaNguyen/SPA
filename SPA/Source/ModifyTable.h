@@ -21,6 +21,7 @@ private: vector<ModifyEntry_t> modifyTable;
 public: 
 	ModifyTable();
 	~ModifyTable();
+	vector<ModifyEntry_t> getTable();			//return whole table
 	bool add(int lineNo, string var);
 	vector<int> getModifier(string var);		//return all modifier which modify a var
 	vector<string> getModified(int line);		//return all modified var of a line
