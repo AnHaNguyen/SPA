@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <PKB.h>
 
 #include "../QueryProcessor/QueryHandler.h"
 #include "../Preprocessor/QueryTree.h"
@@ -57,12 +58,12 @@ vector<int> QueryHandler::handleSuchThat(QueryTree * query, PreSuchThatNode * &s
 
 		//Handle follows
 		if (syn == "follows") {
-			FollowTable folTab = FollowTable();
 			if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 				if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
-					vector<FollowEntry_t> folVec = folTab.getTable();
+					vector<FollowEntry_t> folVec = PKB::getFollowTable();
 				}
 				if (isInt(secondAtt)) {
+					ansVec.push_back(folVec->getPrev(stoi(secondAtt));
 
 				}
 			}
