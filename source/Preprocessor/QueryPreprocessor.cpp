@@ -1,0 +1,359 @@
+#include <string>
+#include <algorithm>
+#include <iostream>
+#include "QueryTree.h"
+#include "QueryPreprocessor.h"
+
+string designEntity[] = {"assign","stmt","while","variable","constant","prog_line"};
+string keywords[] = { "such that", "pattern" };
+
+QueryPreprocessor::QueryPreprocessor(){
+}
+
+QueryPreprocessor::~QueryPreprocessor(){
+}
+
+void QueryPreprocessor::start(string declare, string input) {
+	QueryTree* tree = startProcess(declare, input);
+
+	// PQLEvaluator(tree);
+
+}
+
+QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
+	declare = trim(declare);
+	declare = removeMultipleSpace(declare);
+	input = trim(input);
+	input = removeMultipleSpace(input);
+
+
+	QueryTree* tree = new QueryTree();
+
+	if (isValidDeclaration(declare)) {
+		setDeclarationTable(declare);
+		//  cout << "-----declaration table----" << endl;
+		//  printTable(declarations);
+	}
+	else {
+		cout << "wrong declare" << endl;
+		tree->setValidity(false);
+		return tree;
+	}
+
+	if (isValidSelection(input)) {
+		setResultTable(input); 
+		//	cout << "-----selection table----" << endl;
+		//	printTable(selections);
+	}
+	else {
+		cout << "wrong select" << endl;
+		tree->setValidity(false); 
+		return tree;
+	}
+
+	setSuchThatTable(input);
+	//	cout << "-----suchThat table----" << endl;
+	//	printTable(relations);
+
+	setPatternTable(input);
+	//	cout << "-----pattern table----" << endl;
+	//	printTable(patterns);
+
+
+
+	if (isValidSuchThat() && isValidPattern()) {
+		tree->setSymbolTable(declarations);
+		tree->setPattern(patterns);
+		tree->setResult(selections);
+		tree->setSuchThat(relations);
+		return tree;
+	}
+
+    else{
+        tree->setValidity(false);
+        return tree;
+    }
+}
+
+bool QueryPreprocessor::isValidDeclaration(string declare){
+	string str = declare;
+	if (str.find(";") == string::npos) {
+		return false;
+	}
+
+	vector<string> temp = stringToVector(str, ";");
+	for (int i = 0; i<temp.size() - 1; i++) {
+		temp[i] = trim(temp[i]);
+		int numWords = countWords(temp[i], " ");
+		if (numWords<2) {
+			return false;
+		}
+		string firstWord = getFirstToken(temp[i]);
+		firstWord = trim(firstWord);
+		firstWord = toLowerCase(firstWord);
+		string remainWord = removeFirstToken(temp[i]);
+		remainWord = trim(remainWord);
+		if (!containWord(firstWord, designEntity, 6)) {
+			return false;
+		}
+		if (remainWord.find(",") != string::npos) {
+			if (countWords(remainWord, ",")<2) {
+				return false;
+			}
+			vector<string> aroundComma = stringToVector(remainWord, ",");
+			if (aroundComma[aroundComma.size() - 1] == "") {
+				return false;
+			}
+		}
+		else {
+			if (countWords(remainWord, " ")>1) {
+				return false;
+			}
+		}
+	}
+	if (temp[temp.size() - 1] != "") {
+		return false;
+	}
+	return true;
+}
+bool QueryPreprocessor::isValidSelection(string input){
+	vector<string> extractSelect = extractContent(input, "select");
+	extractSelect[1] = trim(extractSelect[1]); 
+	if (extractSelect[1] == "") {
+		return false;
+	}
+
+	if (countWords(extractSelect[1], " ") > 1) {
+		return false;
+	}
+	return true;
+}
+bool QueryPreprocessor::isValidSuchThat(){
+	for (int i = 0; i < relations.size(); i++) {
+		string clause = relations[i];
+		if (clause.find("(") == string::npos || clause.find(")") == string::npos
+			|| clause.find(",") == string::npos) {
+			cout << "wrong such that" << endl;
+			return false; 
+		}
+	}
+	return true;
+}
+bool QueryPreprocessor::isValidPattern(){
+	for (int i = 0; i < patterns.size(); i++) {
+		string clause = patterns[i];
+		if (clause.find("(") == string::npos || clause.find(")") == string::npos
+			|| clause.find(",") == string::npos) {
+			cout << "wrong pattern" << endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+int QueryPreprocessor::identifyKeyword(string str) {
+	int minIndex = 999999;
+	for (int i = 0; i<sizeof(keywords) / sizeof(string); i++) {
+		if (str.find(keywords[i]) != string::npos) {
+			if (minIndex>str.find(keywords[i])) {
+				minIndex = str.find(keywords[i]);
+			}
+		}
+	}
+	return minIndex;
+}
+
+//vector:  [clause][content][remain]
+vector<string> QueryPreprocessor::extractContent(string str, string clause) {
+	int keywordStart;
+	int keywordEnd;
+	int nextWordStart;
+	string nextWord;
+	string content;
+	string remain;
+	vector<string> separation;
+
+	if (str.find(clause) == string::npos) {
+		separation.push_back("");
+		separation.push_back("");
+		separation.push_back("");
+		return separation;
+	}
+
+	separation.push_back(clause);
+	keywordStart = str.find(clause);
+	keywordEnd = keywordStart + clause.size() - 1;
+	string removeKeyword = str.substr(keywordEnd + 1);
+
+	if (identifyKeyword(removeKeyword) == 999999) {
+		separation.push_back(removeKeyword);
+		separation.push_back("");
+		return separation;
+	}
+
+	nextWordStart = identifyKeyword(removeKeyword);
+	content = removeKeyword.substr(0, nextWordStart);
+	remain = removeKeyword.substr(nextWordStart);
+	separation.push_back(content);
+	separation.push_back(remain);
+
+	return separation;
+}
+
+void QueryPreprocessor::setDeclarationTable(string declare){
+
+
+    string str = removeMultipleSpace(declare);
+    //str = toLowerCase(str);
+
+    declarations = stringToVector(str, ";");
+	
+	for (int i = 0; i < declarations.size(); i++) {
+		declarations[i] = trim(declarations[i]);
+	}
+
+    declarations.pop_back();
+}
+
+void QueryPreprocessor::setSuchThatTable(string input){
+
+    string str = removeMultipleSpace(input);
+   // str = toLowerCase(str);
+
+	vector <string> extractSuchThat = extractContent(str, "such that");
+
+	string content = extractSuchThat[1];
+    if(content!=""){
+		content = trim(content);
+		relations.push_back(content);
+    }
+}
+
+void QueryPreprocessor::setPatternTable(string input){
+
+	string str = removeMultipleSpace(input);
+	// str = toLowerCase(str);
+
+	vector <string> extractPattern = extractContent(str, "pattern");
+
+	string content = extractPattern[1];
+	if (content != "") {
+		content = trim(content);
+		patterns.push_back(content);
+	}
+}
+
+void QueryPreprocessor::setResultTable(string input){
+
+	string str = removeMultipleSpace(input);
+	// str = toLowerCase(str);
+
+	vector <string> extractSuchThat = extractContent(str, "select");
+
+	string content = extractSuchThat[1];
+	content = trim(content);
+	selections.push_back(content);
+}
+
+vector<string> QueryPreprocessor::stringToVector(string original, string delimiter){
+
+    string s = original;
+    vector<string> words;
+
+    int position = 0;
+    string token;
+    while ((position = s.find(delimiter)) != string::npos) {
+        token = s.substr(0, position);
+        words.push_back(token);
+        s.erase(0, position + delimiter.length());
+    }
+    words.push_back(s);
+    return words;
+}
+
+string QueryPreprocessor::toLowerCase(string str){
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+}
+
+int QueryPreprocessor::countWords(string str, string delimiter){
+    vector<string> words = stringToVector(str,delimiter);
+    return words.size();
+}
+
+string QueryPreprocessor::trim(string str){
+    if (str==""){
+        return str;
+    }
+
+	int i=0;
+	int j=0;
+	for (i=0;i<str.size();i++){
+		if (str[i]!=' ')
+			break;
+	}
+	for (j=str.size()-1;j>=i;j--){
+		if (str[j]!=' ')
+			break;
+	}
+	return str.substr(i,j-i+1);
+}
+
+string QueryPreprocessor::removeMultipleSpace(string str){
+
+    string result = "";
+    for(int i=0; i<str.size()-1; i++){
+        if(!(str.at(i)==' ' && str.at(i+1)==' ')){
+            result = result + str.at(i);
+        }
+    }
+	if (str.at(str.size() - 1) != ' ') {
+		result = result + str.at(str.size() - 1);
+	}
+    return result;
+}
+
+string QueryPreprocessor::getFirstToken(string str){
+    string result = "";
+    for(int i=0; i<str.size(); i++){
+        if(str.at(i) != ' ')
+            result = result + str.at(i);
+        else
+            break;
+    }
+    return result;
+}
+
+string QueryPreprocessor::removeFirstToken(string str){
+    str = trim(str);
+    string result = "";
+    int index=0;
+
+    for(int i=0; i<str.size(); i++){
+        if(str.at(i) == ' '){
+           index=i;
+           break;
+        }
+    }
+
+    for(int j=index+1; j<str.size(); j++){
+        result = result + str.at(j);
+    }
+
+    return result;
+}
+
+bool QueryPreprocessor::containWord(string str, string arr[], int size){
+    for(int i=0; i<size; i++){
+        if(arr[i]==str){
+            return true;
+        }
+    }
+    return false;
+}
+
+void QueryPreprocessor::printTable(vector<string> table) {
+	for (int i = 0; i<table.size(); i++) {
+		cout << table[i] << endl;
+	}
+}
