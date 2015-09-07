@@ -209,7 +209,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return false;
 	}
 
-	if (syn == "modifies") {
+	if (syn == "Modifies") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
@@ -229,7 +229,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
-	if (syn == "uses") {
+	if (syn == "Uses") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
@@ -247,7 +247,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
-	if (syn == "parent" || syn == "parent*") {
+	if (syn == "Parent" || syn == "Parent*") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;
 		if (first != "_" && !isInteger(first)) {
@@ -261,7 +261,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
-	if (syn == "follows" || syn == "follows*") {
+	if (syn == "Follows" || syn == "Follows*") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;		
 		if (first != "_" && !isInteger(first)) {
