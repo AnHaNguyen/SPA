@@ -153,6 +153,8 @@
     <ClInclude Include="..\Source\GNode.h" />
     <ClInclude Include="..\Source\ModifyTable.h" />
     <ClInclude Include="..\Source\ParentTable.h" />
+    <ClInclude Include="..\source\Parser.h" />
+    <ClInclude Include="..\source\PKB.h" />
     <ClInclude Include="..\Source\Preprocessor\PrePatternNode.h" />
     <ClInclude Include="..\Source\Preprocessor\PreResultNode.h" />
     <ClInclude Include="..\Source\Preprocessor\PreSuchThatNode.h" />
@@ -174,6 +176,8 @@
     <ClCompile Include="..\Source\GNode.cpp" />
     <ClCompile Include="..\Source\ModifyTable.cpp" />
     <ClCompile Include="..\Source\ParentTable.cpp" />
+    <ClCompile Include="..\source\Parser.cpp" />
+    <ClCompile Include="..\source\PKB.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PreResultNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PreSuchThatNode.cpp" />
