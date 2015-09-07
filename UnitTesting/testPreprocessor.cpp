@@ -18,7 +18,7 @@ namespace TestPreprocessor
 		{
 			QueryPreprocessor pro0;
 			string declare0 = "assign a1, a2;";
-			string input0 = "select a1";
+			string input0 = "Select a1";
 			QueryTree* tree0 = pro0.startProcess(declare0, input0);
 
 			Assert::AreEqual(tree0->getResult()->getResult(), (string)"a1");

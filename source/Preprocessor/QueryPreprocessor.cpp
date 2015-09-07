@@ -127,7 +127,7 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 	return true;
 }
 bool QueryPreprocessor::isValidSelection(string input){
-	vector<string> extractSelect = extractContent(input, "select");
+	vector<string> extractSelect = extractContent(input, "Select");
 	extractSelect[1] = trim(extractSelect[1]); 
 	if (extractSelect[1] == "") {
 		return false;
@@ -253,7 +253,7 @@ void QueryPreprocessor::setResultTable(string input){
 
 	string str = removeMultipleSpace(input);
 
-	vector <string> extractSuchThat = extractContent(str, "select");
+	vector <string> extractSuchThat = extractContent(str, "Select");
 
 	string content = extractSuchThat[1];
 	content = trim(content);

@@ -2,7 +2,7 @@
 #include<algorithm>
 #include<iostream>
 
-string relations[] = { "follows","follows*","parent","parent*","modifies","uses" };
+string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses" };
 
 QueryTree::QueryTree(){
 
