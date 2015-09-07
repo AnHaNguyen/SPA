@@ -17,13 +17,7 @@ bool ModifyTable::add(int lineNo, string var) {
 	}
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
 		if (modifyTable.at(i).lineNo == lineNo) {
-			for (unsigned j = 0; j < modifyTable.at(i).modifiedVar.size(); j++) {
-				if (modifyTable.at(i).modifiedVar.at(j) == var) {
-					return false;
-				}
-			}
-			modifyTable.at(i).modifiedVar.push_back(var);
-			break;
+			return false;
 		}
 	}
 	return true;
@@ -36,24 +30,22 @@ int ModifyTable::size() {
 vector<int> ModifyTable::getModifier(string var) {
 	vector<int> returnList;
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
-		for (unsigned j = 0; j < modifyTable.at(i).modifiedVar.size(); j++) {
-			if (modifyTable.at(i).modifiedVar.at(j) == var) {
-				returnList.push_back(modifyTable.at(i).lineNo);
-			}
+		if (modifyTable.at(i).modifiedVar == var) {
+			returnList.push_back(modifyTable.at(i).lineNo);
 		}
 	}
 	return returnList;
 }
 
-vector<string> ModifyTable::getModified(int lineNo) {
-	vector<string> returnList;
+string ModifyTable::getModified(int lineNo) {
+	string modVar = "";
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
 		if (modifyTable.at(i).lineNo == lineNo) {
-			returnList = modifyTable.at(i).modifiedVar;
+			modVar = modifyTable.at(i).modifiedVar;
 			break;
 		}
 	}
-	return returnList;
+	return modVar;
 }
 
 bool ModifyTable::isContained(int lineNo) {
@@ -69,13 +61,8 @@ bool ModifyTable::isModified(int line, string var) {
 	if (isContained(line) == false) {
 		return false;
 	}
-	vector <string> modifiedList = getModified(line);
-	for (unsigned i = 0; i < modifiedList.size(); i++) {
-		if (modifiedList.at(i) == var) {
-			return true;
-		}
-	}
-	return false;
+	string modVar = getModified(line);
+	return (modVar == var);
 }
 
 vector<ModifyEntry_t> ModifyTable::getTable() {

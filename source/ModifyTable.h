@@ -8,10 +8,10 @@
 using namespace std;
 typedef struct ModifyEntry_t {
 	int lineNo;
-	vector<string> modifiedVar;
+	string modifiedVar;
 	ModifyEntry_t(int lineNo, string var) {
 		ModifyEntry_t::lineNo = lineNo;
-		ModifyEntry_t::modifiedVar.push_back(var);
+		ModifyEntry_t::modifiedVar = var;
 	}
 } ModifyEntry;
 
@@ -24,7 +24,7 @@ public:
 	vector<ModifyEntry_t> getTable();			//return whole table
 	bool add(int lineNo, string var);
 	vector<int> getModifier(string var);		//return all modifier which modify a var
-	vector<string> getModified(int line);		//return all modified var of a line
+	string getModified(int line);		//return the modified var of a line
 	bool isModified(int line, string var);		//check if a line modifies a var
 	//void printTable();
 	int size();
