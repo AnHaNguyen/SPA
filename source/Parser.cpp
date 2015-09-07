@@ -52,7 +52,7 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 	vector<string> processedList;
 
 	str = processedList[i++];
-	checkFirstLine(str);
+	checkFirstLine(str)
 
 	while (i<stringList.size()) {
 		str = stringList[i];
@@ -103,11 +103,16 @@ void Parser::checkFirstLine(string str) {
 }
 
 void Parser::checkProcedure(string str) {
-	string word, word2;
+	string word, word2, word3;
 	stringstream  sentence(str);
 	sentence << word << word2;
-
-	if (str.back() == '{' && str.size() > = ) {
+	if (word2.find('{') == string::npos && word2.size() >= 1) {
+		sentence >> word3;
+		if (word3 != "{") {
+			error("No { ");
+		}
+	}
+	else if (word2.find('{') != string::npos && word2.size() >= 2) {
 
 	}
 	else {
