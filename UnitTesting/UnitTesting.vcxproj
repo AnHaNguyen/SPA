@@ -169,6 +169,7 @@
     <ClCompile Include="TestFollowTable.cpp" />
     <ClCompile Include="TestModifyTable.cpp" />
     <ClCompile Include="TestParentTable.cpp" />
+    <ClCompile Include="TestParser.cpp" />
     <ClCompile Include="TestUseTable.cpp" />
     <ClCompile Include="TestTNode.cpp" />
   </ItemGroup>
