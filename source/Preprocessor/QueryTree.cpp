@@ -214,7 +214,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
 				return false;
 			}
 		}
@@ -234,8 +234,9 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt")
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
 				return false;
+			}
 		}
 		if (first == "_") {
 			return false;
@@ -251,11 +252,11 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "if" && firstType != "while")
+			if (firstType != "if" && firstType != "while" && firstType != "prog_line")
 				return false;
 		}		
 		if (second != "_" && !isInteger(first)) {
-			if (secondType != "stmt" && secondType != "assign")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
 		return true;
@@ -265,11 +266,11 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;		
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && secondType != "assign");
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line");
 				return false;
 		}
 		if (second != "_" && !isInteger(first)) {
-			if (secondType != "stmt" && secondType != "assign")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
 		return true;
