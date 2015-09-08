@@ -206,5 +206,53 @@ namespace TestPreprocessor
 			QueryTree* tree14 = pro14.startProcess(declare14, input14);
 			Assert::AreEqual(false, tree14->getValidity());
 		}
+
+		TEST_METHOD(no_select_keyword)
+		{
+			QueryPreprocessor pro15;
+			string declare15 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input15 = "w such that Modifies(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree15 = pro15.startProcess(declare15, input15);
+			Assert::AreEqual(false, tree15->getValidity());
+		}
+
+		TEST_METHOD(select_nothing)
+		{
+			QueryPreprocessor pro16;
+			string declare16 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input16 = "Select such that Modifies(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree16 = pro16.startProcess(declare16, input16);
+			Assert::AreEqual(false, tree16->getValidity());
+		}
+
+		TEST_METHOD(select_two_synonym)
+		{
+			QueryPreprocessor pro17;
+			string declare17 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input17 = "Select a1 a2 such that Modifies(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree17 = pro17.startProcess(declare17, input17);
+			Assert::AreEqual(false, tree17->getValidity());
+		}
+
+		TEST_METHOD(select_not_in_declare)
+		{
+			QueryPreprocessor pro18;
+			string declare18 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input18 = "Select a4 such that Modifies(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree18 = pro18.startProcess(declare18, input18);
+			Assert::AreEqual(false, tree18->getValidity());
+		}
+
+
+		TEST_METHOD(declare_synonym_wrong_syntax)
+		{
+			QueryPreprocessor pro19;
+			string declare19 = "assign 2b, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input19 = "Select a2 such that Modifies(a2,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree19 = pro19.startProcess(declare19, input19);
+			Assert::AreEqual(false, tree19->getValidity());
+		}
+
+
 	};
 }
