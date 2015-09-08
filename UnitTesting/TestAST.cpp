@@ -53,19 +53,20 @@ namespace UnitTesting
 			Assert::AreEqual(tree.findParent(node4)->equals(*node1), true);
 		}
 
-		TEST_METHOD(TestAstContain) {
+		TEST_METHOD(TestAstFindNode) {
 			TNode* node1 = new TNode("", "assign", 1);
 			TNode* node3 = new TNode("x", "var", 1);
 			TNode* node4 = new TNode("", "assign", 1);
+			TNode* node5 = new TNode("y", "procedure", 0);
 			AST tree;
 			tree.addToTree(node1);
 			tree.makeChild(node1, node3);
 			tree.addToTree(node3);
-			//Assert::AreEqual(tree.indexOf(node1), 0);
-			//Assert::AreEqual(tree.indexOf(node4), 0);
-			//Assert::AreEqual(node4->getChildList().at(0)->equals(*node3), true);
+			Assert::AreEqual(tree.findNode(node1)->equals(*node1), true);
+			Assert::AreEqual(tree.findNode(node4)->equals(*node1), true);
+			string empty = "";
+			Assert::AreEqual(tree.findNode(node5)->equals(TNode("","",0)), true);
 
-			//Assert::AreEqual(tree.indexOf(node3), 1);
 		}
 	};
 }

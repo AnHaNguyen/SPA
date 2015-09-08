@@ -19,9 +19,14 @@ public:
 	void printTree();	//printout tree
 	vector<TNode* > findChild(TNode* parent);	//return all child of a node
 	TNode* findParent(TNode* child);	//return parent of a node
-	bool isContained(TNode* node); //return true if tree contained a node with same value, type, lineNo, 
-									// then update pointer of node
-									//to add another method checking a tree contained a node (value, type, line, parent)
+	TNode* findNode(TNode* node); //return pointer to this node in AST 
+
+	vector<TNode* > getLine(int line);//return a list of node* with same line number
+	string getProcedure();		//return procedure name of tree
+	
+	bool isEquals(AST* subtree, bool contains_);		//check 2 subtree is equals		//case pattern a(_,"x+y")
+									//check if a subtree is contained in another		//case pattern a(_,_"x+y"_)
+	vector <TNode* > getType(string type);//get all type (:stmtList,:while, :assign, :var,:plus,..)
 };
 
 #endif

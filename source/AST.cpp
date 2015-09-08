@@ -2,10 +2,6 @@
 #include <string>
 #include "AST.h"
 
-int main() {
-	return 0; //stub
-}
-
 AST::AST() {
 }
 
@@ -58,7 +54,7 @@ vector<TNode* > AST::findChild(TNode* parent) {
 }
 
 TNode* AST::findParent(TNode* child) {
-	TNode* par = NULL;
+	TNode* par = new TNode("","",0);				//empty node
 	for (unsigned i = 0; i < tree.size(); i++) {
 		if ((*child).equals(*tree.at(i))) {
 			par = (*child).getParent();
@@ -68,16 +64,41 @@ TNode* AST::findParent(TNode* child) {
 	return par;
 }
 
-bool AST::isContained(TNode* node) {
+TNode* AST::findNode(TNode* node) {
 	for (unsigned i = 0; i < tree.size(); i++) {
 		if ((*node).equals(*tree.at(i))) {
-			node->setParent(tree.at(i)->getParent());
-			for (unsigned j = 0; j < tree.at(i)->getChildList().size(); j++) {
-				node->setChild(tree.at(i)->getChildList().at(j));
-			}
-			return true;
+			return tree.at(i);
 		}
 	}
-	return false;
+	return new TNode("","",0);				//empty node
 }
 
+vector <TNode* > AST::getLine(int line) {
+	vector<TNode* > returnList;
+	for (unsigned i = 0; i < tree.size(); i++) {
+		if (tree.at(i)->getLine() == line) {
+			returnList.push_back(tree.at(i));
+		}
+	}
+	return returnList;
+}
+
+string AST::getProcedure() {
+	if (tree.size() == 0) {
+		return "";
+	}
+	else if (tree.at(0)->getType() != "procedure") {
+		return "";
+	}
+	return tree.at(0)->getValue();
+}
+
+vector<TNode* > AST::getType(string type) {
+	vector<TNode* > returnList;
+	for (unsigned i = 0; i < tree.size(); i++) {
+		if (tree.at(i)->getType() == type) {
+			returnList.push_back(tree.at(i));
+		}
+	}
+	return returnList;
+}
