@@ -14,7 +14,7 @@ namespace TestPreprocessor
 	{
 	public:
 
-		TEST_METHOD(NoSuchNoPattern)
+		TEST_METHOD(no_such_no_pattern)
 		{
 			QueryPreprocessor pro0;
 			string declare0 = "assign a1,a2;";
@@ -26,7 +26,7 @@ namespace TestPreprocessor
 			return;
 		}
 
-		TEST_METHOD(SuchPattern)
+		TEST_METHOD(such_pattern)
 		{
 			QueryPreprocessor pro001;
 			string declare001 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
@@ -44,7 +44,7 @@ namespace TestPreprocessor
 			return;
 		}
 
-		TEST_METHOD(PatternSuch)
+		TEST_METHOD(pattern_such)
 		{
 			QueryPreprocessor pro100;
 			string declare100 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
@@ -62,7 +62,7 @@ namespace TestPreprocessor
 			return;
 		}
 
-		TEST_METHOD(SuchThatNumberAttribute)
+		TEST_METHOD(such_that_number_attribute)
 		{
 			QueryPreprocessor pro2;
 			string declare2 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
@@ -78,7 +78,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"", tree2->getPattern()->getSecondAttr());
 		}
 
-		TEST_METHOD(noPattern)
+		TEST_METHOD(no_pattern)
 		{
 			QueryPreprocessor pro3;
 			string declare3 = "assign a1,a2,a3;while w;stmt s1,s2;";
@@ -94,7 +94,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"_\"x\"_", tree3->getPattern()->getSecondAttr());
 		}
 
-		TEST_METHOD(noSuchThat)
+		TEST_METHOD(no_such_that)
 		{
 			QueryPreprocessor pro4;
 			string declare4 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
@@ -126,7 +126,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"_\"x\"_", tree5->getPattern()->getSecondAttr());
 		}
 
-		TEST_METHOD(suchThatAttrNotAppearInDeclaration)
+		TEST_METHOD(such_that_attr_not_appear_in_declaration)
 		{
 			QueryPreprocessor pro6;
 			string declare6 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
@@ -135,7 +135,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree6->getValidity());
 		}
 
-		TEST_METHOD(patternAttrNotAppearInDeclaration)
+		TEST_METHOD(pattern_attr_not_appear_in_declaration)
 		{
 			QueryPreprocessor pro7;
 			string declare7 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
@@ -144,7 +144,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree7->getValidity());
 		}
 
-		TEST_METHOD(onlyOneQuatationMark)
+		TEST_METHOD(only_one_quatation_mark)
 		{
 			QueryPreprocessor pro8;
 			string declare8 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
@@ -153,7 +153,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree8->getValidity());
 		}
 
-		TEST_METHOD(wrongPatternSynonym)
+		TEST_METHOD(wrong_pattern_synonym)
 		{
 			QueryPreprocessor pro9;
 			string declare9 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
@@ -162,7 +162,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree9->getValidity());
 		}
 
-		TEST_METHOD(wrongSuchThatSynonym)
+		TEST_METHOD(wrong_such_that_synonym)
 		{
 			QueryPreprocessor pro10;
 			string declare10 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
