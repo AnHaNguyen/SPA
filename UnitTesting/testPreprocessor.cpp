@@ -126,6 +126,33 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"_\"x\"_", tree5->getPattern()->getSecondAttr());
 		}
 
+		TEST_METHOD(suchThatAttrNotAppearInDeclaration)
+		{
+			QueryPreprocessor pro6;
+			string declare6 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input6 = "Select w such that Modifies(bbbbbb, v1) pattern a2(_, _\"x\"_)";
+			QueryTree* tree6 = pro6.startProcess(declare6, input6);
+			Assert::AreEqual(false, tree6->getValidity());
+		}
+
+		TEST_METHOD(patternAttrNotAppearInDeclaration)
+		{
+			QueryPreprocessor pro7;
+			string declare7 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input7 = "Select w such that Modifies(a1, v1) pattern a2(a4, _\"x\"_)";
+			QueryTree* tree7 = pro7.startProcess(declare7, input7);
+			Assert::AreEqual(false, tree7->getValidity());
+		}
+
+		TEST_METHOD(onlyOneQuatationMark)
+		{
+			QueryPreprocessor pro8;
+			string declare8 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input8 = "Select w such that Modifies(a1, v1) pattern a2(a4,_x\"_)";
+			QueryTree* tree8 = pro8.startProcess(declare8, input8);
+			Assert::AreEqual(false, tree8->getValidity());
+		}
+
 
 	};
 }
