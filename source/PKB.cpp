@@ -43,12 +43,12 @@ void PKB::setModifyTable(ModifyTable* modTable) {
 	modifyTable = modTable;
 }
 
-AST* PKB::getAST() {
-	return ast;
+vector<AST*> PKB::getASTList() {
+	return astList;
 }
 
-void PKB::setAST(AST* ast) {
-	PKB::ast = ast;
+void PKB::setASTList(vector<AST* > astList) {
+	PKB::astList = astList;
 }
 
 VarTable* PKB::getVarTable() {

@@ -149,6 +149,7 @@
     <ClInclude Include="..\Source\AST.h" />
     <ClInclude Include="..\Source\CallTable.h" />
     <ClInclude Include="..\Source\CFG.h" />
+    <ClInclude Include="..\source\ConstTable.h" />
     <ClInclude Include="..\source\DesignExtractor.h" />
     <ClInclude Include="..\Source\FollowTable.h" />
     <ClInclude Include="..\Source\GNode.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="..\Source\AST.cpp" />
     <ClCompile Include="..\Source\CallTable.cpp" />
     <ClCompile Include="..\Source\CFG.cpp" />
+    <ClCompile Include="..\source\ConstTable.cpp" />
     <ClCompile Include="..\source\DesignExtractor.cpp" />
     <ClCompile Include="..\Source\FollowTable.cpp" />
     <ClCompile Include="..\Source\GNode.cpp" />
