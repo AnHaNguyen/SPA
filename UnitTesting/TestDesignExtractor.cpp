@@ -11,7 +11,7 @@ namespace UnitTesting
 	{
 	public:
 		/*method to test:
-		processAST;  procecssModTable; processUseTable; processVarTable; processProcTable; 
+		processAST;  procecssModTable; processUseTable; processProcTable; 
 		FollowTable* processFollowRelationship(AST* ast);
 		ParentTable* processParentRelationship(AST* ast);
 		*/
@@ -60,6 +60,28 @@ namespace UnitTesting
 			Assert::AreEqual(procTable->indexOf("First"), 0);
 			Assert::AreEqual(procTable->indexOf("Second"), 1);
 			Assert::AreEqual(procTable->indexOf("Third"), 2);
+		}
+
+		TEST_METHOD(TestExtVarTable) {
+			VarTable* varTable = ext.getVarTable();
+			Assert::AreEqual(varTable->size(), 5);
+			Assert::AreEqual(varTable->indexOf(x), 0);
+			Assert::AreEqual(varTable->indexOf(y), 3);
+			Assert::AreEqual(varTable->indexOf(z), 1);
+			Assert::AreEqual(varTable->indexOf(v), 4);
+			Assert::AreEqual(varTable->indexOf(i), 2);
+			Assert::AreEqual(varTable->indexOf("t"), -1);
+		}
+
+		TEST_METHOD(TestExtConstTable) {
+			ConstTable* constTable = ext.getConstTable();
+			Assert::AreEqual(constTable->size(), 8);
+			Assert::AreEqual(constTable->getConst(1).at(0), (string) "2");
+			Assert::AreEqual(constTable->getConst(1).size(), (unsigned) 1);
+			Assert::AreEqual(constTable->getConst(2).at(0), (string) "3");
+			Assert::AreEqual(constTable->getConst(8).at(0), (string) "2");
+			Assert::AreEqual(constTable->getConst(15).at(0), (string) "5");
+			Assert::AreEqual(constTable->getConst(13).size(), (unsigned) 0);
 		}
 	};
 }

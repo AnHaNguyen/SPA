@@ -11,6 +11,7 @@
 #include "UseTable.h"
 #include "VarTable.h"
 #include "ProcTable.h"
+#include "ConstTable.h"
 
 using namespace std;
 
@@ -46,6 +47,7 @@ private:
 	ModifyTable* modTable;
 	VarTable* varTable;
 	ProcTable* procTable;
+	ConstTable* constTable;
 
 	int lineNumber;
 	int stmtLstNumber;
@@ -57,10 +59,9 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
-	bool processModTable(ModifyTable* modTable);
-	bool processUseTable(UseTable* useTable);
-	bool processVarTable(VarTable* varTable);
-	bool processProcTable(ProcTable* procTable);
+	bool processModTable();			//process var table also
+	bool processUseTable();			//process var and const tables also
+	bool processProcTable();
 
 	bool isConst(string var);
 	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
@@ -81,6 +82,7 @@ public:
 	UseTable* getUseTable();
 	VarTable* getVarTable();
 	ProcTable* getProcTable();
+	ConstTable* getConstTable();
 };
 
 #endif

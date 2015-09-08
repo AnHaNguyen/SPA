@@ -17,12 +17,12 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	useTable = new UseTable();
 	varTable = new VarTable();
 	procTable = new ProcTable();
+	constTable = new ConstTable();
 
 	//buildAST(input);
-	processModTable(modTable);
-	processUseTable(useTable);
-	processProcTable(procTable);
-	//processVarTable(varTable);
+	processModTable();
+	processUseTable();
+	processProcTable();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -221,25 +221,29 @@ ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 	return parentTable;
 }
 
-bool DesignExtractor::processModTable(ModifyTable* modTable) {
+bool DesignExtractor::processModTable() {
 	
 	for (unsigned i = 0; i < input.size(); i++) {			
 		string line = input.at(i);
 		unsigned pos = line.find(EQUAL);
 		if (pos != string::npos){
 			string var = line.substr(0, pos);
-			modTable->add(i, var);							// i stands for line number, not index
+			modTable->add(i, var);							//to replace i with actual line no
+			varTable->addVar(var);
 		}
 	}
 	return true;
 }
 
-bool DesignExtractor::processUseTable(UseTable* useTable) {
+bool DesignExtractor::processUseTable() {
 	for (unsigned i = 0; i < input.size(); i++) {
 		string line = input.at(i);
 		string type = line.substr(0, 5);
 		if (type == WHILE) {
-			useTable->add(i, line.substr(5, line.size() - 6));			//start after while (5), length = size - start - '{'
+			string var = line.substr(5, line.size() - 6);
+			useTable->add(i, var);			//start after while (5), length = size - start - '{'
+											//to replace i with actual line no
+			varTable->addVar(var);
 		}
 		else {								//i stands for line number, not index
 			unsigned pos = line.find(EQUAL);
@@ -249,7 +253,11 @@ bool DesignExtractor::processUseTable(UseTable* useTable) {
 				while (pos != string::npos) {
 					string var = line.substr(0, pos);
 					if (!isConst(var)) {
-						useTable->add(i, var);
+						useTable->add(i, var);				//to replace i with actual line no
+						varTable->addVar(var);
+					}
+					else {
+						constTable->addToTable(i, var);		//to replace i with actual line no
 					}
 					line = line.substr(pos + 1, line.size() - pos - 1);		//remove +
 					pos = line.find(PLUS);
@@ -261,7 +269,11 @@ bool DesignExtractor::processUseTable(UseTable* useTable) {
 					line = line.substr(0, line.size() - 1);		//remove ';'
 				}
 				if (!isConst(line)) {
-					useTable->add(i, line);
+					useTable->add(i, line);					//to replace i with actual line no
+					varTable->addVar(line);
+				}
+				else {
+					constTable->addToTable(i, line);		//to replace i with actual line no
 				}
 			}
 		}
@@ -273,25 +285,8 @@ bool DesignExtractor::isConst(string var){
 	return (isdigit(var[0]));
 }
 
-bool DesignExtractor::processVarTable(VarTable* varTable) {
-	UseTable* useTable = new UseTable();
-	ModifyTable* modTable = new ModifyTable();
-	processUseTable(useTable);
-	processModTable(modTable);
-	for (unsigned i = 0; i < useTable->size(); i++) {
-		for (unsigned j = 0; j < useTable->getTable().at(i).usedVar.size(); j++) {
-			string var = useTable->getTable().at(i).usedVar.at(i);
-			varTable->addVar(var);
-		}
-	}
-	for (unsigned i = 0; i < modTable->size(); i++) {
-		string var = modTable->getTable().at(i).modifiedVar;
-		varTable->addVar(var);
-	}
-	return true;
-}
 
-bool DesignExtractor::processProcTable(ProcTable* procTable) {
+bool DesignExtractor::processProcTable() {
 	for (unsigned i = 0; i < input.size(); i++) {
 		string proc = PROCEDURE;
 		unsigned pos = input.at(i).find(proc);
@@ -344,6 +339,10 @@ UseTable* DesignExtractor::getUseTable() {
 
 VarTable* DesignExtractor::getVarTable() {
 	return varTable;
+}
+
+ConstTable* DesignExtractor::getConstTable() {
+	return constTable;
 }
 
 ProcTable* DesignExtractor::getProcTable() {
