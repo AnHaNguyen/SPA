@@ -2,7 +2,7 @@
 #include<algorithm>
 #include<iostream>
 
-string relations[] = { "follows","follows*","parent","parent*","modifies","uses" };
+string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses" };
 
 QueryTree::QueryTree(){
 
@@ -209,12 +209,12 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return false;
 	}
 
-	if (syn == "modifies") {
+	if (syn == "Modifies") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
 				return false;
 			}
 		}
@@ -229,13 +229,14 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
-	if (syn == "uses") {
+	if (syn == "Uses") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt")
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
 				return false;
+			}
 		}
 		if (first == "_") {
 			return false;
@@ -247,29 +248,29 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
-	if (syn == "parent" || syn == "parent*") {
+	if (syn == "Parent" || syn == "Parent*") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "if" && firstType != "while")
+			if (firstType != "if" && firstType != "while" && firstType != "prog_line")
 				return false;
 		}		
 		if (second != "_" && !isInteger(first)) {
-			if (secondType != "stmt" && secondType != "assign")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
 		return true;
 	}
 
-	if (syn == "follows" || syn == "follows*") {
+	if (syn == "Follows" || syn == "Follows*") {
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;		
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && secondType != "assign");
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line");
 				return false;
 		}
 		if (second != "_" && !isInteger(first)) {
-			if (secondType != "stmt" && secondType != "assign")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
 		return true;
