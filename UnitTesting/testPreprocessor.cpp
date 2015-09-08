@@ -62,52 +62,54 @@ namespace TestPreprocessor
 			return;
 		}
 
-		TEST_METHOD(noPattern)
+		TEST_METHOD(SuchThatNumberAttribute)
 		{
 			QueryPreprocessor pro2;
-			string declare2 = "assign a1,a2,a3;while w;stmt s1,s2;";
-			string input2 = "Select w such that Modifies(3,\"x\") pattern a1(_,_\"x\"_)";
+			string declare2 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
+			string input2 = "Select w such that Modifies(a1,v1)";
 			QueryTree* tree2 = pro2.startProcess(declare2, input2);
 			Assert::AreEqual(true, tree2->getValidity());
 			Assert::AreEqual((string)"w", tree2->getResult()->getResult());
 			Assert::AreEqual((string)"Modifies", tree2->getSuchThat()->getSynonym());
-			Assert::AreEqual((string)"3", tree2->getSuchThat()->getFirstAttr());
-			Assert::AreEqual((string)"\"x\"", tree2->getSuchThat()->getSecondAttr());
-			Assert::AreEqual((string)"a1", tree2->getPattern()->getSynonym());
-			Assert::AreEqual((string)"_", tree2->getPattern()->getFirstAttr());
-			Assert::AreEqual((string)"_\"x\"_", tree2->getPattern()->getSecondAttr());
+			Assert::AreEqual((string)"a1", tree2->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"v1", tree2->getSuchThat()->getSecondAttr());
+			Assert::AreEqual((string)"", tree2->getPattern()->getSynonym());
+			Assert::AreEqual((string)"", tree2->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"", tree2->getPattern()->getSecondAttr());
 		}
 
-		TEST_METHOD(SuchThatNumberAttribute)
+		TEST_METHOD(noPattern)
 		{
 			QueryPreprocessor pro3;
-			string declare3 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
-			string input3 = "Select w such that Modifies(a1,v1)";
+			string declare3 = "assign a1,a2,a3;while w;stmt s1,s2;";
+			string input3 = "Select w such that Modifies(3,\"x\") pattern a1(_,_\"x\"_)";
 			QueryTree* tree3 = pro3.startProcess(declare3, input3);
 			Assert::AreEqual(true, tree3->getValidity());
 			Assert::AreEqual((string)"w", tree3->getResult()->getResult());
 			Assert::AreEqual((string)"Modifies", tree3->getSuchThat()->getSynonym());
-			Assert::AreEqual((string)"a1", tree3->getSuchThat()->getFirstAttr());
-			Assert::AreEqual((string)"v1", tree3->getSuchThat()->getSecondAttr());
-			Assert::AreEqual((string)"", tree3->getPattern()->getSynonym());
-			Assert::AreEqual((string)"", tree3->getPattern()->getFirstAttr());
-			Assert::AreEqual((string)"", tree3->getPattern()->getSecondAttr());
+			Assert::AreEqual((string)"3", tree3->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"\"x\"", tree3->getSuchThat()->getSecondAttr());
+			Assert::AreEqual((string)"a1", tree3->getPattern()->getSynonym());
+			Assert::AreEqual((string)"_", tree3->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"_\"x\"_", tree3->getPattern()->getSecondAttr());
 		}
+
+
 
 		TEST_METHOD(noSuchThat)
 		{
-			QueryPreprocessor pro3;
-			string declare3 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
-			string input3 = "Select w such that Modifies(a1,v1)";
-			QueryTree* tree3 = pro3.startProcess(declare3, input3);
-			Assert::AreEqual(true, tree3->getValidity());
-			Assert::AreEqual((string)"w", tree3->getResult()->getResult());
-			Assert::AreEqual((string)"Modifies", tree3->getSuchThat()->getSynonym());
-			Assert::AreEqual((string)"a1", tree3->getSuchThat()->getFirstAttr());
-			Assert::AreEqual((string)"v1", tree3->getSuchThat()->getSecondAttr());
-			Assert::AreEqual((string)"", tree3->getPattern()->getSynonym());
-			Assert::AreEqual((string)"", tree3->getPattern()->getFirstAttr());
-			Assert::AreEqual((string)"", tree3->getPattern()->getSecondAttr());
+			QueryPreprocessor pro4;
+			string declare4 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
+			string input4 = "Select w such that Modifies(a1,v1)";
+			QueryTree* tree4 = pro4.startProcess(declare4, input4);
+			Assert::AreEqual(true, tree4->getValidity());
+			Assert::AreEqual((string)"w", tree4->getResult()->getResult());
+			Assert::AreEqual((string)"Modifies", tree4->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"a1", tree4->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"v1", tree4->getSuchThat()->getSecondAttr());
+			Assert::AreEqual((string)"", tree4->getPattern()->getSynonym());
+			Assert::AreEqual((string)"", tree4->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"", tree4->getPattern()->getSecondAttr());
 		}
 	};
 }
