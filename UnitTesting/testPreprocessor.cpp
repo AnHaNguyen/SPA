@@ -171,5 +171,40 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree10->getValidity());
 		}
 
+		TEST_METHOD(such_that_lack_of_left_bracket)
+		{
+			QueryPreprocessor pro11;
+			string declare11 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input11 = "Select w such that Modifies a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree11 = pro11.startProcess(declare11, input11);
+			Assert::AreEqual(false, tree11->getValidity());
+		}
+
+		TEST_METHOD(such_that_lack_of_comma)
+		{
+			QueryPreprocessor pro12;
+			string declare12 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input12 = "Select w such that Modifies(a1 v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree12 = pro12.startProcess(declare12, input12);
+			Assert::AreEqual(false, tree12->getValidity());
+		}
+
+		TEST_METHOD(pattern_lack_of_right_bracket)
+		{
+			QueryPreprocessor pro13;
+			string declare13 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input13 = "Select w such that Modifies(a1,v1) pattern a2(_,_\"x\"_ ";
+			QueryTree* tree13 = pro13.startProcess(declare13, input13);
+			Assert::AreEqual(false, tree13->getValidity());
+		}
+
+		TEST_METHOD(pattern_lack_of_comma)
+		{
+			QueryPreprocessor pro14;
+			string declare14 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input14 = "Select w such that Modifies(a1,v1) pattern a2(_ _\"x\"_)";
+			QueryTree* tree14 = pro14.startProcess(declare14, input14);
+			Assert::AreEqual(false, tree14->getValidity());
+		}
 	};
 }
