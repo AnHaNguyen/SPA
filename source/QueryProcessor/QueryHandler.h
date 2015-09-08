@@ -14,7 +14,7 @@ public:
 
 	vector< vector<string> > symTable;
 	string handleSelect(QueryTree * query, PreResultNode * &result);
-	vector<int> handleSuchThat(QueryTree * query, PreSuchThatNode * &suchThat, string selType);
+	int handleSuchThat(QueryTree * query, PreSuchThatNode * &suchThat, string selType);
 	bool isInt(std::string &secondAtt);
 	vector<int> handlePattern(QueryTree * query, PrePatternNode * &pattern);
 	vector<int> handlePType(string &type, string &firstAtt, string &secondAtt);

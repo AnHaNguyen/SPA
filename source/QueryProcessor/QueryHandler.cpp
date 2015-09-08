@@ -1,8 +1,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <PKB.h>
 
+#include "../PKB.h"
 #include "../QueryProcessor/QueryHandler.h"
 #include "../Preprocessor/QueryTree.h"
 #include "../FollowTable.h"
@@ -48,22 +48,24 @@ string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 }
 
 
-vector<int> QueryHandler::handleSuchThat(QueryTree * query, PreSuchThatNode * &suchThat, string selType) {
+int QueryHandler::handleSuchThat(QueryTree * query, PreSuchThatNode * &suchThat, string selType) {
 	if (query->getSuchThat != NULL) {
 		suchThat = query->getSuchThat();
 		string syn = suchThat->getSynonym();
 		string firstAtt = suchThat->getFirstAttr();
 		string secondAtt = suchThat->getSecondAttr();
-		vector<int> ansVec;
+		int ans;
+
 
 		//Handle follows
 		if (syn == "follows") {
+			FollowTable* folTab = PKB::getFollowTable();
 			if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 				if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
-					vector<FollowEntry_t> folVec = PKB::getFollowTable();
+					ans = 
 				}
 				if (isInt(secondAtt)) {
-					ansVec.push_back(folVec->getPrev(stoi(secondAtt));
+					ansVec.push_back(folTab->getPrev(stoi(secondAtt));
 
 				}
 			}
