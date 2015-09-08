@@ -11,24 +11,36 @@ class Parser
 {
 public:
 	Parser();
-	bool parseInput(string fName);
+	vector<string> Parser::parseInput(string fName);
 	std::vector<string> Parser::result(string fName);
 
 private:
 	vector<string> Parser::processFile(string fName);
 	vector<string> Parser::checkSyntax(vector<string> stringList);
 	vector<string> Parser::removeSpaces(vector<string> stringList);
-	int Parser::processStmtType(vector<string> stringList, int i, string word);
-	void Parser::checkFirstLine(string str);
-	void Parser::checkProcedure(string procedure);
+	void Parser::processStmtType(vector<string> stringList, int i, string word);
+	void Parser::checkFirstLine(vector<string> stringList);
+	void Parser::checkProcedure(vector<string> stringList, int startLine);
 	void Parser::checkCall(string str);
 	void Parser::checkAssign(string str);
-	int Parser::checkIf(vector<string> stringList, int i);
-	int Parser::checkWhile(vector<string> stringList, int i);
+	void Parser::checkIf(vector<string> stringList, int i);
+	void Parser::checkElse(vector<string> stringList, int i);
+	void Parser::checkWhile(vector<string> stringList, int i);
+	bool Parser::isInteger(string const_value);
+	bool Parser::isLetter(string const_value);
+	bool Parser::isAlphaNumeric(string str);
+	bool Parser::existAlphaNumeric(string str);
+	bool Parser::isName(string name);
+	bool Parser::isExpression(string expr);
+	bool Parser::isTerm(string term);
+	bool Parser::isFactor(string factor);
 	vector<string> Parser::trimmedString(string str);
 	bool Parser::checkNotEmptyLine(string line);
 	string Parser::trim(string str);
 	vector<string> Parser::removeSpaces(vector<string> stringList);
+	int Parser::isStmtLst(vector<string> stringList, int startLine);
+	void Parser::checkAllBrackets(vector<string> stringList);
+	int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex);
 	void Parser::error(string errorType);
 	~Parser();
 };
