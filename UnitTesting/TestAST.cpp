@@ -30,6 +30,7 @@ namespace UnitTesting
 			Assert::AreEqual(node1->equals(*(tree.findChild(procNode).at(0))), true);
 			Assert::AreEqual(node3->equals(*(tree.findChild(node1).at(0))), true);
 			Assert::AreEqual(node4->equals(*(tree.findChild(node1).at(1))), true);
+			Assert::AreEqual(tree.findChild(new TNode()).size(), (unsigned) 0);
 		}
 
 		TEST_METHOD(TestAstMakeParent)
@@ -51,6 +52,9 @@ namespace UnitTesting
 			Assert::AreEqual(tree.findParent(node1)->equals(*procNode), true);
 			Assert::AreEqual(tree.findParent(node3)->equals(*node1), true);
 			Assert::AreEqual(tree.findParent(node4)->equals(*node1), true);
+
+			Assert::AreEqual(tree.findParent(procNode)->equals(TNode()), true);
+			Assert::AreEqual(tree.findParent(new TNode())->equals(TNode()), true);
 		}
 
 		TEST_METHOD(TestAstFindNode) {

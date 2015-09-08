@@ -21,10 +21,9 @@
     <ClCompile Include="..\Source\Utility.cpp" />
     <ClCompile Include="..\Source\VarTable.cpp" />
     <ClCompile Include="..\source\Parser.cpp" />
-    <ClCompile Include="..\source\PKB.cpp" />
-    <ClCompile Include="..\source\DesignExtractor.cpp" />
-    <ClCompile Include="..\source\ProcessModUse.cpp" />
     <ClCompile Include="..\source\ConstTable.cpp" />
+    <ClCompile Include="..\source\DesignExtractor.cpp" />
+    <ClCompile Include="..\source\PKB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -47,8 +46,8 @@
     <ClInclude Include="..\Source\Utility.h" />
     <ClInclude Include="..\Source\VarTable.h" />
     <ClInclude Include="..\source\Parser.h" />
-    <ClInclude Include="..\source\PKB.h" />
     <ClInclude Include="..\source\DesignExtractor.h" />
     <ClInclude Include="..\source\ConstTable.h" />
+    <ClInclude Include="..\source\PKB.h" />
   </ItemGroup>
 </Project>

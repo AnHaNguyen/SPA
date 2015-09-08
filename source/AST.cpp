@@ -44,22 +44,18 @@ void AST::makeParent(TNode* child, TNode* par){
 
 vector<TNode* > AST::findChild(TNode* parent) {
 	vector <TNode* > returnList;
-	for (unsigned i = 0; i < tree.size(); i++) {
-		if ((*parent).equals(*tree.at(i))) {
-			returnList = (*tree.at(i)).getChildList();
-			break;
-		}
+	TNode* node = findNode(parent);
+	if (node->getType() != "") {
+		return node->getChildList();
 	}
 	return returnList;
 }
 
 TNode* AST::findParent(TNode* child) {
-	TNode* par = new TNode("","",0);				//empty node
-	for (unsigned i = 0; i < tree.size(); i++) {
-		if ((*child).equals(*tree.at(i))) {
-			par = (*child).getParent();
-			break;
-		}
+	TNode* par = new TNode();				//empty node
+	TNode* node = findNode(child);
+	if (node->getType() != "") {
+		return node->getParent();
 	}
 	return par;
 }
@@ -70,7 +66,7 @@ TNode* AST::findNode(TNode* node) {
 			return tree.at(i);
 		}
 	}
-	return new TNode("","",0);				//empty node
+	return new TNode();				//empty node
 }
 
 vector <TNode* > AST::getLine(int line) {

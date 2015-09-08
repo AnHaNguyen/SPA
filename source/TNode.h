@@ -16,6 +16,7 @@ private:
 	vector<TNode* > childList;		
 	
 public:
+	TNode();		//default constructor
 	TNode(string value, string type, int line); //constructor
 	
 	~TNode();	//destructor

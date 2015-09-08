@@ -2,11 +2,17 @@
 #include <vector>
 #include <string>
 
+TNode::TNode() {
+	TNode::value = "";
+	TNode::type = "";
+	TNode::line = 0;
+}
+
 	TNode::TNode(string value, string type, int line) {
 		TNode::value = value;
 		TNode::type = type;
 		TNode::line = line;
-		parent = NULL;
+		parent = new TNode();
 	}
 
 	TNode::~TNode() {
