@@ -7,6 +7,10 @@
 #include "AST.h"
 #include "FollowTable.h"
 #include "ParentTable.h"
+#include "ModifyTable.h"
+#include "UseTable.h"
+#include "VarTable.h"
+#include "ProcTable.h"
 
 using namespace std;
 
@@ -34,9 +38,11 @@ const string PLUS_TEXT = "plus";
 
 class DesignExtractor{
 private:
-	AST *ast;
+	vector<string> input;
+	vector<AST*> ast;
 	int lineNumber;
 	int stmtLstNumber;
+	int procedureNumber;
 	vector<TNode*> currentParent;
 
 	
@@ -44,18 +50,24 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
+	bool processModTable(ModifyTable* modTable);
+	bool processUseTable(UseTable* useTable);
+	bool processVarTable(VarTable* varTable);
+	bool processProcTable(ProcTable* procTable);
+
+	bool isConst(string var);
 	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
+
 	FollowTable* processFollowRelationship(AST* ast);
 	ParentTable* processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
 
 public:
-	DesignExtractor();
-	DesignExtractor(AST* a);
+	DesignExtractor(vector<string> input);
 	~DesignExtractor();
 	
-	AST* buildAST(vector<string> input);
+	vector<AST*> buildAST(vector<string> input);
 	FollowTable* getFollowTable(AST* ast);
 	ParentTable* getParentTable(AST* ast);
 
