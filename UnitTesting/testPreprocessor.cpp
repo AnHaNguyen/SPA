@@ -153,6 +153,23 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree8->getValidity());
 		}
 
+		TEST_METHOD(wrongPatternSynonym)
+		{
+			QueryPreprocessor pro9;
+			string declare9 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input9 = "Select w such that Modifies(a1,v1) pattern omo(_,_\"x\"_)";
+			QueryTree* tree9 = pro9.startProcess(declare9, input9);
+			Assert::AreEqual(false, tree9->getValidity());
+		}
+
+		TEST_METHOD(wrongSuchThatSynonym)
+		{
+			QueryPreprocessor pro10;
+			string declare10 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input10 = "Select w such that blah(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree10 = pro10.startProcess(declare10, input10);
+			Assert::AreEqual(false, tree10->getValidity());
+		}
 
 	};
 }
