@@ -40,6 +40,13 @@ class DesignExtractor{
 private:
 	vector<string> input;
 	vector<AST*> ast;
+	FollowTable* followTable;
+	ParentTable* parentTable;
+	UseTable* useTable;
+	ModifyTable* modTable;
+	VarTable* varTable;
+	ProcTable* procTable;
+
 	int lineNumber;
 	int stmtLstNumber;
 	int procedureNumber;
@@ -70,7 +77,10 @@ public:
 	vector<AST*> buildAST(vector<string> input);
 	FollowTable* getFollowTable(AST* ast);
 	ParentTable* getParentTable(AST* ast);
-
+	ModifyTable* getModTable();
+	UseTable* getUseTable();
+	VarTable* getVarTable();
+	ProcTable* getProcTable();
 };
 
 #endif

@@ -10,23 +10,26 @@
 using namespace std;
 
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
-	parsedInput = input;
-	FollowTable* followTable = new FollowTable();
-	ParentTable* parentTable = new ParentTable();
-	ModifyTable* modTable = new ModifyTable();
-	UseTable* useTable = new UseTable();
-	VarTable* varTable = new VarTable();
-	ProcTable* procTable = new ProcTable();
+	input = parsedInput;
+	followTable = new FollowTable();
+	parentTable = new ParentTable();
+	modTable = new ModifyTable();
+	useTable = new UseTable();
+	varTable = new VarTable();
+	procTable = new ProcTable();
 
+	//buildAST(input);
 	processModTable(modTable);
 	processUseTable(useTable);
 	processProcTable(procTable);
-	processVarTable(varTable);
+	//processVarTable(varTable);
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
 	procedureNumber = 0;
 }
+
+DesignExtractor::~DesignExtractor(){}
 
 //-------------------------AST-------------------------//
 vector<AST*> DesignExtractor::buildAST(vector<string> input){
@@ -169,7 +172,7 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 
 //-------------------Create Follow Table---------------------//
 FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
-	FollowTable* followTable;
+	FollowTable* followTable = new FollowTable();
 
 	for(unsigned i = 1; i <= stmtLstNumber; i++){
 		string value = convertStmtLstNumber(i);
@@ -193,7 +196,7 @@ FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 
 //--------------------Create Parent Table-------------------//
 ParentTable* DesignExtractor::processParentRelationship(AST* ast){
-	ParentTable* parentTable;
+	ParentTable* parentTable = new ParentTable();
 
 	for(unsigned i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
@@ -329,4 +332,20 @@ string DesignExtractor::exprType(string numText){
 	} else {
 		return VARIABLE;
 	}
+}
+
+ModifyTable* DesignExtractor::getModTable() {
+	return modTable;
+}
+
+UseTable* DesignExtractor::getUseTable() {
+	return useTable;
+}
+
+VarTable* DesignExtractor::getVarTable() {
+	return varTable;
+}
+
+ProcTable* DesignExtractor::getProcTable() {
+	return procTable;
 }
