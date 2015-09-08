@@ -1,139 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="..\Source\AST.cpp" />
+    <ClCompile Include="..\Source\CallTable.cpp" />
+    <ClCompile Include="..\Source\CFG.cpp" />
+    <ClCompile Include="..\Source\FollowTable.cpp" />
+    <ClCompile Include="..\Source\GNode.cpp" />
+    <ClCompile Include="..\Source\ModifyTable.cpp" />
+    <ClCompile Include="..\Source\ParentTable.cpp" />
+    <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp" />
+    <ClCompile Include="..\Source\Preprocessor\PreResultNode.cpp" />
+    <ClCompile Include="..\Source\Preprocessor\PreSuchThatNode.cpp" />
+    <ClCompile Include="..\Source\Preprocessor\QueryPreprocessor.cpp" />
+    <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
+    <ClCompile Include="..\Source\ProcTable.cpp" />
+    <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
+    <ClCompile Include="..\Source\StmtList.cpp" />
+    <ClCompile Include="..\Source\TNode.cpp" />
+    <ClCompile Include="..\Source\UseTable.cpp" />
+    <ClCompile Include="..\Source\Utility.cpp" />
+    <ClCompile Include="..\Source\VarTable.cpp" />
+    <ClCompile Include="..\source\Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\AST.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\CallTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\GNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ProcTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\TNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\VarTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ModifyTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\UseTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\CFG.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Preprocessor\PrePatternNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Preprocessor\PreResultNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Preprocessor\PreSuchThatNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Preprocessor\QueryPreprocessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Preprocessor\QueryTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h">
-    <ClInclude Include="..\Source\ParentTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\StmtList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\FollowTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\DesignExtractor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Source\AST.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\CallTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ProcTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\TNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\VarTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ModifyTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\UseTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\CFG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Preprocessor\PreResultNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Preprocessor\PreSuchThatNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Preprocessor\QueryPreprocessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp">
-
-    <ClCompile Include="..\Source\StmtList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\ParentTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\FollowTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\ProcessModUse.cpp">
-    <ClCompile Include="..\source\DesignExtractor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="..\Source\AST.h" />
+    <ClInclude Include="..\Source\CallTable.h" />
+    <ClInclude Include="..\Source\CFG.h" />
+    <ClInclude Include="..\Source\FollowTable.h" />
+    <ClInclude Include="..\Source\GNode.h" />
+    <ClInclude Include="..\Source\ModifyTable.h" />
+    <ClInclude Include="..\Source\ParentTable.h" />
+    <ClInclude Include="..\Source\Preprocessor\PrePatternNode.h" />
+    <ClInclude Include="..\Source\Preprocessor\PreResultNode.h" />
+    <ClInclude Include="..\Source\Preprocessor\PreSuchThatNode.h" />
+    <ClInclude Include="..\Source\Preprocessor\QueryPreprocessor.h" />
+    <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
+    <ClInclude Include="..\Source\ProcTable.h" />
+    <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
+    <ClInclude Include="..\Source\StmtList.h" />
+    <ClInclude Include="..\Source\TNode.h" />
+    <ClInclude Include="..\Source\UseTable.h" />
+    <ClInclude Include="..\Source\Utility.h" />
+    <ClInclude Include="..\Source\VarTable.h" />
+    <ClInclude Include="..\source\Parser.h" />
   </ItemGroup>
 </Project>

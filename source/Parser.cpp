@@ -59,9 +59,9 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 	checkAllBrackets(stringList);
 
 	str = processedList[i++];
-	checkFirstLine(str);
+	checkFirstLine(stringList);
 
-	while (i<stringList.size()) {
+	while (i < stringList.size()) {
 		str = stringList[i];
 		stringstream  sentence(str);
 		sentence << type;
@@ -355,30 +355,51 @@ bool Parser::isName(string name) {
 }
 
 bool Parser::isExpression(string expr) {
-	if () {
+	int i=0, start=-1, end;
+	string name;
+	char c;
 
+	if (expr.empty()) {
+		return false;
 	}
+	removeLineSpaces(expr);
+
+	while (!expr.empty()) {
+		c = expr.at(i);
+		if (c == '+' || c == '-' || c == '*' || c == '(') {
+			if (c == '(') {
+				if (!isPairedRoundBrackets(expr)) {
+					error("Missing round brackets ");
+				}
+			}
+			end = i;
+			name = expr.substr(start + 1, end - (start + 1));
+			if (!isName(name)) {
+				error("Invalid variable name ");
+			}
+			expr = expr.substr(end, expr.size() - end);
+			i = 0;
+		}
+		else {
+			i++;
+		}
+	}
+	return true;
 }
 
-bool Parser::isTerm(string term) {
-	if () {
-
-	}
-}
-
-bool Parser::isFactor(string factor) {
-	if () {
-
-	}
-}
-
-vector<string> Parser::removeSpaces(vector<string> stringList) {
+vector<string> Parser::removeAllSpaces(vector<string> stringList) {
 	string str;
 	for (int i = 0; i < stringList.size(); i++) {
 		str = stringList[i];
 		str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
 	}
 	return stringList;
+}
+
+string Parser::removeLineSpaces(string line) {
+	string str = line;
+	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+	return str;
 }
 
 int Parser::isStmtLst(vector<string> stringList, int startLine) {
@@ -404,7 +425,7 @@ int Parser::isStmtLst(vector<string> stringList, int startLine) {
 }
 
 int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex) {
-	std::size_t found1, found2;
+	
 	string line;
 	int endIndex = stringList.size() - startIndex - 1;
 
@@ -424,6 +445,22 @@ int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex) {
 	return endIndex;
 }
 
+bool Parser::isPairedRoundBrackets(string str) {
+	
+	if (str.find("(") != string::npos) {
+		roundBrackets++;
+	}
+	if (str.find(")") != string::npos) {
+		roundBrackets--;
+	}
+
+	if (roundBrackets != 0) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
 
 void Parser::checkAllBrackets(vector<string> stringList) {
 	string str;
@@ -491,7 +528,7 @@ string Parser::trim(string str) {
 
 void Parser::error(string errorType) {
 	cout << errorType + "ERROR";
-	exit;
+	exit(0);
 }
 
 Parser::~Parser() {

@@ -37,10 +37,12 @@ private:
 	vector<string> Parser::trimmedString(string str);
 	bool Parser::checkNotEmptyLine(string line);
 	string Parser::trim(string str);
-	vector<string> Parser::removeSpaces(vector<string> stringList);
+	vector<string> Parser::removeAllSpaces(vector<string> stringList);
+	string Parser::removeLineSpaces(string line);
 	int Parser::isStmtLst(vector<string> stringList, int startLine);
 	void Parser::checkAllBrackets(vector<string> stringList);
 	int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex);
+	bool Parser::isPairedRoundBrackets(string str);
 	void Parser::error(string errorType);
 	~Parser();
 };
