@@ -3,7 +3,7 @@
 #include <iostream>
 #include "QueryTree.h"
 #include "QueryPreprocessor.h"
-//#include "QueryHandler.h"
+#include "../QueryProcessor/QueryHandler.h"
 
 using namespace std;
 
@@ -26,8 +26,8 @@ void QueryPreprocessor::start(string line) {
 	}
 	QueryTree* tree = startProcess(declare, input);
 
-	//QueryHandler handler;
-	//handler.queryRec(tree);
+	QueryHandler handler;
+	handler.queryRec(tree);
 
 }
 
