@@ -400,5 +400,50 @@ namespace TestPreprocessor
 			QueryTree* tree30 = pro30.startProcess(declare30, input30);
 			Assert::AreEqual(false, tree30->getValidity());
 		}
+
+		TEST_METHOD(such_that_three_attribute)
+		{
+			QueryPreprocessor pro31;
+			string declare31 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input31 = "Select a1 such that Modifies(a1,v1,a2) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree31 = pro31.startProcess(declare31, input31);
+			Assert::AreEqual(false, tree31->getValidity());
+		}
+
+		TEST_METHOD(pattern_four_attribute)
+		{
+			QueryPreprocessor pro32;
+			string declare32 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input32 = "Select a1 such that Modifies(a1,v1) pattern a2(_,_\"x+y\"_,_)";
+			QueryTree* tree32 = pro32.startProcess(declare32, input32);
+			Assert::AreEqual(false, tree32->getValidity());
+		}
+
+		TEST_METHOD(such_taht_missing_attribute)
+		{
+			QueryPreprocessor pro33;
+			string declare33 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input33 = "Select a1 such that Modifies(a1,) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree33 = pro33.startProcess(declare33, input33);
+			Assert::AreEqual(false, tree33->getValidity());
+		}
+
+		TEST_METHOD(pattern_missing_attribute)
+		{
+			QueryPreprocessor pro34;
+			string declare34 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input34 = "Select a1 such that Modifies(a1,v1) pattern a2(_,)";
+			QueryTree* tree34 = pro34.startProcess(declare34, input34);
+			Assert::AreEqual(false, tree34->getValidity());
+		}
+
+		TEST_METHOD(missing_all_attribute)
+		{
+			QueryPreprocessor pro35;
+			string declare35 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input35 = "Select a1 such that Modifies(,) pattern a2(,)";
+			QueryTree* tree35 = pro35.startProcess(declare35, input35);
+			Assert::AreEqual(false, tree35->getValidity());
+		}
 	};
 }
