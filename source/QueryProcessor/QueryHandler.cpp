@@ -152,7 +152,7 @@ void QueryHandler::handleParent(std::string &firstAtt, std::string &secondAtt, s
 	}
 	else {
 		if (isInt(firstAtt)) {
-			parVec = parTab->getChild(stoi(secondAtt)));
+			parVec = parTab->getChild(stoi(secondAtt));
 		}
 	}
 }
@@ -272,6 +272,7 @@ vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string
 	}
 	return ansVec;
 }
+
 vector<pair<int, string>> QueryHandler::intersection(vector<pair<int, string>> vec1, vector<pair<int, string>> vec2) {
 	vector<pair<int, string>> ansVec;
 	for (size_t i = 0; i != (sizeof vec1); i++) {
