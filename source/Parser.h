@@ -11,10 +11,11 @@ class Parser
 {
 public:
 	Parser();
+	~Parser();
 	vector<string> Parser::parseInput(string fName);
 	std::vector<string> Parser::result(string fName);
 
-private:
+
 	vector<string> Parser::processFile(string fName);
 	vector<string> Parser::checkSyntax(vector<string> stringList);
 	vector<string> Parser::removeSpaces(vector<string> stringList);
@@ -44,7 +45,6 @@ private:
 	int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex);
 	bool Parser::isPairedRoundBrackets(string str);
 	void Parser::error(string errorType);
-	~Parser();
 };
 
 #endif
