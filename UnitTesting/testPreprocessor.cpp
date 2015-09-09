@@ -364,5 +364,41 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"_", tree26->getPattern()->getFirstAttr());
 			Assert::AreEqual((string)"_\"x+y\"_", tree26->getPattern()->getSecondAttr());
 		}
+
+		TEST_METHOD(Modifies_first_attr_underscore)
+		{
+			QueryPreprocessor pro27;
+			string declare27 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input27 = "Select a1 such that Modifies(_,v1) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree27 = pro27.startProcess(declare27, input27);
+			Assert::AreEqual(false, tree27->getValidity());
+		}
+
+		TEST_METHOD(Modifies_second_attr_not_variable)
+		{
+			QueryPreprocessor pro28;
+			string declare28 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input28 = "Select a1 such that Modifies(a1,a2) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree28 = pro28.startProcess(declare28, input28);
+			Assert::AreEqual(false, tree28->getValidity());
+		}
+
+		TEST_METHOD(parent_first_attr_not_container_stmt)
+		{
+			QueryPreprocessor pro29;
+			string declare29 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input29 = "Select a1 such that Parent(a1,a2) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree29 = pro29.startProcess(declare29, input29);
+			Assert::AreEqual(false, tree29->getValidity());
+		}
+
+		TEST_METHOD(parent_second_attr_not_assign_or_stmt)
+		{
+			QueryPreprocessor pro30;
+			string declare30 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input30 = "Select a1 such that Parent(a1,v1) pattern a2(_,_\"x+y\"_)";
+			QueryTree* tree30 = pro30.startProcess(declare30, input30);
+			Assert::AreEqual(false, tree30->getValidity());
+		}
 	};
 }
