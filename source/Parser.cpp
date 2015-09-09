@@ -13,14 +13,16 @@ using namespace std;
 int curlyBrackets = 0, roundBrackets = 0;
 
 
-Parser::Parser()
-{
+Parser::Parser(){
+}
+
+Parser::~Parser() {
 }
 
 vector<string> Parser::parseInput(string fName) {
 	vector<string> programLines = result(fName);
 
-	return removeSpaces(programLines);
+	return removeAllSpaces(programLines);
 }
 
 vector<string> Parser::result(string fName) {
@@ -540,5 +542,4 @@ void Parser::error(string errorType) {
 	exit(0);
 }
 
-Parser::~Parser() {
-}
+
