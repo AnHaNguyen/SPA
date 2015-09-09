@@ -356,29 +356,38 @@ bool Parser::isName(string name) {
 
 bool Parser::isExpression(string expr) {
 	int i = 0, start = -1, end;
-	string name;
+	string name, tempExpr;
 	char c;
 
 	if (expr.empty()) {
 		return false;
 	}
-	removeLineSpaces(expr);
+	tempExpr=removeLineSpaces(expr);
 
-	while (!expr.empty()) {
-		c = expr.at(i);
+	while (!tempExpr.empty() && i< tempExpr.size()) {
+		c = tempExpr.at(i);
 		if (c == '+' || c == '-' || c == '*' || c == '(') {
 			if (c == '(') {
-				if (!isPairedRoundBrackets(expr)) {
+				if (!isPairedRoundBrackets(tempExpr)) {
 					error("Missing round brackets ");
 				}
 			}
 			end = i;
-			name = expr.substr(start + 1, end - (start + 1));
+			name = tempExpr.substr(start + 1, end - (start + 1));
 			if (!isName(name)) {
 				error("Invalid variable name ");
 			}
-			expr = expr.substr(end, expr.size() - end);
+			tempExpr = tempExpr.substr(end, tempExpr.size() - end);
 			i = 0;
+		}
+		else if (i == tempExpr.size() - 1) {
+			name = tempExpr.substr(start + 1, end - (start + 1));
+			if (!isName(name)) {
+				error("Invalid variable name ");
+			}
+			else {
+				break;
+			}
 		}
 		else {
 			i++;
