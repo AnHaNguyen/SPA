@@ -114,7 +114,7 @@ namespace TestPreprocessor
 		{
 			QueryPreprocessor pro5;
 			string declare5 = "assign   a1 ,  a2 ,  a3  ;  while  w ;   stmt s1  ,  s2    ;  variable  v1  ; ";
-			string input5 = "  Select w such  that   Modifies  (  a1  , v1  )   pattern  a1(  _  ,  _ \" x \" _   )";
+			string input5 = "  Select w such  that   Modifies  (  a1  , v1  )   pattern  a1(  _  ,  _ \"   x   +   y  \" _   )";
 			QueryTree* tree5 = pro5.startProcess(declare5, input5);
 			Assert::AreEqual(true, tree5->getValidity());
 			Assert::AreEqual((string)"w", tree5->getResult()->getResult());
@@ -123,7 +123,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"v1", tree5->getSuchThat()->getSecondAttr());
 			Assert::AreEqual((string)"a1", tree5->getPattern()->getSynonym());
 			Assert::AreEqual((string)"_", tree5->getPattern()->getFirstAttr());
-			Assert::AreEqual((string)"_\"x\"_", tree5->getPattern()->getSecondAttr());
+			Assert::AreEqual((string)"_\"x+y\"_", tree5->getPattern()->getSecondAttr());
 		}
 
 		TEST_METHOD(such_that_attr_not_appear_in_declaration)
