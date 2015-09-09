@@ -26,7 +26,6 @@ namespace TestPreprocessor
 			Assert::AreEqual(true, p.isInteger(sInteger));
 
 		}
-
 		
 	};
 }
