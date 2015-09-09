@@ -98,3 +98,13 @@ vector<TNode* > AST::getType(string type) {
 	}
 	return returnList;
 }
+
+vector<int> AST::getAssign() {
+	vector<int> returnList;
+	for (unsigned i = 0; i < tree.size(); i++) {
+		if (tree.at(i)->getType() == "assign") {
+			returnList.push_back(tree.at(i)->getLine());
+		}
+	}
+	return returnList;
+}

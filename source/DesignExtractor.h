@@ -54,7 +54,8 @@ private:
 	int procedureNumber;
 	vector<TNode*> currentParent;
 
-	
+	void initialize();			//initialize tables
+	void storeToPKB();			//store tables after process to pkb
 	void processAST(vector<string> input);
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);

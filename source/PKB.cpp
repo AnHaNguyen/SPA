@@ -7,6 +7,7 @@
 #include "DesignExtractor.h"
 #include "VarTable.h"
 #include "ProcTable.h"
+#include "ConstTable.h"
 
 PKB::PKB() {
 }
@@ -65,4 +66,12 @@ ProcTable* PKB::getProcTable() {
 
 void PKB::setProcTable(ProcTable* procTable) {
 	PKB::procTable = procTable;
+}
+
+ConstTable* PKB::getConstTable() {
+	return constTable;
+}
+
+void PKB::setConstTable(ConstTable* constTable) {
+	PKB::constTable = constTable;
 }

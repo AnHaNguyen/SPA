@@ -126,11 +126,13 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		if (secondAttx.first.size() > 1 || secondAttx.second == true) {
 			//Case 1st: _
 			if (firstAtt.size() == 1) {
-				getAssign(firstAtt, secondAttx);
+				getAssign(firstAtt, secondAttx);	//call PKB::checkAssign(string pattern, bool contains_) ->vector<int>
 			}
 			//Case 1st: "x"
 			else {
-				getAssign(firstAtt.substr(1, 1), secondAttx);
+				getAssign(firstAtt.substr(1, 1), secondAttx); 
+				//call PKB::checkAssign(string pattern, bool contains_) for RHS -> vector<int>
+				//call PKB::getModifyTable()->getModifier(var)	for LHS ->vector<int>
 			}
 		}
 		//2nd is _ or "x"
@@ -139,22 +141,25 @@ bool QueryHandler::queryRec(QueryTree* query) {
 			if (secondAttx.first == "") {
 				//Case 1st: _
 				if (firstAtt.size() == 1) {
-					getAssignTable();
+					getAssignTable();	//PKB::getASTList() -> vector<AST*>
+										//run loop ast->getAssign() -> vector<int> on each ast on list
 				}
 				//Case 1st: "x"
 				else {
-					getModify(firstAtt.substr(1, 1));
+					getModify(firstAtt.substr(1, 1));	//PKB::getModifyTable()->getModifier(var) -> vector<int>
 				}
 			}
 			//Case 2nd: "x"
 			else {
 				//Case 1st: _
 				if (firstAtt.size() == 1) {
-					getUsed(secondAttx.first);
+					getUsed(secondAttx.first);		//PKB::getUseTable()->getUser(var) -> vector<int>
 				}
 				//Case 1st: "x"
 				else {
 					//getModify(firstAtt.substr(1, 1)) intersect getUsed(secondAttx.first))
+					//PKB::getUseTable()->getUser(var) -> vector<int>
+					//PKB::getModifyTable()->getModifier(var) -> vector<int>
 				}
 			}
 		}

@@ -1,3 +1,6 @@
+#ifndef CONSTTABLE_H
+#define CONSTTABLE_H
+
 #include <vector>
 #include <string>
 
@@ -25,3 +28,5 @@ public: ConstTable();
 		int size();
 		vector<ConstEntry_t> getTable();			//return whole table
 };
+
+#endif

@@ -6,11 +6,30 @@
 #include <ctype.h>
 #include <sstream>
 #include "DesignExtractor.h"
+#include "PKB.h"
 
 using namespace std;
 
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
+	
+	initialize();
+
+	lineNumber = 0;
+	stmtLstNumber = 0;
+	procedureNumber = 0;
+	
+	//buildAST(input);
+	processModTable();
+	processUseTable();
+	processProcTable();
+
+	storeToPKB();
+}
+
+DesignExtractor::~DesignExtractor(){}
+
+void DesignExtractor::initialize() {
 	followTable = new FollowTable();
 	parentTable = new ParentTable();
 	modTable = new ModifyTable();
@@ -18,18 +37,18 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	varTable = new VarTable();
 	procTable = new ProcTable();
 	constTable = new ConstTable();
-
-	//buildAST(input);
-	processModTable();
-	processUseTable();
-	processProcTable();
-
-	lineNumber = 0;
-	stmtLstNumber = 0;
-	procedureNumber = 0;
 }
 
-DesignExtractor::~DesignExtractor(){}
+void DesignExtractor::storeToPKB() {
+	//PKB::setASTList(ast);
+	PKB::setModifyTable(modTable);
+	PKB::setUseTable(useTable);
+	PKB::setProcTable(procTable);
+	PKB::setVarTable(varTable);
+	PKB::setConstTable(constTable);
+	//PKB::setParentTable(parentTable);
+	//PKB::setFollowTable(followTable);
+}
 
 //-------------------------AST-------------------------//
 vector<AST*> DesignExtractor::buildAST(vector<string> input){

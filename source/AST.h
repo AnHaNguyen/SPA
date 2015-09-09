@@ -26,7 +26,9 @@ public:
 	
 	bool isEquals(AST* subtree, bool contains_);		//check 2 subtree is equals		//case pattern a(_,"x+y")
 									//check if a subtree is contained in another		//case pattern a(_,_"x+y"_)
+
 	vector <TNode* > getType(string type);//get all type (:stmtList,:while, :assign, :var,:plus,..)
+	vector<int> getAssign();			//return all assignments in an ast
 };
 
 #endif
