@@ -3,7 +3,7 @@
 #include <iostream>
 #include "QueryTree.h"
 #include "QueryPreprocessor.h"
-#include "../QueryProcessor/QueryHandler.h"
+//#include "QueryHandler.h"
 
 using namespace std;
 
@@ -26,8 +26,8 @@ void QueryPreprocessor::start(string line) {
 	}
 	QueryTree* tree = startProcess(declare, input);
 
-	QueryHandler handler;
-	handler.queryRec(tree);
+	//QueryHandler handler;
+	//handler.queryRec(tree);
 
 }
 
@@ -129,13 +129,15 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 bool QueryPreprocessor::isValidSelection(string input){
 	vector<string> extractSelect = extractContent(input, "Select");
 	extractSelect[1] = trim(extractSelect[1]); 
+	
 	if (extractSelect[1] == "") {
 		return false;
 	}
-
+	
 	if (countWords(extractSelect[1], " ") > 1) {
 		return false;
 	}
+	
 	return true;
 }
 bool QueryPreprocessor::isValidSuchThat(){
@@ -143,8 +145,12 @@ bool QueryPreprocessor::isValidSuchThat(){
 		string clause = relations[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong such that" << endl;
+			cout << "wrong such that 1" << endl;
 			return false; 
+		}
+		if (countWords(clause, ",")>2) {
+			cout << "wrong such that 2" << endl;
+			return false;
 		}
 	}
 	return true;
@@ -154,7 +160,11 @@ bool QueryPreprocessor::isValidPattern(){
 		string clause = patterns[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong pattern" << endl;
+			cout << "wrong pattern 1" << endl;
+			return false;
+		}
+		if (countWords(clause, ",")>2) {
+			cout << "wrong pattern 2" << endl;
 			return false;
 		}
 	}

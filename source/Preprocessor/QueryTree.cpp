@@ -99,6 +99,9 @@ void QueryTree::setPattern(vector<string> terms){
 		pattern->setSecondAttr(second);
 	}
 	else {
+		cout << syn << endl;
+		cout << first << endl;
+		cout << second << endl;
 		cout << "wrong pattern TREE"  << endl;
 		isValid = false;
 	}
