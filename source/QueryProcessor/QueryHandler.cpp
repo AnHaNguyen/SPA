@@ -121,8 +121,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 	}
 }
 
-void QueryHandler::handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec)
-{
+void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<int> &useVec, vector<string> &uvarVec) {
 	UseTable* useTab = PKB::getUseTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 		if (getSymMean(secondAtt) == "variable") {
@@ -139,7 +138,7 @@ void QueryHandler::handleUses(std::string &firstAtt, std::string &secondAtt, std
 	}
 }
 
-void QueryHandler::handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec)
+void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<int> &parVec)
 {
 	ParentTable* parTab = PKB::getParentTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {

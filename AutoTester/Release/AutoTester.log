@@ -1,0 +1,14 @@
+﻿Build started 9/9/2015 11:28:51 AM.
+     1>Project "E:\Subject\Sem5\CS3201\Project\AutoTester\AutoTester.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /IE:\Subject\Sem5\CS3201\Project\source /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt source\TestWrapper.cpp
+         TestWrapper.cpp
+     1>source\TestWrapper.cpp(10): warning C4356: 'AbstractWrapper::GlobalStop': static data member cannot be initialized via derived class
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Subject\Sem5\CS3201\Project\Release\AutoTester.exe" /INCREMENTAL:NO /NOLOGO E:\Subject\Sem5\CS3201\Project\lib\AutoTester_release.lib E:\Subject\Sem5\CS3201\Project\Release\SPA.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"E:\Subject\Sem5\CS3201\Project\Release\AutoTester.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Subject\Sem5\CS3201\Project\Release\AutoTester.lib" /MACHINE:X86 /SAFESEH Release\TestWrapper.obj
+     1>LINK : fatal error LNK1181: cannot open input file 'E:\Subject\Sem5\CS3201\Project\Release\SPA.lib'
+     1>Done Building Project "E:\Subject\Sem5\CS3201\Project\AutoTester\AutoTester.vcxproj" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.63

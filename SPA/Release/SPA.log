@@ -1,0 +1,115 @@
+﻿Build started 9/9/2015 11:29:29 AM.
+     1>Project "E:\Subject\Sem5\CS3201\Project\SPA\SPA.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Source\AST.cpp ..\Source\CallTable.cpp ..\Source\CFG.cpp ..\source\ConstTable.cpp ..\source\DesignExtractor.cpp ..\Source\FollowTable.cpp ..\Source\GNode.cpp ..\Source\ModifyTable.cpp ..\Source\ParentTable.cpp ..\source\Parser.cpp ..\source\PKB.cpp ..\Source\Preprocessor\PrePatternNode.cpp ..\Source\Preprocessor\PreResultNode.cpp ..\Source\Preprocessor\PreSuchThatNode.cpp ..\Source\Preprocessor\QueryPreprocessor.cpp ..\Source\Preprocessor\QueryTree.cpp ..\Source\ProcTable.cpp ..\Source\QueryProcessor\QueryHandler.cpp ..\Source\StmtList.cpp ..\Source\TNode.cpp ..\Source\UseTable.cpp ..\Source\Utility.cpp ..\Source\VarTable.cpp
+         AST.cpp
+         CallTable.cpp
+         CFG.cpp
+         ConstTable.cpp
+         DesignExtractor.cpp
+     1>..\source\DesignExtractor.cpp(177): warning C4018: '<=': signed/unsigned mismatch
+     1>..\source\DesignExtractor.cpp(201): warning C4018: '<=': signed/unsigned mismatch
+     1>..\source\DesignExtractor.cpp(285): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
+         FollowTable.cpp
+         GNode.cpp
+         ModifyTable.cpp
+         ParentTable.cpp
+         Parser.cpp
+     1>..\source\Parser.cpp(64): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(302): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(313): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(324): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(335): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(367): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(401): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(477): warning C4018: '<': signed/unsigned mismatch
+     1>..\source\Parser.cpp(525): warning C4018: '<': signed/unsigned mismatch
+         PKB.cpp
+         PrePatternNode.cpp
+         PreResultNode.cpp
+         PreSuchThatNode.cpp
+         QueryPreprocessor.cpp
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(96): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(142): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(153): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(168): warning C4018: '>': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(219): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(296): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(310): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(323): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(337): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(344): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryPreprocessor.cpp(361): warning C4018: '<': signed/unsigned mismatch
+         QueryTree.cpp
+     1>..\Source\Preprocessor\QueryTree.cpp(108): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(109): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(121): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(146): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(154): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(163): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(164): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(174): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(175): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(185): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(194): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(195): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(269): warning C4390: ';': empty controlled statement found; is this the intent?
+     1>..\Source\Preprocessor\QueryTree.cpp(303): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(402): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(428): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(438): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(454): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(470): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(477): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(499): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(505): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\Preprocessor\QueryTree.cpp(506): warning C4018: '<': signed/unsigned mismatch
+         ProcTable.cpp
+         QueryHandler.cpp
+         StmtList.cpp
+     1>..\Source\StmtList.cpp(21): warning C4018: '<': signed/unsigned mismatch
+     1>..\Source\StmtList.cpp(28): warning C4018: '<': signed/unsigned mismatch
+         TNode.cpp
+         Compiling...
+         UseTable.cpp
+         Utility.cpp
+         VarTable.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Subject\Sem5\CS3201\Project\Release\SPA.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"E:\Subject\Sem5\CS3201\Project\Release\SPA.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Subject\Sem5\CS3201\Project\Release\SPA.lib" /MACHINE:X86 /SAFESEH Release\AST.obj
+         Release\CallTable.obj
+         Release\CFG.obj
+         Release\ConstTable.obj
+         Release\DesignExtractor.obj
+         Release\FollowTable.obj
+         Release\GNode.obj
+         Release\ModifyTable.obj
+         Release\ParentTable.obj
+         Release\Parser.obj
+         Release\PKB.obj
+         Release\PrePatternNode.obj
+         Release\PreResultNode.obj
+         Release\PreSuchThatNode.obj
+         Release\QueryPreprocessor.obj
+         Release\QueryTree.obj
+         Release\ProcTable.obj
+         Release\QueryHandler.obj
+         Release\StmtList.obj
+         Release\TNode.obj
+         Release\UseTable.obj
+         Release\Utility.obj
+         Release\VarTable.obj
+     1>Parser.obj : error LNK2001: unresolved external symbol "private: class std::vector<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >,class std::allocator<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > > __thiscall Parser::removeSpaces(class std::vector<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >,class std::allocator<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > >)" (?removeSpaces@Parser@@AAE?AV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@V23@@Z)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class FollowTable * PKB::followTable" (?followTable@PKB@@0PAVFollowTable@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class ModifyTable * PKB::modifyTable" (?modifyTable@PKB@@0PAVModifyTable@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class std::vector<class AST *,class std::allocator<class AST *> > PKB::astList" (?astList@PKB@@0V?$vector@PAVAST@@V?$allocator@PAVAST@@@std@@@std@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class ParentTable * PKB::parentTable" (?parentTable@PKB@@0PAVParentTable@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class VarTable * PKB::varTable" (?varTable@PKB@@0PAVVarTable@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class UseTable * PKB::useTable" (?useTable@PKB@@0PAVUseTable@@A)
+     1>PKB.obj : error LNK2001: unresolved external symbol "private: static class ProcTable * PKB::procTable" (?procTable@PKB@@0PAVProcTable@@A)
+     1>MSVCRT.lib(exe_winmain.obj) : error LNK2001: unresolved external symbol _WinMain@16
+     1>E:\Subject\Sem5\CS3201\Project\Release\SPA.exe : fatal error LNK1120: 9 unresolved externals
+     1>Done Building Project "E:\Subject\Sem5\CS3201\Project\SPA\SPA.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:12.36
