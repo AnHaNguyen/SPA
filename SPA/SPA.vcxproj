@@ -187,7 +187,6 @@
     <ClCompile Include="..\Source\Preprocessor\PreSuchThatNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\QueryPreprocessor.cpp" />
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
-    <ClCompile Include="..\source\ProcessModUse.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
     <ClCompile Include="..\Source\StmtList.cpp" />
