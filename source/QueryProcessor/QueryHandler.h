@@ -12,9 +12,10 @@ public:
 	~QueryHandler();
 	bool queryRec(QueryTree* query);
 
+	vector<int> handleFollows(std::string &firstAtt, std::string &secondAtt);
+
 	vector< vector<string> > symTable;
 	string handleSelect(QueryTree * query, PreResultNode * &result);
-	int handleSuchThat(QueryTree * query, PreSuchThatNode * &suchThat, string selType);
 	bool isInt(std::string &secondAtt);
 	vector<int> handlePattern(QueryTree * query, PrePatternNode * &pattern);
 	vector<int> handlePType(string &type, string &firstAtt, string &secondAtt);
