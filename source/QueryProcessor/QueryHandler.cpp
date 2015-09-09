@@ -224,3 +224,4 @@ string QueryHandler::getSymMean(string sym) {
 		}
 	}
 }
+//Implement intersection method (case pair (n1, v1) and select v or n

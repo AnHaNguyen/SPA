@@ -12,6 +12,8 @@ public:
 	~QueryHandler();
 	bool queryRec(QueryTree* query);
 
+	void handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec);
+
 	void handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec);
 
 	void handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &varVec);
@@ -21,8 +23,6 @@ public:
 	vector< vector<string> > symTable;
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 	bool isInt(string &secondAtt);
-	vector<int> handlePattern(QueryTree * query, PrePatternNode * &pattern);
-	vector<int> handlePType(string &type, string &firstAtt, string &secondAtt);
 	string QueryHandler::getSymMean(string sym);
 }
 #endif
