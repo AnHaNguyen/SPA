@@ -29,5 +29,5 @@ public:
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<int, string>> vec2);
 	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string>> vec2);
 	vector<pair<int, string>> QueryHandler::intersection(vector<pair<int, string>> vec1, vector<pair<int, string>> vec2);
-}
+};
 #endif

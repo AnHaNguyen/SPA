@@ -10,22 +10,22 @@
 #include "../ParentTable.h"
 
 
-using namespace std;
-QueryHandler::QueryHandler() {};
-QueryHandler::~QueryHandler() {};
+
+QueryHandler::QueryHandler() {}
+QueryHandler::~QueryHandler() {}
 
 bool QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
-	if (query->getValidity == false)
+	if (query->getValidity() == false)
 		return false;
 
 	//Initiate nodes
 	PreResultNode* result;
 	PreSuchThatNode* suchThat;
 	PrePatternNode* pattern;
-	if (query->getSymbolTable != NULL) {
-		symTable = query->getSymbolTable;
+	if (query->getSymbolTable().size()!=0) {
+		symTable = query->getSymbolTable();
 	}
 	else {
 		return false;
@@ -35,7 +35,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 	string selType = handleSelect(query, result);
 
 	//Handle suchThat
-	if (query->getSuchThat != NULL) {
+	if (query->getSuchThat() != NULL) {
 		suchThat = query->getSuchThat();
 		string syn = suchThat->getSynonym();
 		string firstAtt = suchThat->getFirstAttr();
@@ -112,7 +112,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 	}
 
 	//Handle pattern
-	if (query->getPattern != NULL) {
+	if (query->getPattern() != NULL) {
 		pattern = query->getPattern();
 		string syn = pattern->getSynonym();
 		string pType = getSymMean(syn);
@@ -196,9 +196,9 @@ vector<int> QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 
 string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 {
-	if (query->getResult != NULL) {
+	if (query->getResult() != NULL) {
 		result = query->getResult();
-		string rs = result->getResult;
+		string rs = result->getResult();
 		return getSymMean(rs);
 	}
 }
