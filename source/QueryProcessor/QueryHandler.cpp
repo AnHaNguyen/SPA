@@ -43,53 +43,58 @@ bool QueryHandler::queryRec(QueryTree* query) {
 
 		//Handle follows
 		vector<int> folVec;
+		vector<FollowEntry_t> folTab;
 		if (syn == "follows") {
 			folVec = handleFollows(firstAtt, secondAtt);
 			if (folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
-				vector<FollowEntry_t> folTab = FollowTable->getTable();
+				folTab = FollowTable->getTable();
 			}
 		}
-
+		/*
 		if (syn == "follows*") {
 			folVec = getFollowsS(firstAtt, secondAtt);
 		}
+		*/
 
 		//Handle modifies
-		vector<string> varVec;
+		vector<string> mvarVec;
 		vector<int> modVec;
+		vector<ModifyEntry_t> modTab;
 		if (syn == "modifies") {
-			handleModifies(firstAtt, secondAtt, modVec, varVec);
+			handleModifies(firstAtt, secondAtt, modVec, mvarVec);
 			if (modVec.front() == -1) {
 				ModifyTable* ModifyTable = PKB::getModifyTable();
-				vector<ModifyEntry_t> modTab = ModifyTable->getTable();
+				modTab = ModifyTable->getTable();
 			}
 		}
 
 		//Handle parent
+		vector<int> parVec;
+		vector<ParentEntry_t> parTab;
 		if (syn == "parent") {
-			ParentTable* folTab = PKB::getParentTable();
-			if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-				if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
-					ansVec.push_back(-1);
-				}
-				if (isInt(secondAtt)) {
-					ansVec.push_back(folTab->getParent(stoi(secondAtt)));
-				}
-			}
-			else {
-				if (isInt(secondAtt)) {
-					ansVec.push_back(folTab->getChild(stoi(secondAtt)));
-				}
+			handleParent(firstAtt, secondAtt, parVec);
+			if (parVec.front() == -1) {
+				ParentTable* ParentTable = PKB::getParentTable();
+				parTab = ParentTable->getTable();
 			}
 		}
 
-		if (syn == "parent*") {
+		/*if (syn == "parent*") {
 			ansVec = getParentS(firstAtt, secondAtt);
-		}
+		}*/
 
 		//Handle uses
-
+		vector<string> uvarVec;
+		vector<int> useVec;
+		vector<UseEntry_t> useTab;
+		if (syn == "uses") {
+			handleUses(firstAtt, secondAtt, useVec, uvarVec);
+			if (useVec.front() == -1) {
+				UseTable* UseTable = PKB::getUseTable();
+				useTab = UseTable->getTable();
+			}
+		}
 
 		/*Handle affecs - next (next iteration)
 		if (syn == "affects") {
@@ -104,14 +109,55 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "next") {
 		ansVec = getNextS(firstAtt, secondAtt);
 		}*/
-		return ansVec;
 	}
 
 	//Handle pattern
-	vector <int> PatVec = handlePattern(query, pattern);
+	if (query->getPattern != NULL) {
+		pattern = query->getPattern();
+		string syn = pattern->getSynonym();
+		string pType = getSymMean(syn);
+		string firstAtt = pattern->getFirstAttr();
+		string secondAtt = pattern->getSecondAttr();
+	}
 }
 
-void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &varVec)
+void QueryHandler::handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec)
+{
+	UseTable* useTab = PKB::getUseTable();
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
+		if (getSymMean(secondAtt) == "variable") {
+			useVec.push_back(-1);
+		}
+		else {
+			useVec = useTab->getUser(secondAtt);
+		}
+	}
+	else {
+		if (isInt(firstAtt)) {
+			uvarVec = useTab->getUsed(stoi(firstAtt));
+		}
+	}
+}
+
+void QueryHandler::handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec)
+{
+	ParentTable* parTab = PKB::getParentTable();
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
+		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
+			parVec.push_back(-1);
+		}
+		if (isInt(secondAtt)) {
+			parVec.push_back(parTab->getParent(stoi(secondAtt)));
+		}
+	}
+	else {
+		if (isInt(firstAtt)) {
+			parVec = parTab->getChild(stoi(secondAtt)));
+		}
+	}
+}
+
+void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &mvarVec)
 {
 	ModifyTable* modTab = PKB::getModifyTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
@@ -124,7 +170,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 	}
 	else {
 		if (isInt(firstAtt)) {
-			varVec.push_back(modTab->getModified(stoi(firstAtt)));
+			mvarVec.push_back(modTab->getModified(stoi(firstAtt)));
 		}
 	}
 }
@@ -169,38 +215,6 @@ bool QueryHandler::isInt(string &secondAtt)
 	}
 }
 
-vector<int> QueryHandler::handlePattern(QueryTree * query, PrePatternNode * &pattern)
-{
-	if (query->getPattern != NULL) {
-		pattern = query->getPattern();
-		vector<int> PTVec = handlePT(pattern);
-		pair<string, string> pat = pattern->getSynonym();
-		string type = pat.first;
-		string syn = pat.second;
-		string firstAtt = pattern->getFirstAttr();
-		string secondAtt = pattern->getSecondAttr();
-
-		handlePType(type, firstAtt, secondAtt);
-		if (type == "BOOLEAN") {
-			handlePType(type, firstAtt, secondAtt);
-		}
-	}
-}
-
-vector<int> QueryHandler::handlePType(string &type, string &firstAtt, string &secondAtt)
-{
-	vector<int> ansVec;
-	if (type == "assign") {
-		ansVec = getAssign(firstAtt, secondAtt);
-	}
-	if (type == "while") {
-		ansVec = getWhile(firstAtt, secondAtt);
-	}
-	if (type == "if") {
-		ansVec = getIf(firstAtt, secondAtt);
-	}
-	return ansVec;
-}
 
 string QueryHandler::getSymMean(string sym) {
 	for (vector<int>::size_type i = 0; i != symTable.size(); i++) {
