@@ -24,5 +24,10 @@ public:
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 	bool isInt(string &secondAtt);
 	string QueryHandler::getSymMean(string sym);
+	vector<int> QueryHandler::intersection(vector<int> vec1, vector<int> vec2);
+	vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2);
+	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<int, string>> vec2);
+	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string>> vec2);
+	vector<pair<int, string>> QueryHandler::intersection(vector<pair<int, string>> vec1, vector<pair<int, string>> vec2);
 }
 #endif

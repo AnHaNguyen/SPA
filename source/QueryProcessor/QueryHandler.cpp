@@ -225,3 +225,62 @@ string QueryHandler::getSymMean(string sym) {
 	}
 }
 //Implement intersection method (case pair (n1, v1) and select v or n
+vector<int> QueryHandler::intersection(vector<int> vec1, vector<int> vec2) {
+	vector<int> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		int current = vec1[i];
+		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
+			ansVec.push_back(current);
+		}
+	}
+	return ansVec;
+}
+
+vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2) {
+	vector<string> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		string current = vec1[i];
+		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
+			ansVec.push_back(current);
+		}
+	}
+	return ansVec;
+}
+
+vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<int, string>> vec2) {
+	vector<string> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		string current = vec1[i];
+		for (size_t j = 0; j != (sizeof vec2); j++) {
+			if (vec2[j].second == current) {
+				ansVec.push_back(current);
+			}
+		}
+	}
+	return ansVec;
+}
+
+vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string>> vec2) {
+	vector<int> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		int current = vec1[i];
+		for (size_t j = 0; j != (sizeof vec2); j++) {
+			if (vec2[j].first == current) {
+				ansVec.push_back(current);
+			}
+		}
+	}
+	return ansVec;
+}
+vector<pair<int, string>> QueryHandler::intersection(vector<pair<int, string>> vec1, vector<pair<int, string>> vec2) {
+	vector<pair<int, string>> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		pair<int, string> current = vec1[i];
+		for (size_t j = 0; j != (sizeof vec2); j++) {
+			if (vec2[j] == current) {
+				ansVec.push_back(current);
+			}
+		}
+	}
+	return ansVec;
+}
