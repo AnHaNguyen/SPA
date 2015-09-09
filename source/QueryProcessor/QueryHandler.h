@@ -12,6 +12,8 @@ public:
 	~QueryHandler();
 	bool queryRec(QueryTree* query);
 
+	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
+
 	void handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec);
 
 	void handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec);
