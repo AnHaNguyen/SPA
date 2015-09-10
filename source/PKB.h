@@ -40,7 +40,7 @@ public:
 		 static ConstTable* getConstTable();				//for Query
 		 static void setConstTable(ConstTable* constTable);			//for Extractor
 
-		 static vector<int> checkAssign(string pattern, bool contains_);
+		 static vector<int> checkAssign(string pattern, bool contains_);	//to check pattern
 };
 
 #endif

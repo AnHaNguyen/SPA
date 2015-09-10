@@ -75,3 +75,13 @@ ConstTable* PKB::getConstTable() {
 void PKB::setConstTable(ConstTable* constTable) {
 	PKB::constTable = constTable;
 }
+
+vector<int> PKB::checkAssign(string pattern, bool contains_) {
+	vector<int> returnList;
+	AST* subtree = DesignExtractor::buildSubtree(pattern);
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
+		returnList.insert(returnList.end(), temp.begin(), temp.end());
+	}
+	return returnList;
+}
