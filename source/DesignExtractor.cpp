@@ -6,18 +6,26 @@
 #include <ctype.h>
 #include <sstream>
 #include "DesignExtractor.h"
-#include "PKB.h"
 
 using namespace std;
+
+int main(){
+	vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;" ,
+			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+			"procedureThird{", "z=5;", "v=z;}" };
+	for(unsigned i = 0; i < code.size(); i++){
+		cout << "out put = " << code.at(i) << endl;
+	}
+
+	DesignExtractor object = DesignExtractor(code);
+
+}
 
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
 	
 	initialize();
-
-	lineNumber = 0;
-	stmtLstNumber = 0;
-	procedureNumber = 0;
 	
 	//buildAST(input);
 	processModTable();
@@ -37,6 +45,10 @@ void DesignExtractor::initialize() {
 	varTable = new VarTable();
 	procTable = new ProcTable();
 	constTable = new ConstTable();
+
+	lineNumber = 0;
+	stmtLstNumber = 0;
+	procedureNumber = 1;
 }
 
 void DesignExtractor::storeToPKB() {
@@ -53,71 +65,92 @@ void DesignExtractor::storeToPKB() {
 //-------------------------AST-------------------------//
 vector<AST*> DesignExtractor::buildAST(vector<string> input){
 	processAST(input);
-
 	return ast;
 }
 
 void DesignExtractor::processAST(vector<string> input){
-	for(unsigned i = 0; i < input.size(); i++){
-		string curLine = input.at(lineNumber);
-		size_t curLineLen = curLine.length(); 
+	for (unsigned i = 0; i < input.size(); i++) {
+		// Current line in input, not lineNumber marked for stmt
+		string curLine = input.at(i);
+		size_t curLineLen = curLine.length();
 
-		if(curLine.find(PROCEDURE)){
+		if (curLine.find(PROCEDURE)) {
+			// new procedure, clear all old elements of old procedure
+			ASTCurParent.clear();
+
 			string theRestOfLine = curLine.substr(PROC_LEN);
 			processProcedure(theRestOfLine);
-		} else if (curLine.find(WHILE)){
+		}
+		else if (curLine.find(WHILE)) {
 			string theRestOfLine = curLine.substr(WHILE_LEN);
 			lineNumber++;
 			processWhile(theRestOfLine, lineNumber);
-		} else {
+		}
+		else if (curLine.find(EQUAL)) {
 			size_t posEqualSign = curLine.find(EQUAL);
-			size_t posCloseBracket = curLine.find(CLOSE_BRACKET);
 			size_t posSemicolon = curLine.find(SEMICOLON);
 
-			string leftSide = curLine.substr(0, posEqualSign - 1);
+			string leftSide = curLine.substr(0, posEqualSign);
 			string rightSide = curLine.substr(posEqualSign + 1, posSemicolon - posEqualSign - 1);
 			lineNumber++;
 
 			processAssign(leftSide, rightSide, lineNumber);
+		}
+		else {
+			return;
+		}
 
-			// Check the appearance of }
-			if(curLine.find(CLOSE_BRACKET) != string::npos){
-				if(currentParent.size() > 0)
-					currentParent.pop_back();
-				else {
-					procedureNumber++;
-				}
+		// Check the appearance of }
+		string tempLine = curLine;
+		while (true) {
+			size_t posCloseBracket = tempLine.find(CLOSE_BRACKET);
+			
+			if (posCloseBracket != string::npos) {
+				tempLine.erase(posCloseBracket, 1);
+				while (true) {
+					TNode* removedParent = ASTCurParent.at(ASTCurParent.size() - 1);
+					string typeRemovedParent = removedParent->getType();
+					ASTCurParent.pop_back();
 					
+					if (typeRemovedParent != STMTLST)
+						break;
+				}
+			}
+			else {
+				break;
 			}
 		}
 	}
 }
 
 void DesignExtractor::processProcedure(string theRestOfLine){
-	// trim bracket {
+	// remove bracket {
 	size_t posOfOpenBracket = theRestOfLine.find(OPEN_BRACKET);
 	string value = theRestOfLine.substr(0, posOfOpenBracket - 1);
 
 	// Put procedure into tree
+	// procedure + stmtLst: no line number
 	TNode* procNode = new TNode(value, PROCEDURE, 0);
 
 	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 
 	ast.at(procedureNumber)->addToTree(procNode);
-	ast.at(procedureNumber)->makeChild(procNode, stmtLstNode);
+	ASTCurParent.push_back(procNode);
 	
 	// Put statementList into tree
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	currentParent.push_back(stmtLstNode);
+	ast.at(procedureNumber)->makeChild(procNode, stmtLstNode);
+	ASTCurParent.push_back(stmtLstNode);
 }
 
 void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
-	// Put while into tree
+	// Put whileNode into tree
 	TNode* whileNode = new TNode(NO_VALUE, WHILE, lineNumber);
-	ast.at(procedureNumber)->makeChild(currentParent.at(currentParent.size() - 1), whileNode);
+	
 	ast.at(procedureNumber)->addToTree(whileNode);
-	currentParent.push_back(whileNode);
+	ast.at(procedureNumber)->makeChild(ASTCurParent.at(ASTCurParent.size() - 1), whileNode);
+	ASTCurParent.push_back(whileNode);
 
 	// Put StmtLst of while into tree
 	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
@@ -125,75 +158,89 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 
 	ast.at(procedureNumber)->makeChild(whileNode, stmtLstNode);
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	currentParent.push_back(stmtLstNode);
+	ASTCurParent.push_back(stmtLstNode);
 
 	// Put control variable into tree
 	size_t posOfOpenBracket = theRestOfLine.find(OPEN_BRACKET);
-	string controlVar = theRestOfLine.substr(0, posOfOpenBracket - 1);
+	string controlVar = theRestOfLine.substr(0, posOfOpenBracket);
 	
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
 	ast.at(procedureNumber)->makeChild(stmtLstNode, controlVarNode);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
 }
 
-// No } in right side
+// No ;} in right side
 void DesignExtractor::processAssign(string leftSide, string rightSide, int lineNumber){
-	// Put assignment into tree
-	TNode* leftVar = new TNode(leftSide, VARIABLE, lineNumber);
-	TNode* curParent = currentParent.at(currentParent.size() - 1);
-	ast.at(procedureNumber)->makeChild(curParent, leftVar);
-	ast.at(procedureNumber)->addToTree(leftVar);
+	// Put assign node into tree
+	TNode* curParent = ASTCurParent.at(ASTCurParent.size() - 1);
+	TNode* assignNode = new TNode(NO_VALUE, ASSIGN, lineNumber);
 
-	processRightSideAssign(curParent, rightSide, lineNumber);
+	ast.at(procedureNumber)->addToTree(assignNode);
+	ast.at(procedureNumber)->makeChild(curParent, assignNode);
+	ASTCurParent.push_back(assignNode);
+
+	// Supposed that left side is always variable
+	TNode* leftVar = new TNode(leftSide, VARIABLE, lineNumber);
+
+	ast.at(procedureNumber)->addToTree(leftVar);
+	ast.at(procedureNumber)->makeChild(assignNode, leftVar);
+
+	processRightSideAssign(assignNode, rightSide, lineNumber);
+	ASTCurParent.pop_back();
 }
 
 void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide, int lineNumber){
 	vector<int> plusList;
 
 	// Find the position of each plus sign
-	while(true){
-		int posOfPlus = rightSide.find(PLUS);
+	string tempStr = rightSide;
+	while (true) {
+		int posOfPlus = tempStr.find(PLUS);
 
 		if(posOfPlus != string::npos){
+			tempStr.erase(posOfPlus, 1);
 			plusList.push_back(posOfPlus);
 		} else {
 			// Fake plus sign
-			plusList.push_back(rightSide.length());
+			plusList.push_back(tempStr.length());
 			break;
 		}
 	}
 
 	// Create subtree of assignment
-	string leftVar = rightSide.substr(0, plusList.at(0) - 1);
-	string typeOfLeftVar = exprType(leftVar);
+	string leftSubTree = rightSide.substr(0, plusList.at(0));
+	string typeOfLeft = exprType(leftSubTree);
 
-	TNode* leftVarNode = new TNode(leftVar, typeOfLeftVar, lineNumber);
-	ast.at(procedureNumber)->addToTree(leftVarNode);
+	TNode* leftSubTreeNode = new TNode(leftSubTree, typeOfLeft, lineNumber);
+	ast.at(procedureNumber)->addToTree(leftSubTreeNode);
 
 	for(unsigned i = 0; i < plusList.size() - 1; i++){
-		string rightVar = rightSide.substr(plusList.at(i) + 1, plusList.at(i+1) - 1);	
-		string typeOfRightVar = exprType(rightVar);
+		int prevPlus = plusList.at(i);
+		int nextPlus = plusList.at(i + 1);
 
-		TNode* rightVarNode = new TNode(rightVar, typeOfRightVar, lineNumber);
+		string rightSubTree = rightSide.substr(prevPlus + 1, nextPlus - prevPlus - 1);	
+		string typeOfRight = exprType(rightSubTree);
+
+		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
-		ast.at(procedureNumber)->addToTree(rightVarNode);
-		ast.at(procedureNumber)->makeChild(plusNode, rightVarNode);
-		ast.at(procedureNumber)->makeChild(plusNode, leftVarNode);
+		ast.at(procedureNumber)->addToTree(rightSubTreeNode);
+		ast.at(procedureNumber)->makeChild(plusNode, rightSubTreeNode);
+		ast.at(procedureNumber)->makeChild(plusNode, leftSubTreeNode);
 
-		leftVarNode = plusNode;
-		ast.at(procedureNumber)->addToTree(leftVarNode);
+		leftSubTreeNode = plusNode;
+		ast.at(procedureNumber)->addToTree(leftSubTreeNode);
 	}
 
 	// Stick subtree to main tree
-	ast.at(procedureNumber)->makeChild(curParent, leftVarNode);
+	ast.at(procedureNumber)->makeChild(curParent, leftSubTreeNode);
 }
 
 //-------------------Create Follow Table---------------------//
 FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 	FollowTable* followTable = new FollowTable();
 
-	for(unsigned i = 1; i <= stmtLstNumber; i++){
+	for(int i = 1; i <= stmtLstNumber; i++){
 		string value = convertStmtLstNumber(i);
 		// unique StmtLst
 		TNode* parent = new TNode(value, STMTLST, 0);
@@ -217,7 +264,7 @@ FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 	ParentTable* parentTable = new ParentTable();
 
-	for(unsigned i = 1; i <= stmtLstNumber; i++) {
+	for(int i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
 		TNode* stmtLst = new TNode(value, STMTLST, 0);
 
@@ -240,8 +287,7 @@ ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 	return parentTable;
 }
 
-bool DesignExtractor::processModTable() {
-	
+bool DesignExtractor::processModTable() {	
 	for (unsigned i = 0; i < input.size(); i++) {			
 		string line = input.at(i);
 		unsigned pos = line.find(EQUAL);
@@ -326,6 +372,26 @@ ParentTable* DesignExtractor::getParentTable(AST* ast){
 	return processParentRelationship(ast);
 }
 
+ModifyTable* DesignExtractor::getModTable() {
+	return modTable;
+}
+
+UseTable* DesignExtractor::getUseTable() {
+	return useTable;
+}
+
+VarTable* DesignExtractor::getVarTable() {
+	return varTable;
+}
+
+ConstTable* DesignExtractor::getConstTable() {
+	return constTable;
+}
+
+ProcTable* DesignExtractor::getProcTable() {
+	return procTable;
+}
+
 // Smaller modules
 string DesignExtractor::convertStmtLstNumber(int stmtLstNumber){
 	stmtLstNumber++;
@@ -346,24 +412,4 @@ string DesignExtractor::exprType(string numText){
 	} else {
 		return VARIABLE;
 	}
-}
-
-ModifyTable* DesignExtractor::getModTable() {
-	return modTable;
-}
-
-UseTable* DesignExtractor::getUseTable() {
-	return useTable;
-}
-
-VarTable* DesignExtractor::getVarTable() {
-	return varTable;
-}
-
-ConstTable* DesignExtractor::getConstTable() {
-	return constTable;
-}
-
-ProcTable* DesignExtractor::getProcTable() {
-	return procTable;
 }

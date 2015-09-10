@@ -12,6 +12,7 @@
 #include "VarTable.h"
 #include "ProcTable.h"
 #include "ConstTable.h"
+#include "PKB.h"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ private:
 	int lineNumber;
 	int stmtLstNumber;
 	int procedureNumber;
-	vector<TNode*> currentParent;
+	vector<TNode*> ASTCurParent;
 
 	void initialize();			//initialize tables
 	void storeToPKB();			//store tables after process to pkb
