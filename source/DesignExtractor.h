@@ -66,12 +66,13 @@ private:
 	bool processProcTable();
 
 	bool isConst(string var);
-	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
+	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
 	FollowTable* processFollowRelationship(AST* ast);
 	ParentTable* processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
+	int getRealLineNumber(int lineNumber, string input);
 
 public:
 	DesignExtractor(vector<string> input);
@@ -86,6 +87,7 @@ public:
 	ProcTable* getProcTable();
 	ConstTable* getConstTable();
 	vector<AST*> getASTList();
+	AST* buildSubtree(string pattern);
 };
 
 #endif
