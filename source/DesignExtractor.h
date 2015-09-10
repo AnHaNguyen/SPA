@@ -72,6 +72,7 @@ private:
 	ParentTable* processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
+	int getRealLineNumber(int lineNumber, string input);
 
 public:
 	DesignExtractor(vector<string> input);

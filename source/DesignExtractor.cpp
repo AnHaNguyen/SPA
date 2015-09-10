@@ -22,6 +22,7 @@ int main(){
 
 }
 
+
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
 	
@@ -240,13 +241,13 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 	FollowTable* followTable = new FollowTable();
 
-	for(int i = 1; i <= stmtLstNumber; i++){
+	for(int i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
 		// unique StmtLst
 		TNode* parent = new TNode(value, STMTLST, 0);
 
 		vector<TNode*> childLst = ast->findChild(parent);
-		for(unsigned j = 0; j < childLst.size() - 1; j++){
+		for(unsigned j = 0; j < childLst.size() - 1; j++) {
 			TNode* preChild = childLst.at(j);
 			TNode* nextChild = childLst.at(j + 1);
 
@@ -261,6 +262,7 @@ FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 }
 
 //--------------------Create Parent Table-------------------//
+// stmtLst's parent is the parent of stmtLst's child
 ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 	ParentTable* parentTable = new ParentTable();
 
@@ -272,7 +274,7 @@ ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 		string typeOfPar = parStmtLst->getType();
 		int parLine = parStmtLst->getLine();
 
-		if(typeOfPar.compare(WHILE)){
+		if(typeOfPar == WHILE) {
 			vector<TNode*> childStmtLst = ast->findChild(stmtLst);
 
 			for(unsigned j = 0; j < childStmtLst.size(); j++){
@@ -288,12 +290,15 @@ ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 }
 
 bool DesignExtractor::processModTable() {	
+	int lineNumber = 0;
 	for (unsigned i = 0; i < input.size(); i++) {			
 		string line = input.at(i);
+		lineNumber = getRealLineNumber(lineNumber, line);
 		unsigned pos = line.find(EQUAL);
+
 		if (pos != string::npos){
 			string var = line.substr(0, pos);
-			modTable->add(i, var);							//to replace i with actual line no
+			modTable->add(lineNumber, var);							// actual lineNumber
 			varTable->addVar(var);
 		}
 	}
@@ -301,28 +306,34 @@ bool DesignExtractor::processModTable() {
 }
 
 bool DesignExtractor::processUseTable() {
+	int lineNumber = 0;
+
 	for (unsigned i = 0; i < input.size(); i++) {
 		string line = input.at(i);
 		string type = line.substr(0, 5);
 		if (type == WHILE) {
 			string var = line.substr(5, line.size() - 6);
-			useTable->add(i, var);			//start after while (5), length = size - start - '{'
-											//to replace i with actual line no
+			lineNumber = getRealLineNumber(lineNumber, line);
+
+			useTable->add(lineNumber, var);			// start after while (5), length = size - start - '{'
 			varTable->addVar(var);
 		}
-		else {								//i stands for line number, not index
+		else {								
 			unsigned pos = line.find(EQUAL);
+			lineNumber = getRealLineNumber(lineNumber, line);
+
 			if (pos != string::npos) {
 				line = line.substr(pos + 1, line.size() - pos - 1);			//remove =
 				pos = line.find(PLUS);
 				while (pos != string::npos) {
 					string var = line.substr(0, pos);
-					if (!isConst(var)) {
-						useTable->add(i, var);				//to replace i with actual line no
+
+					if (!isConst(var)) {	
+						useTable->add(lineNumber, var);				
 						varTable->addVar(var);
 					}
 					else {
-						constTable->addToTable(i, var);		//to replace i with actual line no
+						constTable->addToTable(lineNumber, var);		
 					}
 					line = line.substr(pos + 1, line.size() - pos - 1);		//remove +
 					pos = line.find(PLUS);
@@ -334,11 +345,11 @@ bool DesignExtractor::processUseTable() {
 					line = line.substr(0, line.size() - 1);		//remove ';'
 				}
 				if (!isConst(line)) {
-					useTable->add(i, line);					//to replace i with actual line no
+					useTable->add(lineNumber, line);					
 					varTable->addVar(line);
 				}
 				else {
-					constTable->addToTable(i, line);		//to replace i with actual line no
+					constTable->addToTable(lineNumber, line);
 				}
 			}
 		}
@@ -412,4 +423,14 @@ string DesignExtractor::exprType(string numText){
 	} else {
 		return VARIABLE;
 	}
+}
+
+int DesignExtractor::getRealLineNumber(int lineNumber, string line) {
+	// Keep track lineNumber from input
+	unsigned posOfProc = line.find(PROCEDURE);
+	if (posOfProc == string::npos) {
+		lineNumber++;
+	}
+
+	return lineNumber;
 }
