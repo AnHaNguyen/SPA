@@ -72,5 +72,44 @@ namespace UnitTesting
 			Assert::AreEqual(tree.findNode(node5)->equals(TNode("","",0)), true);
 
 		}
+
+		TEST_METHOD(TestASTCompare) {
+			TNode* root1 = new TNode("","plus",0);
+			
+			root1->setChild(new TNode("x", "var", 0));
+			root1->setChild(new TNode("", "plus", 0));
+			root1->getChildList().at(1)->setChild(new TNode("x", "var", 0));
+			root1->getChildList().at(1)->setChild(new TNode("y", "var", 0));
+
+			TNode* root2 = new TNode("", "plus", 1);
+			root2->setChild(new TNode("x", "var", 1));
+			root2->setChild(new TNode("y", "var", 1));
+			
+			Assert::AreEqual(AST::compare(root1, root2), false);
+			Assert::AreEqual(AST::compare(root1->getChildList().at(1), root2), true);
+
+			Assert::AreEqual(AST::compareSubtree(root1, root2), true);
+			Assert::AreEqual(AST::compareSubtree(root1->getChildList().at(1), root2), true);
+			Assert::AreEqual(AST::compareSubtree(root1->getChildList().at(0), root2), false);
+
+			root1->getChildList().at(1)->setChild(new TNode("m", "var", 0));
+			root1->getChildList().at(1)->setChild(new TNode("n", "var", 0));
+
+			root2->setChild(new TNode("n", "var", 1));
+			root2->setChild(new TNode("m", "var", 1));
+			Assert::AreEqual(AST::compare(root1->getChildList().at(1), root2), false);
+			Assert::AreEqual(AST::compareSubtree(root1, root2), false);
+		}
+	
+		/*TEST_METHOD(testASTfindSubtree) {
+			AST* tree;
+			TNode* node1 = new TNode("x", "var", 0);
+			TNode* node2 = new TNode("", )
+			root1->setChild(new TNode("", "plus", 0));
+			root1->getChildList().at(1)->setChild(new TNode("x", "var", 0));
+			root1->getChildList().at(1)->setChild(new TNode("y", "var", 0));
+			AST* subtree;
+
+		}*/
 	};
 }

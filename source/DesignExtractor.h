@@ -85,6 +85,7 @@ public:
 	VarTable* getVarTable();
 	ProcTable* getProcTable();
 	ConstTable* getConstTable();
+	vector<AST*> getASTList();
 };
 
 #endif

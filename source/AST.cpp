@@ -154,7 +154,7 @@ bool AST::compare(TNode* root1, TNode* root2) {
 				q1.push(ele1->getChildList().at(j));
 			}
 			for (unsigned j = 0; j < ele2->getChildList().size(); j++) {
-				q1.push(ele2->getChildList().at(j));
+				q2.push(ele2->getChildList().at(j));
 			}
 		}
 		else {
@@ -184,4 +184,5 @@ bool AST::compareSubtree(TNode* root1, TNode* root2) {
 			}
 		}
 	}
+	return false;
 }

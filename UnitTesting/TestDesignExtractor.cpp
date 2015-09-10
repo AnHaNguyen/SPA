@@ -83,5 +83,32 @@ namespace UnitTesting
 			Assert::AreEqual(constTable->getConst(15).at(0), (string) "5");
 			Assert::AreEqual(constTable->getConst(13).size(), (unsigned) 0);
 		}
+
+		TEST_METHOD(TestExtBuildAST) {
+			
+			vector <string> code1 = { "procedureFirst{" ,"x=y+z;}" };
+
+			DesignExtractor ex1 = DesignExtractor(code1);
+			vector<AST*> astList = ex1.getASTList();
+			/*Assert::AreEqual(astList.size(), (unsigned) 1);
+			Assert::AreEqual(astList.at(0)->getTree().at(0)->getType(), (string) "procedure");
+			Assert::AreEqual(astList.at(0)->getTree().at(0)->getValue(), (string) "First");
+			Assert::AreEqual(astList.at(0)->getTree().at(0)->getLine(), 0);
+			Assert::AreEqual(astList.at(0)->getTree().at(1)->getType(), (string) "stmtLst");
+			Assert::AreEqual(astList.at(0)->getTree().at(1)->getLine(), 0);
+			Assert::AreEqual(astList.at(0)->getTree().at(2)->getType(), (string) "while");
+			Assert::AreEqual(astList.at(0)->getTree().at(2)->getLine(), 1);
+			Assert::AreEqual(astList.at(0)->getTree().at(3)->getType(), (string) "stmtLst");
+			Assert::AreEqual(astList.at(0)->getTree().at(3)->getLine(), 0);
+			Assert::AreEqual(astList.at(0)->getTree().at(4)->getValue(), (string) "i");
+			Assert::AreEqual(astList.at(0)->getTree().at(4)->getLine(), 1);*/
+
+			//Assert::AreEqual(astList.at(0)->getTree().size(), (unsigned)5);
+			Assert::AreEqual(astList.at(0)->getTree().at(2)->getType(), (string)"assign");
+			//Assert::AreEqual(astList.at(0)->getTree().at(3)->getValue(), (string)"x");
+			//Assert::AreEqual(astList.at(0)->getTree().at(6)->getType(), (string)"plus");
+			//Assert::AreEqual(astList.at(0)->getTree().at(4)->getValue(), (string)"y");
+			//Assert::AreEqual(astList.at(0)->getTree().at(5)->getValue(), (string)"z");
+		}
 	};
 }
