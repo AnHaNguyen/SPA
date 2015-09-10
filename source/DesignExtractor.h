@@ -66,7 +66,7 @@ private:
 	bool processProcTable();
 
 	bool isConst(string var);
-	void processRightSideAssign(TNode* curParent, string rightSide, int lineNumber);
+	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
 	FollowTable* processFollowRelationship(AST* ast);
 	ParentTable* processParentRelationship(AST* ast);
@@ -86,6 +86,7 @@ public:
 	VarTable* getVarTable();
 	ProcTable* getProcTable();
 	ConstTable* getConstTable();
+	AST* buildSubtree(string pattern);
 };
 
 #endif

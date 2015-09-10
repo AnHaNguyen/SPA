@@ -9,20 +9,6 @@
 
 using namespace std;
 
-int main(){
-	vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
-			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;" ,
-			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
-			"procedureThird{", "z=5;", "v=z;}" };
-	for(unsigned i = 0; i < code.size(); i++){
-		cout << "out put = " << code.at(i) << endl;
-	}
-
-	DesignExtractor object = DesignExtractor(code);
-
-}
-
-
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
 	
@@ -186,11 +172,11 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ast.at(procedureNumber)->addToTree(leftVar);
 	ast.at(procedureNumber)->makeChild(assignNode, leftVar);
 
-	processRightSideAssign(assignNode, rightSide, lineNumber);
+	processRightSideAssign(ast.at(procedureNumber), assignNode, rightSide, lineNumber);
 	ASTCurParent.pop_back();
 }
 
-void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide, int lineNumber){
+void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, string rightSide, int lineNumber){
 	vector<int> plusList;
 
 	// Find the position of each plus sign
@@ -213,7 +199,7 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 	string typeOfLeft = exprType(leftSubTree);
 
 	TNode* leftSubTreeNode = new TNode(leftSubTree, typeOfLeft, lineNumber);
-	ast.at(procedureNumber)->addToTree(leftSubTreeNode);
+	subAST->addToTree(leftSubTreeNode);
 
 	for(unsigned i = 0; i < plusList.size() - 1; i++){
 		int prevPlus = plusList.at(i);
@@ -225,16 +211,18 @@ void DesignExtractor::processRightSideAssign(TNode* curParent, string rightSide,
 		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
-		ast.at(procedureNumber)->addToTree(rightSubTreeNode);
-		ast.at(procedureNumber)->makeChild(plusNode, rightSubTreeNode);
-		ast.at(procedureNumber)->makeChild(plusNode, leftSubTreeNode);
+		subAST->addToTree(rightSubTreeNode);
+		subAST->makeChild(plusNode, rightSubTreeNode);
+		subAST->makeChild(plusNode, leftSubTreeNode);
 
 		leftSubTreeNode = plusNode;
-		ast.at(procedureNumber)->addToTree(leftSubTreeNode);
+		subAST->addToTree(leftSubTreeNode);
 	}
 
 	// Stick subtree to main tree
-	ast.at(procedureNumber)->makeChild(curParent, leftSubTreeNode);
+	if (curParent->getType() != "") {
+		subAST->makeChild(curParent, leftSubTreeNode);
+	}
 }
 
 //-------------------Create Follow Table---------------------//
@@ -298,7 +286,7 @@ bool DesignExtractor::processModTable() {
 
 		if (pos != string::npos){
 			string var = line.substr(0, pos);
-			modTable->add(lineNumber, var);							// actual lineNumber
+			modTable->add(lineNumber, var);							
 			varTable->addVar(var);
 		}
 	}
@@ -401,6 +389,13 @@ ConstTable* DesignExtractor::getConstTable() {
 
 ProcTable* DesignExtractor::getProcTable() {
 	return procTable;
+}
+
+AST* DesignExtractor::buildSubtree(string pattern) {
+	AST* subAST = new AST();
+	processRightSideAssign(subAST, new TNode(), pattern, 0);
+
+	return subAST;
 }
 
 // Smaller modules
