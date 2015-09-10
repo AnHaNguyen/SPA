@@ -23,6 +23,7 @@ private: static FollowTable* followTable;
 
 public:
 		 PKB();
+		 ~PKB();
 		 static FollowTable* getFollowTable();				//for Query
 		 static void setFollowTable(FollowTable* fTable);			//for Extractor
 		 static UseTable* getUseTable();					//for Query
@@ -40,7 +41,7 @@ public:
 		 static ConstTable* getConstTable();				//for Query
 		 static void setConstTable(ConstTable* constTable);			//for Extractor
 
-		 static vector<int> checkAssign(string pattern, bool contains_);
+		 static vector<int> checkAssign(string pattern, bool contains_);	//to check pattern
 };
 
 #endif
