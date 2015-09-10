@@ -10,10 +10,8 @@
 
 using namespace std;
 
-int curlyBrackets = 0, roundBrackets = 0;
 
-
-Parser::Parser(){
+Parser::Parser() {
 }
 
 Parser::~Parser() {
@@ -41,13 +39,14 @@ vector<string> Parser::processFile(string fName) {
 	{
 		while (getline(file, str))
 		{
-			stringList = trimmedString(str);
+			stringList.push_back(str);
 		}
 		file.close();
 	}
 	else {
 		error("File cannot open ");
 	}
+	stringList = trimmedList(stringList);
 	processedList = checkSyntax(stringList);
 	return processedList;
 }
@@ -58,7 +57,9 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 	string str, type;
 	vector<string> processedList;
 
-	checkAllBrackets(stringList);
+	if (checkAllBrackets(stringList) == false) {
+		error(errorTypeList[1]);
+	}
 
 	str = processedList[i++];
 	checkFirstLine(stringList);
@@ -180,7 +181,7 @@ void Parser::checkAssign(string str) {
 			}
 			sentence >> word3;
 			if (!isExpression(word3)) {
-				error("Not a valid expression ");
+				errorTypeList[2];;
 			}
 		}
 		else {
@@ -188,7 +189,7 @@ void Parser::checkAssign(string str) {
 				error("Missing \"=\" ");
 			}
 			else if (!isExpression(word2.substr(1, word2.size() - 1))) {
-				error("Not a valid expression ");
+				errorTypeList[2];
 			}
 		}
 
@@ -200,7 +201,7 @@ void Parser::checkAssign(string str) {
 			}
 			sentence >> word2;
 			if (!isExpression(word2)) {
-				error("Not a valid expression ");
+				errorTypeList[2];
 			}
 		}
 		else {
@@ -208,7 +209,7 @@ void Parser::checkAssign(string str) {
 				error("Not valid variable name ");
 			}
 			if (!isExpression(varName.substr(varName.find('=') - 1, varName.size() - 1))) {
-				error("Not a valid expression ");
+				errorTypeList[2];
 			}
 
 		}
@@ -336,11 +337,11 @@ bool Parser::existAlphaNumeric(string str) {
 	char c;
 	for (int i = 0; i < str.size(); i++) {
 		c = str.at(i);
-		if (!isalnum(c)) {
-			return false;
+		if (isalnum(c)) {
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 bool Parser::isName(string name) {
@@ -351,50 +352,55 @@ bool Parser::isName(string name) {
 	if (isLetter(letter) && isAlphaNumeric(digit)) {
 		return true;
 	}
-	error("Not valid name ");
 	return false;
 
 }
 
+bool Parser::isNameOrConstant(string variable) {
+	if (isInteger(variable) || isName(variable)) {
+		return true;
+	}
+	return false;
+}
+
 bool Parser::isExpression(string expr) {
-	int i = 0, start = -1, end;
-	string name, tempExpr;
+	int start = 0;
+	string varOrConstant;
 	char c;
 
 	if (expr.empty()) {
 		return false;
 	}
-	tempExpr=removeLineSpaces(expr);
+	expr = removeLineSpaces(expr);
 
-	while (!tempExpr.empty() && i< tempExpr.size()) {
-		c = tempExpr.at(i);
+	for (int i = 0; i < expr.size(); i++) {
+		c = expr.at(i);
+
 		if (c == '+' || c == '-' || c == '*' || c == '(') {
 			if (c == '(') {
-				if (!isPairedRoundBrackets(tempExpr)) {
-					error("Missing round brackets ");
+				if (!isPairedRoundBrackets(expr)) {
+					return false;
 				}
 			}
-			end = i;
-			name = tempExpr.substr(start + 1, end - (start + 1));
-			if (!isName(name)) {
-				error("Invalid variable name ");
+			varOrConstant = expr.substr(start, i - start);
+			start = i + 1;
+			if (!isNameOrConstant(varOrConstant)) {
+				return false;
 			}
-			tempExpr = tempExpr.substr(end, tempExpr.size() - end);
-			i = 0;
-		}
-		else if (i == tempExpr.size() - 1) {
-			name = tempExpr.substr(start + 1, end - (start + 1));
-			if (!isName(name)) {
-				error("Invalid variable name ");
+			if ((c == '+' || c == '-' || c == '*') && i < (expr.size() - 1) && expr.at(i + 1) == '(') {
+				start += 1;
 			}
-			else {
-				break;
+
+		}
+		else if (i == (expr.size() - 1)) {
+			varOrConstant = expr.substr(start, expr.size());
+			if (!isNameOrConstant(varOrConstant)) {
+				return false;
 			}
 		}
-		else {
-			i++;
-		}
+
 	}
+
 	return true;
 }
 
@@ -402,7 +408,7 @@ vector<string> Parser::removeAllSpaces(vector<string> stringList) {
 	string str;
 	for (int i = 0; i < stringList.size(); i++) {
 		str = stringList[i];
-		str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+		stringList[i] = removeLineSpaces(str);
 	}
 	return stringList;
 }
@@ -418,15 +424,18 @@ int Parser::isStmtLst(vector<string> stringList, int startLine) {
 	string stmt;
 
 	int endLine = pairedCurlyBracketsPos(stringList, startLine);
+	if (endLine == -1) {
+		return -1;
+	}
 	found1 = stringList[startLine].find("{");
 	found2 = stringList[endLine].find("}");
 	stmt = stringList[startLine].substr(found1, stringList[startLine].size() - found1 + 1) + stringList[startLine].substr(found2, stringList[endLine].size() - found2 + 1);
-	if (isAlphaNumeric(stmt)) {
+	if (existAlphaNumeric(stmt)) {
 		return endLine;
 	}
 
 	while (startLine + 1 < endLine) {
-		if (isAlphaNumeric(stringList[startLine + 1])) {
+		if (existAlphaNumeric(stringList[startLine + 1])) {
 			return endLine;
 		}
 		startLine++;
@@ -436,34 +445,39 @@ int Parser::isStmtLst(vector<string> stringList, int startLine) {
 }
 
 int Parser::pairedCurlyBracketsPos(vector<string> stringList, int startIndex) {
-
 	string line;
-	int endIndex = stringList.size() - startIndex - 1;
+	int curlyBrackets = 0;
+	int countOpen, countClose;
+	int endIndex = stringList.size() - 1;
 
-	for (int i = startIndex; i < endIndex; i++) {
+	for (int i = startIndex; i <= endIndex; i++) {
 		line = stringList[i];
-		if (line.find("{") != string::npos) {
-			curlyBrackets++;
-		}
-		if (line.find("{") != string::npos) {
-			curlyBrackets--;
+		countOpen = count(line.begin(), line.end(), '{');
+		curlyBrackets += countOpen;
+
+		countClose = count(line.begin(), line.end(), '}');
+		curlyBrackets -= countClose;
+
+		if (countOpen < countClose) {
+			return i;
 		}
 		if (curlyBrackets == 0) {
 			return i;
 		}
 	}
 
-	return endIndex;
+	return -1;
 }
 
 bool Parser::isPairedRoundBrackets(string str) {
+	int roundBrackets = 0;
+	int countRoundOpen, countRoundClose;
 
-	if (str.find("(") != string::npos) {
-		roundBrackets++;
-	}
-	if (str.find(")") != string::npos) {
-		roundBrackets--;
-	}
+	countRoundOpen = count(str.begin(), str.end(), '(');
+	roundBrackets += countRoundOpen;
+
+	countRoundClose = count(str.begin(), str.end(), ')');
+	roundBrackets -= countRoundClose;
 
 	if (roundBrackets != 0) {
 		return false;
@@ -473,39 +487,53 @@ bool Parser::isPairedRoundBrackets(string str) {
 	}
 }
 
-void Parser::checkAllBrackets(vector<string> stringList) {
+bool Parser::checkAllBrackets(vector<string> stringList) {
 	string str;
+	int curlyBrackets = 0, roundBrackets = 0;
+	int countCurlyOpen, countCurlyClose;
+	int countRoundOpen, countRoundClose;
 
 	for (int i = 0; i < stringList.size(); i++) {
 		str = stringList[i];
-		if (str.find("{") != string::npos) {
-			curlyBrackets++;
+		countCurlyOpen = count(str.begin(), str.end(), '{');
+		curlyBrackets += countCurlyOpen;
+
+		countCurlyClose = count(str.begin(), str.end(), '}');
+		curlyBrackets -= countCurlyClose;
+
+		if (curlyBrackets < 0) {
+			return false;
 		}
-		if (str.find("}") != string::npos) {
-			curlyBrackets--;
-		}
-		if (str.find("(") != string::npos) {
-			roundBrackets++;
-		}
-		if (str.find(")") != string::npos) {
-			roundBrackets--;
+
+		countRoundOpen = count(str.begin(), str.end(), '(');
+		roundBrackets += countRoundOpen;
+
+		countRoundClose = count(str.begin(), str.end(), ')');
+		roundBrackets -= countRoundClose;
+
+		if (roundBrackets < 0) {
+			return false;
 		}
 	}
 
-	if (curlyBrackets != 0) {
-		error("Unpaired curly brackets ");
+	if (curlyBrackets != 0 || roundBrackets != 0) {
+		return false;
 	}
-	if (roundBrackets != 0) {
-		error("Unpaired round brackets ");
-	}
+
+	return true;
 }
 
-vector<string> Parser::trimmedString(string str) {
+vector<string> Parser::trimmedList(vector <string> list) {
 	vector<string> trimmedList;
-	if (checkNotEmptyLine(str)) {
-		trimmedList.push_back(trim(str));
+	string str;
+	int index = 0;
+
+	for (int i = 0; i < list.size(); i++) {
+		str = list[i];
+		if (checkNotEmptyLine(str)) {
+			trimmedList.push_back(trim(str));
+		}
 	}
-	trimmedList.push_back(str);
 	return trimmedList;
 }
 
@@ -537,9 +565,24 @@ string Parser::trim(string str) {
 	return str.substr(i, j - i + 1);
 }
 
+bool Parser::isEqualVector(vector<string> v1, vector<string> v2) {
+	int start = 0, end = v1.size();
+	if (v1.size() == v2.size()) {
+		for (int i = 0; i < v1.size(); i++) {
+			if (v1[i].compare(v2[i]) != 0) {
+				return false;
+			}
+		}
+	}
+	else {
+		return false;
+	}
+	return true;
+}
+
 void Parser::error(string errorType) {
 	cout << errorType + "ERROR";
-	exit(0);
+	exit(1);
 }
 
 
