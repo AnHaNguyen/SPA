@@ -48,7 +48,7 @@ void QueryTree::setResult(vector<string> terms){
     str = trim(str);
 	if (!isValidSynonym(symbolTable, str)) {
 		isValid = false; 
-		cout << "wrong select TREE" << endl;
+		//cout << "wrong select TREE" << endl;
 		return;
 	}
     result->setResult(str);
@@ -74,7 +74,7 @@ void QueryTree::setSuchThat(vector<string> terms){
 		suchThat->setSecondAttr(second);
 	}
 	else {
-		cout << "wrong such that TREE"  << endl;
+		//cout << "wrong such that TREE"  << endl;
 		isValid = false;
 	}
 }
@@ -99,10 +99,7 @@ void QueryTree::setPattern(vector<string> terms){
 		pattern->setSecondAttr(second);
 	}
 	else {
-		cout << syn << endl;
-		cout << first << endl;
-		cout << second << endl;
-		cout << "wrong pattern TREE"  << endl;
+		//cout << "wrong pattern TREE"  << endl;
 		isValid = false;
 	}
 }
@@ -166,7 +163,7 @@ void QueryTree::setSymbolTable(vector<string> terms){
 	for (int i = 0; i < symbolTable.size(); i++) {
 		for (int j = 0; j < symbolTable[i].size(); j++) {
 			if (!isValidIdent(symbolTable[i][j])) {
-				cout << "wrong symbol table"  << endl;
+				//cout << "wrong symbol table"  << endl;
 				isValid = false;
 			}
 		}
