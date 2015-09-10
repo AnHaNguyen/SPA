@@ -9,6 +9,15 @@
 #include "ProcTable.h"
 #include "ConstTable.h"
 
+FollowTable* PKB::followTable;
+UseTable* PKB::useTable;
+ParentTable* PKB::parentTable;
+ModifyTable* PKB::modifyTable;
+vector<AST*> PKB::astList;
+VarTable* PKB::varTable;
+ProcTable* PKB::procTable;
+ConstTable* PKB::constTable;
+
 PKB::PKB() {
 }
 
@@ -78,10 +87,10 @@ void PKB::setConstTable(ConstTable* constTable) {
 
 vector<int> PKB::checkAssign(string pattern, bool contains_) {
 	vector<int> returnList;
-	AST* subtree = DesignExtractor::buildSubtree(pattern);
+	//AST* subtree = DesignExtractor::buildSubtree(pattern);
 	for (unsigned i = 0; i < astList.size(); i++) {
-		vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
-		returnList.insert(returnList.end(), temp.begin(), temp.end());
+	//	vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
+	//	returnList.insert(returnList.end(), temp.begin(), temp.end());
 	}
 	return returnList;
 }

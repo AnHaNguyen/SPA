@@ -23,6 +23,7 @@ private: static FollowTable* followTable;
 
 public:
 		 PKB();
+		 ~PKB();
 		 static FollowTable* getFollowTable();				//for Query
 		 static void setFollowTable(FollowTable* fTable);			//for Extractor
 		 static UseTable* getUseTable();					//for Query

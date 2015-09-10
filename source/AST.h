@@ -31,8 +31,8 @@ public:
 	vector <TNode* > getType(string type);//get all type (:stmtList,:while, :assign, :var,:plus,..)
 	vector<int> getAssign();			//return all assignments in an ast
 
-	bool compare(TNode* root1, TNode* root2);		//use for pattern
-	bool compareSubtree(TNode* root1, TNode* root2);
+	static bool compare(TNode* root1, TNode* root2);		//use for pattern
+	static bool compareSubtree(TNode* root1, TNode* root2);
 };
 
 #endif
