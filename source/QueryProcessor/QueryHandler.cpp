@@ -18,7 +18,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
 	if (query->getValidity() == false)
-		return false;
+		return {};
 
 	//Initiate nodes
 	PreResultNode* result;
@@ -28,7 +28,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		symTable = query->getSymbolTable();
 	}
 	else {
-		return false;
+		return {};
 	}
 
 	//Handle select

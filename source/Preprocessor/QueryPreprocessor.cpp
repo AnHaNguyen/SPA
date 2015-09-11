@@ -16,7 +16,7 @@ QueryPreprocessor::QueryPreprocessor(){
 QueryPreprocessor::~QueryPreprocessor(){
 }
 
-vector<string> QueryPreprocessor::start(string line) {
+list<string> QueryPreprocessor::start(string line) {
 
 	string declare = "", input = "";
 	if (line.find("Select") != string::npos) {
@@ -27,7 +27,12 @@ vector<string> QueryPreprocessor::start(string line) {
 	QueryTree* tree = startProcess(declare, input);
 
 	QueryHandler handler;
-	return handler.queryRec(tree);
+	vector<string> queryRes = handler.queryRec(tree);
+
+	// convert to list<string> for Autotester
+	list<string>output;
+	std::copy(queryRes.begin(), queryRes.end(), std::back_inserter(output));
+	return output;
 }
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
