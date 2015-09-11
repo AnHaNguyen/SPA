@@ -87,10 +87,11 @@ void PKB::setConstTable(ConstTable* constTable) {
 
 vector<int> PKB::checkAssign(string pattern, bool contains_) {
 	vector<int> returnList;
-	//AST* subtree = DesignExtractor::buildSubtree(pattern);
+	DesignExtractor ext = DesignExtractor();
+	AST* subtree = ext.buildSubtree(pattern);
 	for (unsigned i = 0; i < astList.size(); i++) {
-	//	vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
-	//	returnList.insert(returnList.end(), temp.begin(), temp.end());
+		vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
+		returnList.insert(returnList.end(), temp.begin(), temp.end());
 	}
 	return returnList;
 }
