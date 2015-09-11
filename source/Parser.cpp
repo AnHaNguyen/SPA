@@ -46,9 +46,10 @@ vector<string> Parser::processFile(string fName) {
 	else {
 		error("File cannot open ");
 	}
-	stringList = trimmedList(stringList);
-	processedList = checkSyntax(stringList);
-	return processedList;
+//	stringList = trimmedList(stringList);
+//	processedList = checkSyntax(stringList);
+//	return processedList;
+	return stringList;
 }
 
 vector<string> Parser::checkSyntax(vector<string> stringList) {
