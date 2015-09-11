@@ -19,6 +19,59 @@ namespace TestPreprocessor
 	{
 	public:
 
+		TEST_METHOD(Test_checkFirstLine)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "procedure", "p", "{","x=y+z", "}" };
+			expected = "";
+			actual = p.checkFirstLine(input);
+			Assert::AreEqual(expected, actual);
+
+
+		}
+
+		TEST_METHOD(Test_checkProcedure)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "procedure", "p", "{","x=y+z", "}" };
+			int startLine = 0;
+			expected = "";
+			actual = p.checkProcedure(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "procedure p{","x=y+z", "}" };
+			startLine = 0;
+			expected = "";
+			actual = p.checkProcedure(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+		}
+
+		TEST_METHOD(Test_checkCall)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "procedure", "p", "{","x=y+z", "Call", "p", ";" ," }" };
+			int startLine = 0;
+			expected = "";
+			actual = p.checkCall(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "procedure", "p", "{","x=y+z", "Call p;" ," }" };
+			startLine = 0;
+			expected = "";
+			actual = p.checkCall(input, startLine);
+			Assert::AreEqual(expected, actual);
+		}
+
 		TEST_METHOD(Test_isInteger)
 		{
 			Parser p;
@@ -157,6 +210,33 @@ namespace TestPreprocessor
 			Assert::AreEqual(expected, actual);
 		}
 
+		TEST_METHOD(Test_isStmtLst)
+		{
+			Parser p;
+			int expected, actual;
+			vector<string> input;
+
+			input = { "{   a   b", "x= y +      z * x}" };
+			expected = 1;
+			actual = p.isStmtLst(input, 0);
+			Assert::AreEqual(expected, actual);
+
+			input = { "{   a   b", "x= y +      z * x","}" };
+			expected = 2;
+			actual = p.isStmtLst(input, 0);
+			Assert::AreEqual(expected, actual);
+
+			input = { "{   ","}" };
+			expected = -1;
+			actual = p.isStmtLst(input, 0);
+			Assert::AreEqual(expected, actual);
+
+			input = { "{   ", "x   =   y","}" };
+			expected = 2;
+			actual = p.isStmtLst(input, 0);
+			Assert::AreEqual(expected, actual);
+		}
+
 		TEST_METHOD(Test_pairedCurlyBracketsPos)
 		{
 			Parser p;
@@ -166,7 +246,11 @@ namespace TestPreprocessor
 			input = { "{   a   b", "x= y +      z * x}" };
 			expected = 1;
 			actual = p.pairedCurlyBracketsPos(input, 0);
+			Assert::AreEqual(expected, actual);
 
+			input = { "{   a   b", "x= y +      z * x","}" };
+			expected = 2;
+			actual = p.pairedCurlyBracketsPos(input, 0);
 			Assert::AreEqual(expected, actual);
 		}
 
