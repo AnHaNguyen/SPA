@@ -19,18 +19,51 @@ namespace TestPreprocessor
 	{
 	public:
 
+		TEST_METHOD(Test_checkSyntax)
+		{
+			Parser p;
+			vector<string> input, expected, actual;
+			bool result;
+
+			input = { "procedure", "p", "{","x=y+z;", "}" };
+			expected = { "procedure", "p", "{","x=y+z;", "}" };
+			actual = p.checkSyntax(input);
+			result = p.isEqualVector(expected, actual);
+
+			Assert::AreEqual(true, result);
+
+
+
+		}
+
+		TEST_METHOD(Test_processStmtType)
+		{
+			Parser p;
+			vector<string> input;
+			int i;
+			string type;
+			string expected, actual;
+
+			i = 0;
+			type = "procedure";
+			input = { "procedure p{","x=y+z;}" };
+			expected = "";
+			actual = p.processStmtType(input);
+			Assert::AreEqual(expected, actual);
+
+
+		}
+
 		TEST_METHOD(Test_checkFirstLine)
 		{
 			Parser p;
 			vector<string> input;
 			string expected, actual;
 
-			input = { "procedure", "p", "{","x=y+z", "}" };
+			input = { "procedure", "p", "{","x=y+z;", "}" };
 			expected = "";
 			actual = p.checkFirstLine(input);
 			Assert::AreEqual(expected, actual);
-
-
 		}
 
 		TEST_METHOD(Test_checkProcedure)
@@ -39,7 +72,7 @@ namespace TestPreprocessor
 			vector<string> input;
 			string expected, actual;
 
-			input = { "procedure", "p", "{","x=y+z", "}" };
+			input = { "procedure", "p", "{","x=y+z;", "}" };
 			int startLine = 0;
 			expected = "";
 			actual = p.checkProcedure(input, startLine);
@@ -51,6 +84,17 @@ namespace TestPreprocessor
 			actual = p.checkProcedure(input, startLine);
 			Assert::AreEqual(expected, actual);
 
+			input = { "procedure p {","x=y+z", "}" };
+			startLine = 0;
+			expected = "";
+			actual = p.checkProcedure(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "procedure", "p{","x=y+z", "}" };
+			startLine = 0;
+			expected = "";
+			actual = p.checkProcedure(input, startLine);
+			Assert::AreEqual(expected, actual);
 		}
 
 		TEST_METHOD(Test_checkCall)
@@ -60,15 +104,91 @@ namespace TestPreprocessor
 			string expected, actual;
 
 			input = { "procedure", "p", "{","x=y+z", "Call", "p", ";" ," }" };
-			int startLine = 0;
+			int startLine = 4;
 			expected = "";
 			actual = p.checkCall(input, startLine);
 			Assert::AreEqual(expected, actual);
 
 			input = { "procedure", "p", "{","x=y+z", "Call p;" ," }" };
-			startLine = 0;
+			startLine = 4;
 			expected = "";
 			actual = p.checkCall(input, startLine);
+			Assert::AreEqual(expected, actual);
+		}
+
+
+		TEST_METHOD(Test_checkAssign)
+		{
+			Parser p;
+			string input;
+			string expected, actual;
+
+			input = "x = y +3 * 4;";
+			expected = "";
+			actual = p.checkAssign(input);
+			Assert::AreEqual(expected, actual);
+
+			input = "x=y+(4*3);";
+			expected = "";
+			actual = p.checkAssign(input);
+			Assert::AreEqual(expected, actual);
+		}
+
+		TEST_METHOD(Test_checkIf)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "procedure", "p","if i then", "{","x=y+z", "}}" };
+			int startLine = 2;
+			expected = "";
+			actual = p.checkIf(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "procedure", "if",  "i", "then", "{","x=y+z", "}}" };
+			startLine = 1;
+			expected = "";
+			actual = p.checkIf(input, startLine);
+			Assert::AreEqual(expected, actual);
+		}
+
+
+		TEST_METHOD(Test_checkElse)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "else {", "p","if i then", "{","x=y+z", "}}" };
+			int startLine = 0;
+			expected = "";
+			actual = p.checkElse(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "{", "else{p","if i then}", "{","x=y+z", "}}" };
+			startLine = 0;
+			expected = "";
+			actual = p.checkElse(input, startLine);
+			Assert::AreEqual(expected, actual);
+		}
+
+
+		TEST_METHOD(Test_checkWhile)
+		{
+			Parser p;
+			vector<string> input;
+			string expected, actual;
+
+			input = { "while p{","if i then", "{","x=y+z", "}}" };
+			int startLine = 0;
+			expected = "";
+			actual = p.checkWhile(input, startLine);
+			Assert::AreEqual(expected, actual);
+
+			input = { "procedure", "p{","if i then", "{","x=y+z", "}}" };
+			expected = "";
+			actual = p.checkWhile(input, startLine);
 			Assert::AreEqual(expected, actual);
 		}
 
@@ -129,7 +249,7 @@ namespace TestPreprocessor
 		TEST_METHOD(Test_isName)
 		{
 			Parser p;
-			string validName = "a23c";
+			string validName = "a ";
 			string invalidName = "1ab3c";
 			string invalidName2 = "1$fdk";
 
@@ -155,8 +275,8 @@ namespace TestPreprocessor
 		TEST_METHOD(Test_isExpression)
 		{
 			Parser p;
-			string validExpr = "a2    *  3  +  c";
-			string validExpr2 = "a2 ";
+			string validExpr = " a2    *  (3  +  c)";
+			string validExpr2 = "y+(4*3)";
 			string invalidExpr = "+1ab3c";
 			string invalidExpr2 = "1$fdk+";
 
