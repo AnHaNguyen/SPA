@@ -54,7 +54,7 @@ vector<string> Parser::processFile(string fName) {
 vector<string> Parser::checkSyntax(vector<string> stringList) {
 
 	int i = 0;
-	string str, type;
+	string str, type, errorMsg;
 	vector<string> processedList;
 
 	if (checkAllBrackets(stringList) == false) {
@@ -62,7 +62,10 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 	}
 
 	str = processedList[i++];
-	checkFirstLine(stringList);
+	errorMsg = checkFirstLine(stringList);
+	if (!errorMsg.empty()) {
+		error(errorMsg);
+	}
 
 	while (i < stringList.size()) {
 		str = stringList[i];
@@ -77,90 +80,143 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 }
 
 void Parser::processStmtType(vector<string> stringList, int i, string type) {
+	string errorMsg;
+	int isStmt;
 
 	if (type == "procedure") {
-		checkProcedure(stringList, i);
+		errorMsg = checkProcedure(stringList, i);
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
 	}
 	else if (type == "call") {
-		checkCall(stringList[i]);
+		errorMsg = checkCall(stringList, i);
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
 	}
 	else if (type == "if") {
 		checkIf(stringList, i);
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
 	}
 	else if (type == "while") {
 		checkWhile(stringList, i);
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
 	}
 	else if (type == "else") {
-
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
+	}
+	else if (type == "{" || type == "}") {
+		isStmt = isStmtLst(stringList, i);
+		if (isStmt == -1) {
+			error(errorTypeList[3]);
+		}
 	}
 	else {
 		checkAssign(stringList[i]);
+		if (!errorMsg.empty()) {
+			error(errorMsg);
+		}
 	}
 }
 
-void Parser::checkFirstLine(vector<string> stringList) {
-	string type;
+string Parser::checkFirstLine(vector<string> stringList) {
+	string type, error;
 	stringstream  sentence(stringList[0]);
-	sentence << type;
+	sentence >> type;
 	if (type != "procedure") {
-		error("No such program ");
+		return errorTypeList[6];
 	}
 	else {
-		checkProcedure(stringList, 0);
+		error = checkProcedure(stringList, 0);
+		return error;
 	}
 }
 
-void Parser::checkProcedure(vector<string> stringList, int startLine) {
+string Parser::checkProcedure(vector<string> stringList, int startLine) {
 	string type, word2, word3;
 	stringstream  sentence(stringList[startLine]);
 	sentence >> type >> word2;
 
-	if (isStmtLst(stringList, startLine) == -1) {
-		error("Not valid statement list ");
+	if (word2.empty()) {
+		startLine++;
+		stringstream  sentenceNew(stringList[startLine]);
+		sentenceNew >> word2;
 	}
 
 	if (word2.find('{') == string::npos && word2.size() >= 1) {
 		sentence >> word3;
-		if (word3 != "{") {
-			error("No { ");
+		if (word3.empty()) {
+			startLine++;
+			stringstream  sentenceNew(stringList[startLine]);
+			sentenceNew >> word3;
+		}
+		else if (word3 != "{") {
+			return errorTypeList[1];
 		}
 		if (!isName(word2)) {
-			error("Not valid procedure name ");
+			return errorTypeList[5];
 		}
-
+		if (isStmtLst(stringList, startLine) == -1) {
+			return errorTypeList[3];
+		}
+		return "";
 	}
 	else if (word2.find('{') != string::npos && word2.size() >= 2) {
 		if (!isName(word2.substr(0, word2.size() - 1))) {
-			error("Not valid procedure name ");
+			return errorTypeList[5];
 		}
+		if (isStmtLst(stringList, startLine) == -1) {
+			return errorTypeList[3];
+		}
+		return "";
 	}
 	else {
-		error("\"Procedure\" syntax ");
+		return errorTypeList[4];
 	}
-
 }
 
-void Parser::checkCall(string str) {
+string Parser::checkCall(vector<string> stringList, int startLine) {
 	string type, word2, word3;
+	string str = stringList[startLine];
 	stringstream sentence(str);
 	sentence >> type >> word2;
 
+	if (word2.empty()) {
+		startLine++;
+		stringstream  sentenceNew(stringList[startLine]);
+		sentenceNew >> word2;
+	}
+
 	if (word2.find(';') == string::npos && word2.size() >= 1) {
 		sentence >> word3;
-		if (word3 != ";") {
-			error("No ; ");
+		if (word3.empty()) {
+			startLine++;
+			stringstream  sentenceNew(stringList[startLine]);
+			sentenceNew >> word3;
+		}
+		else if (word3 != ";") {
+			return errorTypeList[8];
 		}
 		if (!isName(word2)) {
-			error("Not valid procedure name to call ");
+			return errorTypeList[5];
 		}
+		return "";
 	}
 	else if (word2.find(';') != string::npos && word2.size() >= 2) {
 		if (!isName(word2.substr(0, word2.size() - 1))) {
-			error("Not valid procedure name to call ");
+			return errorTypeList[5];
 		}
+		return "";
 	}
 	else {
-		error("\"Call\" syntax ");
+		return errorTypeList[7];
 	}
 
 }
@@ -226,14 +282,14 @@ void Parser::checkIf(vector<string> stringList, int i) {
 
 	int endLine = isStmtLst(stringList, i);
 	if (endLine == -1) {
-		error("Not valid statement list ");
+		error(errorTypeList[3]);
 	}
 	else {
 		checkElse(stringList, endLine);
 	}
 
 	if (!isName(word2)) {
-		error("Not valid variable name ");
+		error(errorTypeList[5]);
 	}
 
 	if (word3.find('{') == string::npos && word2.size() >= 1) {
@@ -348,7 +404,11 @@ bool Parser::isName(string name) {
 	string letter, digit;
 	letter = name.at(0);
 	digit = name.substr(1, name.size());
-
+	if (name.size() == 1) {
+		if (isLetter(letter)) {
+			return true;
+		}
+	}
 	if (isLetter(letter) && isAlphaNumeric(digit)) {
 		return true;
 	}
@@ -421,21 +481,25 @@ string Parser::removeLineSpaces(string line) {
 
 int Parser::isStmtLst(vector<string> stringList, int startLine) {
 	std::size_t found1, found2;
-	string stmt;
+	string stmt, start, end;
 
 	int endLine = pairedCurlyBracketsPos(stringList, startLine);
 	if (endLine == -1) {
 		return -1;
 	}
-	found1 = stringList[startLine].find("{");
-	found2 = stringList[endLine].find("}");
-	stmt = stringList[startLine].substr(found1, stringList[startLine].size() - found1 + 1) + stringList[startLine].substr(found2, stringList[endLine].size() - found2 + 1);
+	start = stringList[startLine];
+	end = stringList[endLine];
+	found1 = start.find_first_of("{");
+	found2 = end.find_last_of("}");
+
+	stmt = start.substr(found1, start.size() - found1) + end.substr(found2, end.size() - found2);
+
 	if (existAlphaNumeric(stmt)) {
 		return endLine;
 	}
-
-	while (startLine + 1 < endLine) {
-		if (existAlphaNumeric(stringList[startLine + 1])) {
+	startLine++;
+	while (startLine < endLine) {
+		if (existAlphaNumeric(stringList[startLine])) {
 			return endLine;
 		}
 		startLine++;
@@ -579,6 +643,7 @@ bool Parser::isEqualVector(vector<string> v1, vector<string> v2) {
 	}
 	return true;
 }
+
 
 void Parser::error(string errorType) {
 	cout << errorType + "ERROR";
