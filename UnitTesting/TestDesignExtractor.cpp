@@ -90,7 +90,6 @@ namespace UnitTesting
 				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
 				"procedureThird{", "z=5;", "v=z;}" };
-		
 
 			DesignExtractor ex1 = DesignExtractor(code1);
 			vector<AST*> astList = ex1.getASTList();
@@ -185,6 +184,47 @@ namespace UnitTesting
 			Assert::AreEqual(proc3->getTree().at(5)->getChildList().at(1)->getValue(), (string) "z");
 			Assert::AreEqual(proc3->getTree().at(6)->getValue(), (string) "v");
 			Assert::AreEqual(proc3->getTree().at(7)->getValue(), (string) "z");
+		}
+
+		TEST_METHOD(TestExtParentTable) {
+			ParentTable* parentTable = ext.getParentTable();
+
+			vector<int> childrenOfWhile = parentTable->getChild(5);
+			Assert::AreEqual(childrenOfWhile.size(), (unsigned) 2);
+			Assert::AreEqual(childrenOfWhile.at(0), 6);
+			Assert::AreEqual(childrenOfWhile.at(1), 7);
+		}
+
+		TEST_METHOD(TestExtFollowTable) {
+			/*vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+			"procedureThird{", "z=5;", "v=z;}" };*/
+
+			FollowTable* followTable = ext.getFollowTable();
+
+			Assert::AreEqual(followTable->size(), 8);
+
+			Assert::AreEqual(followTable->getNext(1), 2);
+			Assert::AreEqual(followTable->getPrev(2), 1);
+			Assert::AreEqual(followTable->getNext(2), -1);
+
+			Assert::AreEqual(followTable->getNext(3), 4);
+			Assert::AreEqual(followTable->getPrev(4), 3);
+			Assert::AreEqual(followTable->getNext(4), 5);
+			Assert::AreEqual(followTable->getPrev(5), 4);
+
+			Assert::AreNotEqual(followTable->getNext(5), 6);
+			Assert::AreNotEqual(followTable->getPrev(6), 5);
+			Assert::AreEqual(followTable->getNext(6), 7);
+			Assert::AreEqual(followTable->getPrev(7), 6);
+
+			Assert::AreEqual(followTable->getNext(5), 8);
+			Assert::AreEqual(followTable->getPrev(8), 5);
+
+			Assert::AreNotEqual(followTable->getNext(10), 11);
+			Assert::AreNotEqual(followTable->getPrev(11), 10);
+			Assert::AreEqual(followTable->getNext(11), 12);
 		}
 	};
 }

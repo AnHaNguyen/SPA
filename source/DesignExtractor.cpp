@@ -18,10 +18,12 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	processModTable();
 	processUseTable();
 	processProcTable();
+
 	for (unsigned i = 0; i < ast.size(); i++) {
 		processFollowRelationship(ast.at(i));
 		processParentRelationship(ast.at(i));
 	}
+
 	storeToPKB();
 }
 
@@ -254,42 +256,41 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 }
 
 //-------------------Create Follow Table---------------------//
-FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
+void DesignExtractor::processFollowRelationship(AST* ast) {
+	for (unsigned i = 0; i < ast->getTree().size(); i++) {
+		string value = convertStmtLstNumber(i - 1);
 
-	for(int i = 1; i <= stmtLstNumber; i++) {
-		string value = convertStmtLstNumber(i);
-		// unique StmtLst
-		TNode* parent = new TNode(value, STMTLST, 0);
+		// check unique StmtLst
+		TNode* parent = ast->getTree().at(i);
+		if (parent->getType() == STMTLST) {
+			vector<TNode*> childLst = parent->getChildList();
 
-		vector<TNode*> childLst = ast->findChild(parent);
-		for(unsigned j = 0; j < childLst.size() - 1; j++) {
-			TNode* preChild = childLst.at(j);
-			TNode* nextChild = childLst.at(j + 1);
+			for (unsigned j = 0; j < childLst.size() - 1; j++) {
+				TNode* preChild = childLst.at(j);
+				TNode* nextChild = childLst.at(j + 1);
 
-			int prev = preChild->getLine();
-			int next = nextChild->getLine();
+				int prev = preChild->getLine();
+				int next = nextChild->getLine();
 
-			followTable->addToTable(prev, next);
+				followTable->addToTable(prev, next);
+			}
 		}
 	}
-
-	return followTable;
 }
 
-//--------------------Create Parent Table-------------------//
+//--------------------Create Parent Table-----------------------//
 // stmtLst's parent is the parent of stmtLst's child
-ParentTable* DesignExtractor::processParentRelationship(AST* ast){
-
-	for(int i = 1; i <= stmtLstNumber; i++) {
+void DesignExtractor::processParentRelationship(AST* ast){
+	for (unsigned i = 0; i < ast->getTree().size(); i++) {
 		string value = convertStmtLstNumber(i);
-		TNode* stmtLst = new TNode(value, STMTLST, 0);
+		TNode* middleNode = ast->getTree().at(i);
 
-		TNode* parStmtLst = ast->findParent(stmtLst);
+		TNode* parStmtLst = middleNode->getParent();
 		string typeOfPar = parStmtLst->getType();
 		int parLine = parStmtLst->getLine();
 
 		if(typeOfPar == WHILE) {
-			vector<TNode*> childStmtLst = ast->findChild(stmtLst);
+			vector<TNode*> childStmtLst = middleNode->getChildList();
 
 			for(unsigned j = 0; j < childStmtLst.size(); j++){
 				TNode* child = childStmtLst.at(j);
@@ -299,8 +300,6 @@ ParentTable* DesignExtractor::processParentRelationship(AST* ast){
 			}
 		}
 	}
-
-	return parentTable;
 }
 
 bool DesignExtractor::processModTable() {	
@@ -389,12 +388,12 @@ bool DesignExtractor::processProcTable() {
 
 
 // Getter
-FollowTable* DesignExtractor::getFollowTable(AST* ast){
-	return processFollowRelationship(ast);
+FollowTable* DesignExtractor::getFollowTable(){
+	return followTable;
 }
 
-ParentTable* DesignExtractor::getParentTable(AST* ast){
-	return processParentRelationship(ast);
+ParentTable* DesignExtractor::getParentTable(){
+	return parentTable;
 }
 
 ModifyTable* DesignExtractor::getModTable() {
