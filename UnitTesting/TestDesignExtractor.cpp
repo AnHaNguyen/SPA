@@ -190,7 +190,7 @@ namespace UnitTesting
 			ParentTable* parentTable = ext.getParentTable();
 
 			vector<int> childrenOfWhile = parentTable->getChild(5);
-			Assert::AreEqual((int) childrenOfWhile.size(), 2);
+			Assert::AreEqual(childrenOfWhile.size(), (unsigned) 2);
 			Assert::AreEqual(childrenOfWhile.at(0), 6);
 			Assert::AreEqual(childrenOfWhile.at(1), 7);
 		}
@@ -203,7 +203,7 @@ namespace UnitTesting
 
 			FollowTable* followTable = ext.getFollowTable();
 
-			Assert::AreEqual(followTable->size(), 7);
+			Assert::AreEqual(followTable->size(), 8);
 
 			Assert::AreEqual(followTable->getNext(1), 2);
 			Assert::AreEqual(followTable->getPrev(2), 1);

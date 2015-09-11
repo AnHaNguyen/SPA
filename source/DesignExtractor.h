@@ -42,6 +42,7 @@ class DesignExtractor{
 private:
 	vector<string> input;
 	vector<AST*> ast;
+
 	FollowTable* followTable;
 	ParentTable* parentTable;
 	UseTable* useTable;
@@ -68,8 +69,8 @@ private:
 	bool isConst(string var);
 	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
-	FollowTable* processFollowRelationship(AST* ast);
-	ParentTable* processParentRelationship(AST* ast);
+	void processFollowRelationship(AST* ast);
+	void processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
