@@ -24,11 +24,15 @@ public:
 	vector<TNode* > getLine(int line);//return a list of node* with same line number
 	string getProcedure();		//return procedure name of tree
 	
-	bool isEquals(AST* subtree, bool contains_);		//check 2 subtree is equals		//case pattern a(_,"x+y")
-									//check if a subtree is contained in another		//case pattern a(_,_"x+y"_)
+	vector<int> findSubtree(AST* subtree, bool contains_);		//find all lines in  tree that contains subtree	
+															//case pattern a(_,"x+y")
+															//case pattern a(_,_"x+y"_)
 
 	vector <TNode* > getType(string type);//get all type (:stmtList,:while, :assign, :var,:plus,..)
 	vector<int> getAssign();			//return all assignments in an ast
+
+	static bool compare(TNode* root1, TNode* root2);		//use for pattern
+	static bool compareSubtree(TNode* root1, TNode* root2);
 };
 
 #endif

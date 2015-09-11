@@ -32,10 +32,12 @@ TNode::TNode() {
 
 	void TNode::setParent(TNode* par) {
 		parent = par;
+		//childList.push_back(this);
 	}
 
 	void TNode::setChild(TNode* child) {
 		childList.push_back(child);
+		//child->setParent(this);
 	}
 
 	string TNode::getValue() {
