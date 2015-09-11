@@ -24,12 +24,11 @@ void TestWrapper::parse(std::string filename) {
 
 // method to evaluating a query
 void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
-// call your evaluator to evaluate the query here
-	QueryPreprocessor pro;
-	pro.start(query);
-
+  // call your evaluator to evaluate the query here
   // ...code to evaluate query...
 
   // store the answers to the query in the results list (it is initially empty)
   // each result must be a string.
+  QueryPreprocessor qpp;
+  results = qpp.start(query);
 }
