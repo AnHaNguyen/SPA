@@ -22,8 +22,8 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	processProcTable();
 
 	for (unsigned i = 0; i < ast.size(); i++) {
-		processFollowRelationship(ast.at(i));
-		processParentRelationship(ast.at(i));
+		processFollowTable(ast.at(i));
+		processParentTable(ast.at(i));
 	}
 
 	storeToPKB();
@@ -257,7 +257,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 }
 
 //-------------------Create Follow Table---------------------//
-void DesignExtractor::processFollowRelationship(AST* ast) {
+void DesignExtractor::processFollowTable(AST* ast) {
 	for (unsigned i = 0; i < ast->getTree().size(); i++) {
 		string value = convertStmtLstNumber(i - 1);
 
@@ -281,7 +281,7 @@ void DesignExtractor::processFollowRelationship(AST* ast) {
 
 //--------------------Create Parent Table-----------------------//
 // stmtLst's parent is the parent of stmtLst's child
-void DesignExtractor::processParentRelationship(AST* ast){
+void DesignExtractor::processParentTable(AST* ast){
 	for (unsigned i = 0; i < ast->getTree().size(); i++) {
 		string value = convertStmtLstNumber(i);
 		TNode* middleNode = ast->getTree().at(i);
