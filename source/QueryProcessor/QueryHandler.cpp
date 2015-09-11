@@ -14,7 +14,7 @@
 QueryHandler::QueryHandler() {}
 QueryHandler::~QueryHandler() {}
 
-bool QueryHandler::queryRec(QueryTree* query) {
+vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
 	if (query->getValidity() == false)
@@ -130,7 +130,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 			}
 			//Case 1st: "x"
 			else {
-				getAssign(firstAtt.substr(1, 1), secondAttx); 
+				getAssign(firstAtt.substr(1, 1), secondAttx);
 				//call PKB::checkAssign(string pattern, bool contains_) for RHS -> vector<int>
 				//call PKB::getModifyTable()->getModifier(var)	for LHS ->vector<int>
 			}
@@ -164,6 +164,9 @@ bool QueryHandler::queryRec(QueryTree* query) {
 			}
 		}
 	}
+
+	vector<string> output = { "test1", "test2"};
+	return output;
 }
 		void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
 			Attx.first = "";

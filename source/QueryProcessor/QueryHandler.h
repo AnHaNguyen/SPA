@@ -10,7 +10,7 @@ class QueryHandler {
 public:
 	QueryHandler();
 	~QueryHandler();
-	bool queryRec(QueryTree* query);
+	vector<string> queryRec(QueryTree* query);
 
 	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
 
