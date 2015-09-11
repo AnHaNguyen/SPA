@@ -9,6 +9,8 @@
 
 using namespace std;
 
+DesignExtractor::DesignExtractor(){}
+
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
 	
@@ -209,6 +211,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		int posOfPlus = tempStr.find(PLUS);
 
 		if(posOfPlus != string::npos){
+			// replace the first occurence + by @
 			tempStr.replace(posOfPlus, 1, "@");
 			plusList.push_back(posOfPlus);
 		} else {
@@ -236,8 +239,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
 		subAST->addToTree(rightSubTreeNode);
-		//subAST->makeChild(plusNode, leftSubTreeNode);
-		//subAST->makeChild(plusNode, rightSubTreeNode);
+		
 		plusNode->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(plusNode);
 		plusNode->setChild(rightSubTreeNode);
@@ -251,7 +253,6 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 	if (curParent->getType() != "") {
 		curParent->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(curParent);
-		//subAST->makeChild(curParent, leftSubTreeNode);
 	}
 }
 

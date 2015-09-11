@@ -196,11 +196,6 @@ namespace UnitTesting
 		}
 
 		TEST_METHOD(TestExtFollowTable) {
-			/*vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
-			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
-			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
-			"procedureThird{", "z=5;", "v=z;}" };*/
-
 			FollowTable* followTable = ext.getFollowTable();
 
 			Assert::AreEqual(followTable->size(), 8);

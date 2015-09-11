@@ -76,6 +76,7 @@ private:
 	int getRealLineNumber(int lineNumber, string input);
 
 public:
+	DesignExtractor();
 	DesignExtractor(vector<string> input);
 	~DesignExtractor();
 	
