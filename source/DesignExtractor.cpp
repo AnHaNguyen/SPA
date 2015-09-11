@@ -18,7 +18,10 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	processModTable();
 	processUseTable();
 	processProcTable();
-
+	for (unsigned i = 0; i < ast.size(); i++) {
+		processFollowRelationship(ast.at(i));
+		processParentRelationship(ast.at(i));
+	}
 	storeToPKB();
 }
 
@@ -47,8 +50,8 @@ void DesignExtractor::storeToPKB() {
 	PKB::setProcTable(procTable);
 	PKB::setVarTable(varTable);
 	PKB::setConstTable(constTable);
-	//PKB::setParentTable(parentTable);
-	//PKB::setFollowTable(followTable);
+	PKB::setParentTable(parentTable);
+	PKB::setFollowTable(followTable);
 }
 
 //-------------------------AST-------------------------//
@@ -132,7 +135,9 @@ void DesignExtractor::processProcedure(string theRestOfLine){
 	
 	// Put statementList into tree
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	ast.at(procedureNumber)->makeChild(procNode, stmtLstNode);
+	procNode->setChild(stmtLstNode);
+	stmtLstNode->setParent(procNode);
+	//ast.at(procedureNumber)->makeChild(procNode, stmtLstNode);
 	ASTCurParent.push_back(stmtLstNode);
 }
 
@@ -141,24 +146,32 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	TNode* whileNode = new TNode(NO_VALUE, WHILE, lineNumber);
 	
 	ast.at(procedureNumber)->addToTree(whileNode);
-	ast.at(procedureNumber)->makeChild(ASTCurParent.at(ASTCurParent.size() - 1), whileNode);
+	ASTCurParent.at(ASTCurParent.size() - 1)->setChild(whileNode);
+	whileNode->setParent(ASTCurParent.at(ASTCurParent.size() - 1));
+	//ast.at(procedureNumber)->makeChild(ASTCurParent.at(ASTCurParent.size() - 1), whileNode);
 	ASTCurParent.push_back(whileNode);
 
 	// Put StmtLst of while into tree
 	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 
-	ast.at(procedureNumber)->makeChild(whileNode, stmtLstNode);
-	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	ASTCurParent.push_back(stmtLstNode);
-
 	// Put control variable into tree
 	size_t posOfOpenBracket = theRestOfLine.find(OPEN_BRACKET);
 	string controlVar = theRestOfLine.substr(0, posOfOpenBracket);
-	
+
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
-	ast.at(procedureNumber)->makeChild(stmtLstNode, controlVarNode);
+	//ast.at(procedureNumber)->makeChild(whileNode, controlVarNode);
+	whileNode->setChild(controlVarNode);
+	controlVarNode->setParent(whileNode);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
+
+	//ast.at(procedureNumber)->makeChild(whileNode, stmtLstNode);
+	whileNode->setChild(stmtLstNode);
+	stmtLstNode->setParent(whileNode);
+	ast.at(procedureNumber)->addToTree(stmtLstNode);
+	ASTCurParent.push_back(stmtLstNode);
+
+	
 }
 
 // No ;} in right side
@@ -168,14 +181,18 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	TNode* assignNode = new TNode(NO_VALUE, ASSIGN, lineNumber);
 
 	ast.at(procedureNumber)->addToTree(assignNode);
-	ast.at(procedureNumber)->makeChild(curParent, assignNode);
+	curParent->setChild(assignNode);
+	assignNode->setParent(curParent);
+	//ast.at(procedureNumber)->makeChild(curParent, assignNode);
 	ASTCurParent.push_back(assignNode);
 
 	// Supposed that left side is always variable
 	TNode* leftVar = new TNode(leftSide, VARIABLE, lineNumber);
 
 	ast.at(procedureNumber)->addToTree(leftVar);
-	ast.at(procedureNumber)->makeChild(assignNode, leftVar);
+	assignNode->setChild(leftVar);
+	leftVar->setParent(assignNode);
+	//ast.at(procedureNumber)->makeChild(assignNode, leftVar);
 
 	processRightSideAssign(ast.at(procedureNumber), assignNode, rightSide, lineNumber);
 	ASTCurParent.pop_back();
@@ -190,7 +207,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		int posOfPlus = tempStr.find(PLUS);
 
 		if(posOfPlus != string::npos){
-			tempStr.erase(posOfPlus, 1);
+			tempStr.replace(posOfPlus, 1, "@");
 			plusList.push_back(posOfPlus);
 		} else {
 			// Fake plus sign
@@ -210,15 +227,19 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		int prevPlus = plusList.at(i);
 		int nextPlus = plusList.at(i + 1);
 
-		string rightSubTree = rightSide.substr(prevPlus + 1, nextPlus - prevPlus - 1);	
+		string rightSubTree = rightSide.substr(prevPlus + 1, nextPlus - prevPlus -1);	
 		string typeOfRight = exprType(rightSubTree);
 
 		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
 		subAST->addToTree(rightSubTreeNode);
-		subAST->makeChild(plusNode, leftSubTreeNode);
-		subAST->makeChild(plusNode, rightSubTreeNode);
+		//subAST->makeChild(plusNode, leftSubTreeNode);
+		//subAST->makeChild(plusNode, rightSubTreeNode);
+		plusNode->setChild(leftSubTreeNode);
+		leftSubTreeNode->setParent(plusNode);
+		plusNode->setChild(rightSubTreeNode);
+		rightSubTreeNode->setParent(plusNode);
 		
 		leftSubTreeNode = plusNode;
 		subAST->addToTree(leftSubTreeNode);
@@ -226,13 +247,14 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 
 	// Stick subtree to main tree
 	if (curParent->getType() != "") {
-		subAST->makeChild(curParent, leftSubTreeNode);
+		curParent->setChild(leftSubTreeNode);
+		leftSubTreeNode->setParent(curParent);
+		//subAST->makeChild(curParent, leftSubTreeNode);
 	}
 }
 
 //-------------------Create Follow Table---------------------//
 FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
-	FollowTable* followTable = new FollowTable();
 
 	for(int i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
@@ -257,7 +279,6 @@ FollowTable* DesignExtractor::processFollowRelationship(AST* ast){
 //--------------------Create Parent Table-------------------//
 // stmtLst's parent is the parent of stmtLst's child
 ParentTable* DesignExtractor::processParentRelationship(AST* ast){
-	ParentTable* parentTable = new ParentTable();
 
 	for(int i = 1; i <= stmtLstNumber; i++) {
 		string value = convertStmtLstNumber(i);
@@ -398,6 +419,7 @@ ProcTable* DesignExtractor::getProcTable() {
 
 vector<AST*> DesignExtractor::getASTList() {
 	return ast;
+}
 
 AST* DesignExtractor::buildSubtree(string pattern) {
 	AST* subAST = new AST();
