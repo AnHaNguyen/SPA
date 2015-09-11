@@ -389,12 +389,12 @@ bool DesignExtractor::processProcTable() {
 
 
 // Getter
-FollowTable* DesignExtractor::getFollowTable(AST* ast){
-	return processFollowRelationship(ast);
+FollowTable* DesignExtractor::getFollowTable(){
+	return followTable;
 }
 
-ParentTable* DesignExtractor::getParentTable(AST* ast){
-	return processParentRelationship(ast);
+ParentTable* DesignExtractor::getParentTable(){
+	return parentTable;
 }
 
 ModifyTable* DesignExtractor::getModTable() {

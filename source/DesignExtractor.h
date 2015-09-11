@@ -79,8 +79,8 @@ public:
 	~DesignExtractor();
 	
 	vector<AST*> buildAST(vector<string> input);
-	FollowTable* getFollowTable(AST* ast);
-	ParentTable* getParentTable(AST* ast);
+	FollowTable* getFollowTable();
+	ParentTable* getParentTable();
 	ModifyTable* getModTable();
 	UseTable* getUseTable();
 	VarTable* getVarTable();
