@@ -112,7 +112,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<ModifyEntry_t> modTab;
 		if (syn == "Modifies") {
 			handleModifies(firstAtt, secondAtt, modVec, mvarVec);
-			if (modVec.size() > 0 && modVec.front() == -1) {
+			if (modVec.size() > 0 && modVec.front() == -2) {
 				ModifyTable* ModifyTable = PKB::getModifyTable();
 				modTab = ModifyTable->getTable();
 				modTable = toConvention(modTab);
@@ -140,7 +140,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			handleParent(firstAtt, secondAtt, parVec);
 			queue<int> parQ;
 
-			if (parVec.size() > 0 && parVec.front() == -1) {
+			if (parVec.size() > 0 && parVec.front() == -2) {
 				ParentTable* ParentTable = PKB::getParentTable();
 				parTab = ParentTable->getTable();
 				modTable = toConvention(modTab);
@@ -175,7 +175,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<UseEntry_t> useTab;
 		if (syn == "Uses") {
 			handleUses(firstAtt, secondAtt, useVec, uvarVec);
-			if (useVec.size() > 0 && useVec.front() == -1) {
+			if (useVec.size() > 0 && useVec.front() == -2) {
 				UseTable* UseTable = PKB::getUseTable();
 				useTab = UseTable->getTable();
 				userTable = toConvention(useTab, true);
@@ -620,7 +620,7 @@ void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<int> &
 	UseTable* useTab = PKB::getUseTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 		if (getSymMean(secondAtt) == "variable") {
-			useVec.push_back(-1);
+			useVec.push_back(-2);
 		}
 		else {
 			useVec = useTab->getUser(secondAtt.substr(1, secondAtt.size() - 2));
@@ -659,7 +659,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 	ModifyTable* modTab = PKB::getModifyTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 		if (getSymMean(secondAtt) == "variable") {
-			modVec.push_back(-1);
+			modVec.push_back(-2);
 		}
 		else {
 			modVec = modTab->getModifier(secondAtt.substr(1, secondAtt.size() - 2));
@@ -679,7 +679,7 @@ int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a
 		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
-			ans = -1;
+			ans = -2;
 		}
 		//Case 2nd: 1, 2...
 		if (isInt(secondAtt)) {
