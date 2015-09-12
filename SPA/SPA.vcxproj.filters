@@ -24,6 +24,7 @@
     <ClCompile Include="..\source\ConstTable.cpp" />
     <ClCompile Include="..\source\DesignExtractor.cpp" />
     <ClCompile Include="..\source\PKB.cpp" />
+    <ClCompile Include="..\source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
