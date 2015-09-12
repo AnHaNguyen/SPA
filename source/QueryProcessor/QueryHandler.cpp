@@ -200,7 +200,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		for (int i = 0; i < 12; i++) {
 			STCheck.push_back(0);
 		}
-		if (!folVec.empty() && folVec.front() != -1) {
+		if (!folVec.empty() && folVec.front() != -1 && folVec.front() != -2) {
 			STCheck[0] = 1;
 		}
 		if (!folTable.empty()) {
@@ -215,7 +215,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!modTable.empty()) {
 			STCheck[4] = 1;
 		}
-		if (!parVec.empty() && parVec.front() != -1) {
+		if (!parVec.empty() && parVec.front() != -1 && parVec.front() != -2) {
 			STCheck[5] = 1;
 		}
 		if (!parTable.empty()) {
@@ -227,7 +227,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!uvarVec.empty()) {
 			STCheck[8] = 1;
 		}
-		if (!useVec.empty() && useVec.front() != -1) {
+		if (!useVec.empty() && useVec.front() != -1 && useVec.front() != -2) {
 			STCheck[9] = 1;
 		}
 		if (!userTable.empty()) {
@@ -475,7 +475,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			break;
 		case 6:
-			final2 = parVec;
+			final2 = parTable;
 			switch (getPos(PTCheck)) {
 			case 0:
 				final2 = intersection(parVec, patVec);
