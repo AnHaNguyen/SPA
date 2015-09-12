@@ -46,7 +46,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		//Handle follows
 		vector<int> folVec;
 		vector<FollowEntry_t> folTab;
-		if (syn == "follows") {
+		if (syn == "Follows") {
 			folVec.push_back(handleFollows(firstAtt, secondAtt));
 			if (folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
@@ -55,7 +55,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Handle follows*
-		if (syn == "follows*") {
+		if (syn == "Follows*") {
 			folVec.push_back(handleFollows(firstAtt, secondAtt));
 			queue<int> folQ;
 			folQ.push(folVec[0]);
@@ -90,7 +90,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<string> mvarVec;
 		vector<int> modVec;
 		vector<ModifyEntry_t> modTab;
-		if (syn == "modifies") {
+		if (syn == "Modifies") {
 			handleModifies(firstAtt, secondAtt, modVec, mvarVec);
 			if (modVec.front() == -1) {
 				ModifyTable* ModifyTable = PKB::getModifyTable();
@@ -101,7 +101,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		//Handle parent
 		vector<int> parVec;
 		vector<ParentEntry_t> parTab;
-		if (syn == "parent") {
+		if (syn == "Parent") {
 			handleParent(firstAtt, secondAtt, parVec);
 			if (parVec.front() == -1) {
 				ParentTable* ParentTable = PKB::getParentTable();
@@ -110,7 +110,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Handle parent*
-		if (syn == "parent*") {
+		if (syn == "Parent*") {
 			handleParent(firstAtt, secondAtt, parVec);
 			queue<int> parQ;
 
@@ -148,7 +148,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<string> uvarVec;
 		vector<int> useVec;
 		vector<UseEntry_t> useTab;
-		if (syn == "uses") {
+		if (syn == "Uses") {
 			handleUses(firstAtt, secondAtt, useVec, uvarVec);
 			if (useVec.front() == -1) {
 				UseTable* UseTable = PKB::getUseTable();
@@ -224,7 +224,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					}
 				}
 				//Select type = assignment
-				if (selType == "assignment") {
+				if (selType == "assign") {
 					vector<AST*> ast = PKB::getASTList();
 					vector<int> tempVec;
 					for (int i = 0; i < ast.size(); i++) {
@@ -242,6 +242,30 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						}
 					}
 				}
+			}
+			//Case 2nd att = c
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "constant") {
+				//Seltype = constant
+				if (selType == "constant") {
+
+				}
+			}
+		}
+		//Case 1st att = "x123"
+		if (getSymMean(firstAttx.first) == "") {
+			//Case 2nd att = _
+			if (secondAttx.first == "_") {
+				patVec = PKB::getModifyTable()->getModifier(firstAttx.first);
+			}
+			//Case 2nd att = "x123"
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "") {
+				vector<int> temp1 = PKB::getModifyTable()->getModifier(firstAttx.first);
+				vector<int> temp2 = PKB::getUseTable()->getUser(secondAttx.first);
+				patVec = intersection(temp1, temp2);
+			}
+			//Case 2nd att = v
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "variable") {
+
 			}
 		}
 	}
@@ -338,11 +362,11 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 
 int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
-	int ans;
+	int ans=-1;
 	//Case 1st: n/a
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt"|| getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a
-		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
+		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt"|| getSymMean(firstAtt) == "stmt") {
 			ans = -1;
 		}
 		//Case 2nd: 1, 2...
