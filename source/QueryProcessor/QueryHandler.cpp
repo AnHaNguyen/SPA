@@ -70,13 +70,18 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					int nextFol;
 					if (isInt(firstAtt)) {
 						nextFol = handleFollows(to_string(temp), secondAtt);
-						folVec.push_back(nextFol);
+						if (nextFol != -1) {
+							folQ.push(nextFol);
+							folVec.push_back(nextFol);
+						}
 					}
 					else {
-						nextFol = handleFollows(secondAtt, to_string(temp));
-						folVec.push_back(nextFol);
+						nextFol = handleFollows(firstAtt, to_string(temp));
+						if (nextFol != -1) {
+							folQ.push(nextFol);
+							folVec.push_back(nextFol);
+						}
 					}
-					folQ.push(nextFol);
 				}
 			}
 		}
@@ -103,11 +108,41 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				parTab = ParentTable->getTable();
 			}
 		}
-		/*
+
+		//Handle parent*
 		if (syn == "parent*") {
-			ansVec = getParentS(firstAtt, secondAtt);
+			handleParent(firstAtt, secondAtt, parVec);
+			queue<int> parQ;
+
+			if (parVec.front() == -1) {
+				ParentTable* ParentTable = PKB::getParentTable();
+				parTab = ParentTable->getTable();
+			}
+			else {
+				parQ.push(parVec.front());
+				while (!parQ.empty()) {
+					int temp = parQ.front();
+					int oldSize = parVec.size();
+					parQ.pop();
+					if (isInt(firstAtt)) {
+						handleParent(to_string(temp), secondAtt, parVec);
+						if (oldSize < parVec.size()) {
+							for (int i = oldSize; i < parVec.size(); i++) {
+								parQ.push(parVec[i]);
+							}
+						}
+					}
+					else {
+						handleParent(firstAtt, to_string(temp), parVec);
+						if (oldSize < parVec.size()) {
+							for (int i = oldSize; i < parVec.size(); i++) {
+								parQ.push(parVec[i]);
+							}
+						}
+					}
+				}
+			}
 		}
-		*/
 
 		//Handle uses
 		vector<string> uvarVec;
@@ -305,17 +340,17 @@ int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
 		//Case 2nd: n/a
 		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
-			ans=-1;
+			ans = -1;
 		}
 		//Case 2nd: 1, 2...
 		if (isInt(secondAtt)) {
-			ans= folTab->getPrev(stoi(secondAtt));
+			ans = folTab->getPrev(stoi(secondAtt));
 		}
 	}
 	//Case 1st: 1, 2
 	else {
 		if (isInt(firstAtt)) {
-			ans=folTab->getNext(stoi(firstAtt));
+			ans = folTab->getNext(stoi(firstAtt));
 		}
 	}
 	return ans;
