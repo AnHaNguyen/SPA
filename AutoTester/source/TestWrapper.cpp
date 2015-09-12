@@ -32,6 +32,18 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 
   // store the answers to the query in the results list (it is initially empty)
   // each result must be a string.
-  QueryPreprocessor qpp;
-  results = qpp.start(query);
+
+	try {
+		QueryPreprocessor qpp;
+		vector<string> oneResult = qpp.start(query);
+		string oneResultString = "";
+		for (int i = 0; i < oneResult.size()-1; i++) {
+			oneResultString = oneResultString + ",";
+		}
+		oneResultString = oneResultString + oneResult[oneResult.size()-1];
+		results.push_back(oneResultString);
+	}
+	catch (const exception& error) {
+		cout << error.what() << endl;
+	}
 }

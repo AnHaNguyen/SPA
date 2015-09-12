@@ -360,6 +360,9 @@ bool QueryTree::isValidEntRef(vector< vector<string> > table, string str) {
 }
 
 bool QueryTree::isValidExpressionSpec(string str) {
+	if (str.size() == 0) {
+		return false;
+	}
 	if (str == "_") {
 		return true;
 	}

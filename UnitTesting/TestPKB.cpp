@@ -22,7 +22,7 @@ namespace UnitTesting
 			vector<int> result = PKB::checkAssign("2", false);
 			Assert::AreEqual(result.size(), (unsigned)	1);
 			Assert::AreEqual(result.at(0), 1);
-			vector<int> result = PKB::checkAssign("2", true);
+			result = PKB::checkAssign("2", true);
 			Assert::AreEqual(result.size(), (unsigned)3);
 			Assert::AreEqual(result.at(1), 6);
 			Assert::AreEqual(result.at(2), 9);
