@@ -143,7 +143,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			if (parVec.size() > 0 && parVec.front() == -2) {
 				ParentTable* ParentTable = PKB::getParentTable();
 				parTab = ParentTable->getTable();
-				modTable = toConvention(modTab);
+				if (result->getResult() == firstAtt) {
+					parTable = toConvention(parTab, 1);
+				}
+				else if (result->getResult() == secondAtt) {
+					nestTable = toConvention(parTab, 2);
+				}
 			}
 			else {
 				parQ.push(parVec.front());
