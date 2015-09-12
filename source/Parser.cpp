@@ -20,7 +20,7 @@ Parser::~Parser() {
 
 void Parser::parseInput(string fName) {
 	vector<string> programLines = result(fName);
-	//DesignExtractor ext = DesignExtractor(result(fName));
+	DesignExtractor ext = DesignExtractor(result(fName));
 
 }
 
