@@ -38,7 +38,7 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 		vector<string> oneResult = qpp.start(query);
 		
 		if (oneResult.size()==0) return;
-		for (int i = 0; i < oneResult.size()-1; i++) {
+		for (int i = 0; i < oneResult.size(); i++) {
 			results.push_back(oneResult[i]);
 		}
 	}
