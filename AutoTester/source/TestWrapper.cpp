@@ -36,12 +36,11 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 	try {
 		QueryPreprocessor qpp;
 		vector<string> oneResult = qpp.start(query);
-		string oneResultString = "";
+		
+		if (oneResult[0] == "") return;
 		for (int i = 0; i < oneResult.size()-1; i++) {
-			oneResultString = oneResultString + ",";
+			results.push_back(oneResult[i]);
 		}
-		oneResultString = oneResultString + oneResult[oneResult.size()-1];
-		results.push_back(oneResultString);
 	}
 	catch (const exception& error) {
 		cout << error.what() << endl;
