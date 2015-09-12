@@ -303,8 +303,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					vector<int> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
 						for (int j = 0; j < temp3.size(); j++) {
-							if (temp3[i] == temp1[j].first) {							
-									pconVec.push_back(temp1[j].second);
+							if (temp3[i] == temp1[j].first) {
+								pconVec.push_back(temp1[j].second);
 							}
 						}
 					}
@@ -354,7 +354,21 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-
+		//Case 1st att = v
+		if (getSymMean(firstAttx.first) == "variable") {
+			//Case 2nd att = _
+			if (secondAttx.first == "_") {
+				if (selType == "variable") {
+					vector<int> temp1 = getAssignTable();
+					for (int i = 0; i < temp1.size(); i++) {
+						pvarVec.push_back(PKB::getModifyTable()->getModified(temp1[i]));
+					}
+				}
+				else {
+					patVec = getAssignTable();
+				}
+			}
+		}
 		for (int i = 0; i < 10; i++) {
 			PTCheck[i] = 0;
 		}
