@@ -27,7 +27,7 @@ vector<string> QueryPreprocessor::start(string line) {
 	QueryTree* tree = startProcess(declare, input);
 
 	QueryHandler handler;
-	vector<string> queryRes = handler.queryRec(tree);
+	return handler.queryRec(tree);
 }
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
