@@ -23,7 +23,7 @@ public:
     void setPatternTable(string str);
 	void setResultTable(string str);
 
-	list<string> start(string line);
+	vector<string> start(string line);
     QueryTree* startProcess(string declare, string input);
     bool isValidDeclaration(string str);
 	bool isValidSelection(string str);
