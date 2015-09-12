@@ -299,9 +299,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<int> temp2 = getAssignTable();
-
 					vector<pair<int, string>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1);
+					vector<int> temp3 = intersection(temp2, temp1);
+					for (int i = 0; i < temp3.size(); i++) {
+						for (int j = 0; j < temp3.size(); j++) {
+							if (temp3[i] == temp1[j].first) {							
+									pconVec.push_back(temp1[j].second);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -320,10 +326,31 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			//Case 2nd att = v
 			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "variable") {
 				vector<int> temp1 = PKB::getModifyTable()->getModifier(firstAttx.first);
-				vector<string> temp2 = toConvention(PKB::getUseTable()->getTable(), 1);
-				vector<int> temp3 = toConvention(PKB::getUseTable()->getTable(), true);
+				vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
+				vector<int> temp2 = toConvention(useTable, true);
 				if (selType == "variable") {
-
+					vector<int> temp3 = intersection(temp1, temp2);
+					for (int i = 0; i < temp3.size(); i++) {
+						for (int j = 0; j < useTable.size(); j++) {
+							if (temp3[i] == useTable[j].lineNo) {
+								for (int k = 0; k < useTable[j].usedVar.size(); k++) {
+									pvarVec.push_back(useTable[j].usedVar[k]);
+								}
+							}
+						}
+					}
+				}
+				else {
+					patVec = intersection(temp1, temp2);
+				}
+			}
+			//Case 2nd att = c
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "constant") {
+				//Seltype = constant
+				if (selType == "constant") {
+					vector<int> temp2 = PKB::getModifyTable()->getModifier(firstAttx.first);
+					vector<pair<int, string>> temp1 = getConstTable();
+					patVec = intersection(temp2, temp1);
 				}
 			}
 		}
@@ -674,7 +701,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 
 int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
-	int ans = -2;
+	int ans = -1;
 	//Case 1st: n/a
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a
