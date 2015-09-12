@@ -255,7 +255,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			if (firstType != "if" && firstType != "while" && firstType != "prog_line")
 				return false;
 		}		
-		if (second != "_" && !isInteger(first)) {
+		if (second != "_" && !isInteger(second)) {
 			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
@@ -269,7 +269,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line");
 				return false;
 		}
-		if (second != "_" && !isInteger(first)) {
+		if (second != "_" && !isInteger(second)) {
 			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
 				return false;
 		}
