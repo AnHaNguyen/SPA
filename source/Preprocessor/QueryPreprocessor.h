@@ -3,6 +3,8 @@
 
 #include<string>
 #include<vector>
+#include<list>
+#include<iterator>
 #include"QueryTree.h"
 
 class QueryPreprocessor{
@@ -21,7 +23,7 @@ public:
     void setPatternTable(string str);
 	void setResultTable(string str);
 
-	void start(string line);
+	list<string> start(string line);
     QueryTree* startProcess(string declare, string input);
     bool isValidDeclaration(string str);
 	bool isValidSelection(string str);

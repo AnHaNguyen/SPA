@@ -14,11 +14,11 @@
 QueryHandler::QueryHandler() {}
 QueryHandler::~QueryHandler() {}
 
-bool QueryHandler::queryRec(QueryTree* query) {
+vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
 	if (query->getValidity() == false)
-		return false;
+		return {};
 
 	//Initiate nodes
 	PreResultNode* result;
@@ -28,7 +28,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		symTable = query->getSymbolTable();
 	}
 	else {
-		return false;
+		return {};
 	}
 
 	//Handle select
@@ -126,11 +126,11 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		if (secondAttx.first.size() > 1 || secondAttx.second == true) {
 			//Case 1st: _
 			if (firstAtt.size() == 1) {
-				getAssign(firstAtt, secondAttx);	//call PKB::checkAssign(string pattern, bool contains_) ->vector<int>
+				//getAssign(firstAtt, secondAttx);	//call PKB::checkAssign(string pattern, bool contains_) ->vector<int>
 			}
 			//Case 1st: "x"
 			else {
-				getAssign(firstAtt.substr(1, 1), secondAttx); 
+				//getAssign(firstAtt.substr(1, 1), secondAttx);
 				//call PKB::checkAssign(string pattern, bool contains_) for RHS -> vector<int>
 				//call PKB::getModifyTable()->getModifier(var)	for LHS ->vector<int>
 			}
@@ -141,19 +141,19 @@ bool QueryHandler::queryRec(QueryTree* query) {
 			if (secondAttx.first == "") {
 				//Case 1st: _
 				if (firstAtt.size() == 1) {
-					getAssignTable();	//PKB::getASTList() -> vector<AST*>
+					//getAssignTable();	//PKB::getASTList() -> vector<AST*>
 										//run loop ast->getAssign() -> vector<int> on each ast on list
 				}
 				//Case 1st: "x"
 				else {
-					getModify(firstAtt.substr(1, 1));	//PKB::getModifyTable()->getModifier(var) -> vector<int>
+					//getModify(firstAtt.substr(1, 1));	//PKB::getModifyTable()->getModifier(var) -> vector<int>
 				}
 			}
 			//Case 2nd: "x"
 			else {
 				//Case 1st: _
 				if (firstAtt.size() == 1) {
-					getUsed(secondAttx.first);		//PKB::getUseTable()->getUser(var) -> vector<int>
+					//getUsed(secondAttx.first);		//PKB::getUseTable()->getUser(var) -> vector<int>
 				}
 				//Case 1st: "x"
 				else {
@@ -164,6 +164,9 @@ bool QueryHandler::queryRec(QueryTree* query) {
 			}
 		}
 	}
+
+	vector<string> output = { "test1", "test2"};
+	return output;
 }
 		void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
 			Attx.first = "";
