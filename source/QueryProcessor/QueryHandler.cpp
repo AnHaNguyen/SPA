@@ -305,7 +305,10 @@ void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<int>
 			parVec.push_back(-1);
 		}
 		if (isInt(secondAtt)) {
-			parVec.push_back(parTab->getParent(stoi(secondAtt)));
+			int temp = parTab->getParent(stoi(secondAtt));
+			if (temp != -1) {
+				parVec.push_back(temp);
+			}
 		}
 	}
 	else {
