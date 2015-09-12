@@ -19,6 +19,8 @@ public:
 
 	bool QueryHandler::containSign(string str);
 
+	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, int>> vec2);
+
 	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
 
 	void handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec);

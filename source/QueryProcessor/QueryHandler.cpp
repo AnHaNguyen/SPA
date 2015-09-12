@@ -45,14 +45,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<pair<int, string>>  modTable;
 
 	vector<int> parVec;
-	vector<pair<int, vector<int>>>  parTable;
+	vector<int>  parTable;
+	vector<int> nestTable;
 
 	vector<string> uvarVec;
 	vector<int> useVec;
-	vector<pair<int, vector<string>>> useTable;
-	
-	
-	
+	vector<int> userTable;
+	vector<string> usedTable;
+
+
+	vector<int> PTCheck;
+	vector<int> STCheck;
 
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
@@ -64,7 +67,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<FollowEntry_t> folTab;
 		if (syn == "Follows") {
 			folVec.push_back(handleFollows(firstAtt, secondAtt));
-			if (folVec.size()>0&&folVec.front() == -1) {
+			if (folVec.size() > 0 && folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
 				folTab = FollowTable->getTable();
 				folTable = toConvention(folTab);
@@ -76,7 +79,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			folVec.push_back(handleFollows(firstAtt, secondAtt));
 			queue<int> folQ;
 			folQ.push(folVec[0]);
-			if (folVec.size()>0 && folVec.front() == -1) {
+			if (folVec.size() > 0 && folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
 				folTab = FollowTable->getTable();
 				folTable = toConvention(folTab);
@@ -108,7 +111,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<ModifyEntry_t> modTab;
 		if (syn == "Modifies") {
 			handleModifies(firstAtt, secondAtt, modVec, mvarVec);
-			if (modVec.size()>0 && modVec.front() == -1) {
+			if (modVec.size() > 0 && modVec.front() == -1) {
 				ModifyTable* ModifyTable = PKB::getModifyTable();
 				modTab = ModifyTable->getTable();
 				modTable = toConvention(modTab);
@@ -119,10 +122,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<ParentEntry_t> parTab;
 		if (syn == "Parent") {
 			handleParent(firstAtt, secondAtt, parVec);
-			if (parVec.size()>0 && parVec.front() == -1) {
+			if (parVec.size() > 0 && parVec.front() == -1) {
 				ParentTable* ParentTable = PKB::getParentTable();
 				parTab = ParentTable->getTable();
-				parTable = toConvention(parTab);
+				if (result->getResult() == firstAtt) {
+					parTable = toConvention(parTab, 1);
+				}
+				else if (result->getResult() == secondAtt) {
+					nestTable = toConvention(parTab, 2);
+				}
 			}
 		}
 
@@ -131,7 +139,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			handleParent(firstAtt, secondAtt, parVec);
 			queue<int> parQ;
 
-			if (parVec.size()>0 && parVec.front() == -1) {
+			if (parVec.size() > 0 && parVec.front() == -1) {
 				ParentTable* ParentTable = PKB::getParentTable();
 				parTab = ParentTable->getTable();
 				modTable = toConvention(modTab);
@@ -166,10 +174,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<UseEntry_t> useTab;
 		if (syn == "Uses") {
 			handleUses(firstAtt, secondAtt, useVec, uvarVec);
-			if (useVec.size()>0 && useVec.front() == -1) {
+			if (useVec.size() > 0 && useVec.front() == -1) {
 				UseTable* UseTable = PKB::getUseTable();
 				useTab = UseTable->getTable();
-				useTable = toConvention(useTab);
+				userTable = toConvention(useTab, true);
+				usedTable = toConvention(useTab, 2);
 			}
 		}
 
@@ -186,39 +195,45 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "next") {
 		ansVec = getNextS(firstAtt, secondAtt);
 		}*/
-		vector<int> suchThat;
-		for (int i = 0; i < 10; i++) {
-			suchThat[i] = 0;
+
+		for (int i = 0; i < 12; i++) {
+			STCheck[i] = 0;
 		}
-		if (!folVec.empty()&&folVec.front()!=-1) {
-			suchThat[0] = 1;
+		if (!folVec.empty() && folVec.front() != -1) {
+			STCheck[0] = 1;
 		}
 		if (!folTable.empty()) {
-			suchThat[1] = 1;
+			STCheck[1] = 1;
 		}
 		if (!mvarVec.empty()) {
-			suchThat[2] = 1;
+			STCheck[2] = 1;
 		}
 		if (!modVec.empty() && modVec.front() != -1) {
-			suchThat[3] = 1;
+			STCheck[3] = 1;
 		}
 		if (!modTable.empty()) {
-			suchThat[4] = 1;
+			STCheck[4] = 1;
 		}
 		if (!parVec.empty() && parVec.front() != -1) {
-			suchThat[5] = 1;
+			STCheck[5] = 1;
 		}
 		if (!parTable.empty()) {
-			suchThat[6] = 1;
+			STCheck[6] = 1;
+		}
+		if (!parTable.empty()) {
+			STCheck[7] = 1;
 		}
 		if (!uvarVec.empty()) {
-			suchThat[7] = 1;
+			STCheck[8] = 1;
 		}
 		if (!useVec.empty() && useVec.front() != -1) {
-			suchThat[8] = 1;
+			STCheck[9] = 1;
 		}
-		if (!useTable.empty()) {
-			suchThat[6] = 1;
+		if (!userTable.empty()) {
+			STCheck[10] = 1;
+		}
+		if (!usedTable.empty()) {
+			STCheck[11] = 1;
 		}
 	}
 	//Handle pattern (this iteration only assign pattern)
@@ -306,25 +321,227 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 			}
 		}
-		vector<int> pattern;
+
 		for (int i = 0; i < 10; i++) {
-			pattern[i] = 0;
+			PTCheck[i] = 0;
 		}
 		if (!patVec.empty() && patVec.front() != -1) {
-			pattern[0] = 1;
+			PTCheck[0] = 1;
 		}
 		if (!pvarVec.empty()) {
-			pattern[1] = 1;
+			PTCheck[1] = 1;
 		}
 		if (!pconVec.empty()) {
-			pattern[2] = 1;
+			PTCheck[2] = 1;
 		}
 	}
+
 	vector<string> final1;
 	vector<int> final2;
-	if (patVec.size() > 0 && patVec.front != -1) {
-		if (folVec.size() > 0 && folVec.front != -1) {
-
+	if (getPos(STCheck) != -1) {
+		switch (getPos(STCheck)) {
+		case 0:
+			final2 = folVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(folVec, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 1:
+			for (int i = 0; i < folTable.size(); i++) {
+				final2.push_back(folTable[i].first);
+			}
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(patVec, folTable);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 2:
+			final1 = mvarVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				break;
+			case 1:
+				final1 = intersection(mvarVec, pvarVec);
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 3:
+			final2 = modVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(modVec, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 4:
+			if (selType == "variable") {
+				for (int i = 0; i < modTable.size(); i++) {
+					final1.push_back(modTable[i].second);
+				}
+			}
+			else {
+				for (int i = 0; i < modTable.size(); i++) {
+					final2.push_back(modTable[i].first);
+				}
+			}
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(patVec, modTable);
+				break;
+			case 1:
+				final1 = intersection(pvarVec, modTable);
+				break;
+			case 2:
+				final1 = intersection(pconVec, modTable);
+				break;
+			default:
+				break;
+			}
+			{
+			default:
+				break;
+			}
+			break;
+		case 5:
+			final2 = parVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(parVec, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 6:
+			final2 = parVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(parVec, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 7:
+			final2 = nestTable;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(nestTable, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 8:
+			final1 = uvarVec;
+			switch (getPos(PTCheck)) {
+			case 0:
+				break;
+			case 1:
+				final1 = intersection(uvarVec, pvarVec);
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 9:
+			final2 = nestTable;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(nestTable, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 10:
+			final2 = userTable;
+			switch (getPos(PTCheck)) {
+			case 0:
+				final2 = intersection(userTable, patVec);
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+			break;
+		case 11:
+			final1 = usedTable;
+			switch (getPos(PTCheck)) {
+			case 0:
+				break;
+			case 1:
+				final1 = intersection(usedTable, pvarVec);
+				break;
+			case 2:
+				final1 = intersection(usedTable, pconVec);
+				break;
+			default:
+				break;
+			}
+			break;
+		}
+		
+	}
+	else {
+		switch (getPos(PTCheck)) {
+		case 0:
+			final2 = patVec;
+			break;
+		case 1:
+			final1 = pvarVec;
+			break;
+		case 2:
+			final1 = pconVec;
+			break;
+		default:
+			break;
 		}
 	}
 	if (!final2.empty()) {
@@ -503,6 +720,15 @@ string QueryHandler::getSymMean(string sym) {
 	}
 	return "";
 }
+
+int getPos(vector<int> intVec) {
+	for (int i = 0; i < intVec.size(); i++) {
+		if (intVec[i] == 1) {
+			return i;
+		}
+	}
+	return -1;
+}
 //To convetion
 vector<pair<int, int>> toConvention(vector<FollowEntry_t> table) {
 	vector<pair<int, int>> ansVec;
@@ -523,22 +749,34 @@ vector<pair<int, string>> toConvention(vector<ModifyEntry_t>  table) {
 		ansVec.push_back(temp);
 	}
 }
-vector<pair<int, vector<int>>> toConvention(vector<ParentEntry_t>  table) {
-	vector<pair<int, vector<int>>> ansVec;
+vector<int> toConvention(vector<ParentEntry_t>  table, int x) {
+	vector<int> ansVec;
+	if (x == 1) {
+		for (int i = 0; i < table.size(); i++) {
+			ansVec.push_back(table[i].lineNo);
+		}
+	}
+	else {
+		for (int i = 0; i < table.size(); i++) {
+			for (int j = 0; j < table[i].child.size(); j++) {
+				ansVec.push_back(table[i].child[j]);
+			}
+		}
+	}
+	return ansVec;
+}
+vector<int> toConvention(vector<UseEntry_t> table, bool x) {
+	vector<int> ansVec;
 	for (int i = 0; i < table.size(); i++) {
-		pair<int, vector<int>> temp;
-		temp.first = table[i].lineNo;
-		temp.second = table[i].child;
-		ansVec.push_back(temp);
+		ansVec.push_back(table[i].lineNo);
 	}
 }
-vector<pair<int, vector<string>>> toConvention(vector<UseEntry_t> table) {
-	vector<pair<int, vector<string>>> ansVec;
+vector<string> toConvention(vector<UseEntry_t> table, int x) {
+	vector<string> ansVec;
 	for (int i = 0; i < table.size(); i++) {
-		pair<int, vector<string>> temp;
-		temp.first = table[i].lineNo;
-		temp.second = table[i].usedVar;
-		ansVec.push_back(temp);
+		for (int j = 0; j < table[i].usedVar.size(); j++) {
+			ansVec.push_back(table[i].usedVar[j]);
+		}
 	}
 }
 //Implement intersection method (case pair (n1, v1) and select v or n
@@ -578,6 +816,18 @@ vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<int, 
 }
 
 vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string>> vec2) {
+	vector<int> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		int current = vec1[i];
+		for (size_t j = 0; j != (sizeof vec2); j++) {
+			if (vec2[j].first == current) {
+				ansVec.push_back(current);
+			}
+		}
+	}
+	return ansVec;
+}
+vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, int>> vec2) {
 	vector<int> ansVec;
 	for (size_t i = 0; i != (sizeof vec1); i++) {
 		int current = vec1[i];
