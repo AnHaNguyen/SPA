@@ -22,7 +22,7 @@ public:
 
 	void handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &varVec);
 
-	vector<int> handleFollows(string &firstAtt, string &secondAtt);
+	int handleFollows(string &firstAtt, string &secondAtt);
 
 	vector< vector<string> > symTable;
 	string handleSelect(QueryTree * query, PreResultNode * &result);

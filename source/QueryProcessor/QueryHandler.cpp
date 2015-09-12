@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <queue>
 
 #include "../PKB.h"
 #include "../QueryProcessor/QueryHandler.h"
@@ -46,25 +47,39 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		vector<int> folVec;
 		vector<FollowEntry_t> folTab;
 		if (syn == "follows") {
-			folVec = handleFollows(firstAtt, secondAtt);
+			folVec.push_back(handleFollows(firstAtt, secondAtt));
 			if (folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
 				folTab = FollowTable->getTable();
 			}
 		}
-		/*
-		if (syn == "follows*") {
-			folVec = handleFollows(firstAtt, secondAtt);
 
+		//Handle follows*
+		if (syn == "follows*") {
+			folVec.push_back(handleFollows(firstAtt, secondAtt));
+			queue<int> folQ;
+			folQ.push(folVec[0]);
 			if (folVec.front() == -1) {
 				FollowTable* FollowTable = PKB::getFollowTable();
 				folTab = FollowTable->getTable();
 			}
 			else {
-			
+				while (!folQ.empty()) {
+					int temp = folQ.front();
+					folQ.pop();
+					int nextFol;
+					if (isInt(firstAtt)) {
+						nextFol = handleFollows(to_string(temp), secondAtt);
+						folVec.push_back(nextFol);
+					}
+					else {
+						nextFol = handleFollows(secondAtt, to_string(temp));
+						folVec.push_back(nextFol);
+					}
+					folQ.push(nextFol);
+				}
 			}
 		}
-		*/
 
 		//Handle modifies
 		vector<string> mvarVec;
@@ -148,17 +163,57 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					for (int j = 0; j < current.size(); j++) {
 						patVec.push_back(current[j]);
 					}
-
 				}
-				//Case 2nd att = "x123"
-				if (containSign(secondAttx.first) == false)
+			}
+			//Case 2nd att = "x123"
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "") {
+				patVec = PKB::getUseTable()->getUser(secondAttx.first);
+			}
+			//Case 2nd att = v
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "variable") {
+				//Select type = variable
+				if (selType == "variable") {
+					vector<AST*> ast = PKB::getASTList();
+					vector<int> tempVec;
+					for (int i = 0; i < ast.size(); i++) {
+						vector<int> current = ast[i]->getAssign();
+						for (int j = 0; j < current.size(); j++) {
+							tempVec.push_back(current[j]);
+						}
+					}
+					for (int i = 0; i < tempVec.size(); i++) {
+						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
+						for (int j = 0; j < current.size(); j++) {
+							pvarVec.push_back(current[j]);
+						}
+					}
+				}
+				//Select type = assignment
+				if (selType == "assignment") {
+					vector<AST*> ast = PKB::getASTList();
+					vector<int> tempVec;
+					for (int i = 0; i < ast.size(); i++) {
+						vector<int> current = ast[i]->getAssign();
+						for (int j = 0; j < current.size(); j++) {
+							tempVec.push_back(current[j]);
+						}
+					}
+					for (int i = 0; i < tempVec.size(); i++) {
+						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
+						for (int j = 0; j < current.size(); j++) {
+							if (current.size() > 0) {
+								patVec.push_back(tempVec[i]);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 }
 
 bool QueryHandler::containSign(string str) {
-	if (str.find("+") != string::npos || str.find("+") != string::npos || str.find("+") != string::npos) {
+	if (str.find("+") != string::npos || str.find("-") != string::npos || str.find("*") != string::npos) {
 		return true;
 	}
 	return false;
@@ -188,7 +243,7 @@ void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
 		}
 	}
 }
-}
+
 
 void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<int> &useVec, vector<string> &uvarVec) {
 	UseTable* useTab = PKB::getUseTable();
@@ -243,23 +298,27 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 	}
 }
 
-vector<int> QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
+int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
-	vector<int> ansVec;
+	int ans;
+	//Case 1st: n/a
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
+		//Case 2nd: n/a
 		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
-			ansVec.push_back(-1);
+			ans=-1;
 		}
+		//Case 2nd: 1, 2...
 		if (isInt(secondAtt)) {
-			ansVec.push_back(folTab->getPrev(stoi(secondAtt)));
+			ans= folTab->getPrev(stoi(secondAtt));
 		}
 	}
+	//Case 1st: 1, 2
 	else {
-		if (isInt(secondAtt)) {
-			ansVec.push_back(folTab->getPrev(stoi(secondAtt)));
+		if (isInt(firstAtt)) {
+			ans=folTab->getNext(stoi(firstAtt));
 		}
 	}
-	return ansVec;
+	return ans;
 }
 
 string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
