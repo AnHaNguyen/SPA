@@ -143,7 +143,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			if (parVec.size() > 0 && parVec.front() == -2) {
 				ParentTable* ParentTable = PKB::getParentTable();
 				parTab = ParentTable->getTable();
-				modTable = toConvention(modTab);
+				if (result->getResult() == firstAtt) {
+					parTable = toConvention(parTab, 1);
+				}
+				else if (result->getResult() == secondAtt) {
+					nestTable = toConvention(parTab, 2);
+				}
 			}
 			else {
 				parQ.push(parVec.front());
@@ -366,6 +371,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 				else {
 					patVec = getAssignTable();
+				}
+			}
+			//Case 2nd att = "x123"
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "") {
+				if (selType == "variable") {
+					vector<int> temp1 = getAssignTable();
+					vector<int> temp2 = PKB::getUseTable()->getUser(secondAttx.first);
+					vector<int> temp3 = intersection(temp1, temp2);
+					for (int i = 0; i < temp3.size(); i++) {
+						pvarVec.push_back(PKB::getModifyTable()->getModified(temp3[i]));
+					}
 				}
 			}
 		}
