@@ -12,6 +12,11 @@ public:
 	~QueryHandler();
 	vector<string> queryRec(QueryTree* query);
 
+	vector<pair<int, string>>  getConstTable();
+
+
+	vector<int> getAssignTable();
+
 	bool QueryHandler::containSign(string str);
 
 	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
