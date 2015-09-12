@@ -373,6 +373,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					patVec = getAssignTable();
 				}
 			}
+			//Case 2nd att = "x123"
+			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "") {
+				if (selType == "variable") {
+					vector<int> temp1 = getAssignTable();
+					vector<int> temp2 = PKB::getUseTable()->getUser(secondAttx.first);
+					vector<int> temp3 = intersection(temp1, temp2);
+					for (int i = 0; i < temp3.size(); i++) {
+						pvarVec.push_back(PKB::getModifyTable()->getModified(temp3[i]));
+					}
+				}
+			}
 		}
 		for (int i = 0; i < 10; i++) {
 			PTCheck[i] = 0;
