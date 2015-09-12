@@ -65,12 +65,12 @@ private:
 	bool processModTable();			//process var table also
 	bool processUseTable();			//process var and const tables also
 	bool processProcTable();
+	void processFollowTable(AST* ast);
+	void processParentTable(AST* ast);
 
 	bool isConst(string var);
 	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
-	void processFollowRelationship(AST* ast);
-	void processParentRelationship(AST* ast);
 	string convertStmtLstNumber(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);

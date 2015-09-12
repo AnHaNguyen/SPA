@@ -93,6 +93,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\source\Preprocessor;$(SolutionDir)\Source;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,6 +172,7 @@
     <ClCompile Include="TestModifyTable.cpp" />
     <ClCompile Include="TestParentTable.cpp" />
     <ClCompile Include="TestParser.cpp" />
+    <ClCompile Include="TestPKB.cpp" />
     <ClCompile Include="testPreprocessor.cpp" />
     <ClCompile Include="TestUseTable.cpp" />
     <ClCompile Include="TestTNode.cpp" />

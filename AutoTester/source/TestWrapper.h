@@ -7,6 +7,7 @@
 
 // include your other headers here
 #include "AbstractWrapper.h"
+#include "Preprocessor/QueryPreprocessor.h"
 
 class TestWrapper : public AbstractWrapper {
  public:

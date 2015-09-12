@@ -10,11 +10,6 @@ namespace UnitTesting
 	TEST_CLASS(DesignExtractorTest)
 	{
 	public:
-		/*method to test:
-		processAST;  procecssModTable; processUseTable; processProcTable; 
-		FollowTable* processFollowRelationship(AST* ast);
-		ParentTable* processParentRelationship(AST* ast);
-		*/
 		vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
 			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;", 
 			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
@@ -27,7 +22,6 @@ namespace UnitTesting
 		DesignExtractor ext = DesignExtractor(code);
 		TEST_METHOD(TestExtModTable)
 		{
-			// TODO: Your test code here
 			
 			ModifyTable* modTable = ext.getModTable();
 			Assert::AreEqual(modTable->size(),11);

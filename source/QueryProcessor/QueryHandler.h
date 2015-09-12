@@ -10,7 +10,7 @@ class QueryHandler {
 public:
 	QueryHandler();
 	~QueryHandler();
-	bool queryRec(QueryTree* query);
+	vector<string> queryRec(QueryTree* query);
 
 	bool QueryHandler::containSign(string str);
 

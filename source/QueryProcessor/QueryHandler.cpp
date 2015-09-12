@@ -15,11 +15,11 @@ QueryHandler::QueryHandler() {}
 QueryHandler::~QueryHandler() {}
 
 
-bool QueryHandler::queryRec(QueryTree* query) {
+vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
 	if (query->getValidity() == false)
-		return false;
+		return{};
 
 	//Initiate nodes
 	PreResultNode* result;
@@ -29,7 +29,7 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		symTable = query->getSymbolTable();
 	}
 	else {
-		return false;
+		return{};
 	}
 
 	//Handle select
@@ -54,7 +54,15 @@ bool QueryHandler::queryRec(QueryTree* query) {
 		}
 		/*
 		if (syn == "follows*") {
-			folVec = getFollowsS(firstAtt, secondAtt);
+			folVec = handleFollows(firstAtt, secondAtt);
+
+			if (folVec.front() == -1) {
+				FollowTable* FollowTable = PKB::getFollowTable();
+				folTab = FollowTable->getTable();
+			}
+			else {
+			
+			}
 		}
 		*/
 
@@ -80,10 +88,11 @@ bool QueryHandler::queryRec(QueryTree* query) {
 				parTab = ParentTable->getTable();
 			}
 		}
-
-		/*if (syn == "parent*") {
+		/*
+		if (syn == "parent*") {
 			ansVec = getParentS(firstAtt, secondAtt);
-		}*/
+		}
+		*/
 
 		//Handle uses
 		vector<string> uvarVec;
@@ -139,10 +148,11 @@ bool QueryHandler::queryRec(QueryTree* query) {
 					for (int j = 0; j < current.size(); j++) {
 						patVec.push_back(current[j]);
 					}
+
 				}
+				//Case 2nd att = "x123"
+				if (containSign(secondAttx.first) == false)
 			}
-			//Case 2nd att = "x123"
-			if (containSign(secondAttx.first)==false)
 		}
 	}
 }

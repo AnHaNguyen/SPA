@@ -16,7 +16,7 @@ QueryPreprocessor::QueryPreprocessor(){
 QueryPreprocessor::~QueryPreprocessor(){
 }
 
-void QueryPreprocessor::start(string line) {
+list<string> QueryPreprocessor::start(string line) {
 
 	string declare = "", input = "";
 	if (line.find("Select") != string::npos) {
@@ -27,8 +27,12 @@ void QueryPreprocessor::start(string line) {
 	QueryTree* tree = startProcess(declare, input);
 
 	QueryHandler handler;
-	handler.queryRec(tree);
+	vector<string> queryRes = handler.queryRec(tree);
 
+	// convert to list<string> for Autotester
+	list<string>output;
+	std::copy(queryRes.begin(), queryRes.end(), std::back_inserter(output));
+	return output;
 }
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
@@ -52,13 +56,13 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 	}
 
 	if (isValidSelection(input)) {
-		setResultTable(input); 
+		setResultTable(input);
 		//	cout << "-----selection table----" << endl;
 		//	printTable(selections);
 	}
 	else {
 		//cout << "wrong select" << endl;
-		tree->setValidity(false); 
+		tree->setValidity(false);
 		return tree;
 	}
 
@@ -128,16 +132,16 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 }
 bool QueryPreprocessor::isValidSelection(string input){
 	vector<string> extractSelect = extractContent(input, "Select");
-	extractSelect[1] = trim(extractSelect[1]); 
-	
+	extractSelect[1] = trim(extractSelect[1]);
+
 	if (extractSelect[1] == "") {
 		return false;
 	}
-	
+
 	if (countWords(extractSelect[1], " ") > 1) {
 		return false;
 	}
-	
+
 	return true;
 }
 bool QueryPreprocessor::isValidSuchThat(){
@@ -146,7 +150,7 @@ bool QueryPreprocessor::isValidSuchThat(){
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
 			//cout << "wrong such that 1" << endl;
-			return false; 
+			return false;
 		}
 		if (countWords(clause, ",")>2) {
 			//cout << "wrong such that 2" << endl;
@@ -225,7 +229,7 @@ void QueryPreprocessor::setDeclarationTable(string declare){
     string str = removeMultipleSpace(declare);
 
     declarations = stringToVector(str, ";");
-	
+
 	for (int i = 0; i < declarations.size(); i++) {
 		declarations[i] = trim(declarations[i]);
 	}
