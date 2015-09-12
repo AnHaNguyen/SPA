@@ -252,7 +252,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
 			return false;
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "if" && firstType != "while" && firstType != "prog_line")
+			if (firstType != "if" && firstType != "while" && firstType != "prog_line" && firstType != "stmt")
 				return false;
 		}		
 		if (second != "_" && !isInteger(second)) {
