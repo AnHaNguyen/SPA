@@ -1,6 +1,12 @@
 #ifndef QueryHandler_H
 #define QueryHandler_H
-#include"../Preprocessor/QueryTree.h"
+#include "../PKB.h"
+#include "../QueryProcessor/QueryHandler.h"
+#include "../Preprocessor/QueryTree.h"
+#include "../FollowTable.h"
+#include "../ModifyTable.h"
+#include "../ParentTable.h"
+
 
 #include<string>
 #include<vector>
@@ -20,6 +26,13 @@ public:
 	bool QueryHandler::containSign(string str);
 
 	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, int>> vec2);
+	int QueryHandler::getPos(vector<int> intVec);
+
+	vector<pair<int, string>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
+	vector<pair<int, int>> QueryHandler::toConvention(vector<FollowEntry_t> table);
+	vector<int> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x);
+	vector<int> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
+	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x);
 
 	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
 

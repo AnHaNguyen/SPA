@@ -318,7 +318,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			//Case 2nd att = v
 			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "variable") {
-
+				vector<int> temp1 = PKB::getModifyTable()->getModifier(firstAttx.first);
+				vector<pair<int, string>> temp2;
 			}
 		}
 
@@ -721,7 +722,7 @@ string QueryHandler::getSymMean(string sym) {
 	return "";
 }
 
-int getPos(vector<int> intVec) {
+int QueryHandler::getPos(vector<int> intVec) {
 	for (int i = 0; i < intVec.size(); i++) {
 		if (intVec[i] == 1) {
 			return i;
@@ -730,7 +731,7 @@ int getPos(vector<int> intVec) {
 	return -1;
 }
 //To convetion
-vector<pair<int, int>> toConvention(vector<FollowEntry_t> table) {
+vector<pair<int, int>> QueryHandler::toConvention(vector<FollowEntry_t> table) {
 	vector<pair<int, int>> ansVec;
 	for (int i = 0; i < table.size(); i++) {
 		pair<int, int> temp;
@@ -740,7 +741,7 @@ vector<pair<int, int>> toConvention(vector<FollowEntry_t> table) {
 	}
 	return ansVec;
 }
-vector<pair<int, string>> toConvention(vector<ModifyEntry_t>  table) {
+vector<pair<int, string>> QueryHandler::toConvention(vector<ModifyEntry_t>  table) {
 	vector<pair<int, string>> ansVec;
 	for (int i = 0; i < table.size(); i++) {
 		pair<int, string> temp;
@@ -748,8 +749,9 @@ vector<pair<int, string>> toConvention(vector<ModifyEntry_t>  table) {
 		temp.second = table[i].modifiedVar;
 		ansVec.push_back(temp);
 	}
+	return ansVec;
 }
-vector<int> toConvention(vector<ParentEntry_t>  table, int x) {
+vector<int> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x) {
 	vector<int> ansVec;
 	if (x == 1) {
 		for (int i = 0; i < table.size(); i++) {
@@ -765,19 +767,21 @@ vector<int> toConvention(vector<ParentEntry_t>  table, int x) {
 	}
 	return ansVec;
 }
-vector<int> toConvention(vector<UseEntry_t> table, bool x) {
+vector<int> QueryHandler::toConvention(vector<UseEntry_t> table, bool x) {
 	vector<int> ansVec;
 	for (int i = 0; i < table.size(); i++) {
 		ansVec.push_back(table[i].lineNo);
 	}
+	return ansVec;
 }
-vector<string> toConvention(vector<UseEntry_t> table, int x) {
+vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x) {
 	vector<string> ansVec;
 	for (int i = 0; i < table.size(); i++) {
 		for (int j = 0; j < table[i].usedVar.size(); j++) {
 			ansVec.push_back(table[i].usedVar[j]);
 		}
 	}
+	return ansVec;
 }
 //Implement intersection method (case pair (n1, v1) and select v or n
 vector<int> QueryHandler::intersection(vector<int> vec1, vector<int> vec2) {
