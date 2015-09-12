@@ -52,11 +52,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<pair<int, vector<string>>> useTable;
 	
 	
-	vector<int> patVec;
-	vector<string> pvarVec;
-	vector<string> pconVec;
-
-
+	
 
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
@@ -190,10 +186,46 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "next") {
 		ansVec = getNextS(firstAtt, secondAtt);
 		}*/
+		vector<int> suchThat;
+		for (int i = 0; i < 10; i++) {
+			suchThat[i] = 0;
+		}
+		if (!folVec.empty()&&folVec.front()!=-1) {
+			suchThat[0] = 1;
+		}
+		if (!folTable.empty()) {
+			suchThat[1] = 1;
+		}
+		if (!mvarVec.empty()) {
+			suchThat[2] = 1;
+		}
+		if (!modVec.empty() && modVec.front() != -1) {
+			suchThat[3] = 1;
+		}
+		if (!modTable.empty()) {
+			suchThat[4] = 1;
+		}
+		if (!parVec.empty() && parVec.front() != -1) {
+			suchThat[5] = 1;
+		}
+		if (!parTable.empty()) {
+			suchThat[6] = 1;
+		}
+		if (!uvarVec.empty()) {
+			suchThat[7] = 1;
+		}
+		if (!useVec.empty() && useVec.front() != -1) {
+			suchThat[8] = 1;
+		}
+		if (!useTable.empty()) {
+			suchThat[6] = 1;
+		}
 	}
-
 	//Handle pattern (this iteration only assign pattern)
-	
+	vector<int> patVec;
+	vector<string> pvarVec;
+	vector<string> pconVec;
+
 
 	if (query->getPattern()->getSynonym() != "") {
 		pattern = query->getPattern();
@@ -273,6 +305,19 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			if (containSign(secondAttx.first) == false && getSymMean(secondAttx.first) == "variable") {
 
 			}
+		}
+		vector<int> pattern;
+		for (int i = 0; i < 10; i++) {
+			pattern[i] = 0;
+		}
+		if (!patVec.empty() && patVec.front() != -1) {
+			pattern[0] = 1;
+		}
+		if (!pvarVec.empty()) {
+			pattern[1] = 1;
+		}
+		if (!pconVec.empty()) {
+			pattern[2] = 1;
 		}
 	}
 	vector<string> final1;
