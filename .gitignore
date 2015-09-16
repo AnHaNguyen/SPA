@@ -28,7 +28,7 @@
 *.app
 
 # Build result
-Debug/
+!Debug/analysis.xsl
 
 # Visual studio cache dir
 .vs/
