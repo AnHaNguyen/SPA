@@ -9,19 +9,23 @@ CallTable::CallTable() {
 CallTable::~CallTable() {
 }
 
-void CallTable::add(string caller, string callee) {
+bool CallTable::addToTable(string caller, string callee) {
 	if (isContained(caller) == false) {
 		callEntry_t *entry = new callEntry_t(caller, callee);
 		callTable.push_back(*entry);
-		return;
+		return true;
 	}
 	for (unsigned i = 0; i < callTable.size(); i++) {
 		if (callTable.at(i).caller == caller) {
+			for (unsigned j = 0; j < callTable.at(i).callees.size(); j++) {
+				if (callTable.at(i).callees.at(j) == callee) {
+					return false;
+				}
+			}
 			callTable.at(i).callees.push_back(callee);
-			callTable.at(i).callees = Utility::removeDuplicate(callTable.at(i).callees);
-			break;
 		}
 	}
+	return true;
 }
 
 vector<string> CallTable::getCallees(string caller) {
@@ -44,7 +48,7 @@ vector<string> CallTable::getCallers(string callee) {
 			}
 		}
 	}
-	return Utility::removeDuplicate(returnList);
+	return returnList;
 }
 
 int CallTable::size() {
@@ -59,3 +63,4 @@ bool CallTable::isContained(string caller) {
 	}
 	return false;
 }
+
