@@ -375,6 +375,15 @@ void DesignExtractor::processUseTable() {
 	}
 }
 
+//------------------Create procedure table----------------//
+void DesignExtractor::processProcTable() {
+	for (unsigned i = 0; i < ast.size(); i++) {
+		AST* curAST = ast.at(i);
+		TNode* procNode = curAST->getTree().at(0);
+		procTable->addProc(procNode->getValue());
+	}
+}
+
 /*bool DesignExtractor::processModTable() {	
 	int lineNumber = 0;
 	for (unsigned i = 0; i < input.size(); i++) {			
@@ -445,18 +454,6 @@ void DesignExtractor::processUseTable() {
 
 /*bool DesignExtractor::isConst(string var){
 	return (isdigit(var[0]));
-}*/
-
-
-/*bool DesignExtractor::processProcTable() {
-	for (unsigned i = 0; i < input.size(); i++) {
-		string proc = PROCEDURE;
-		unsigned pos = input.at(i).find(proc);
-		if (pos != string::npos) {
-			procTable->addProc(input.at(i).substr(9, input.at(i).size() - 10));	//start after "Proc.." minus '{'
-		}
-	}	
-	return true;
 }*/
 
 
