@@ -26,7 +26,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -39,7 +39,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -165,7 +165,7 @@
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
     <ClInclude Include="..\Source\ProcTable.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
-    <ClInclude Include="..\Source\StmtList.h" />
+    <ClInclude Include="..\Source\ProgLine.h" />
     <ClInclude Include="..\Source\TNode.h" />
     <ClInclude Include="..\Source\UseTable.h" />
     <ClInclude Include="..\Source\Utility.h" />
@@ -191,7 +191,7 @@
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
-    <ClCompile Include="..\Source\StmtList.cpp" />
+    <ClCompile Include="..\Source\ProgLine.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />
     <ClCompile Include="..\Source\UseTable.cpp" />
     <ClCompile Include="..\Source\Utility.cpp" />

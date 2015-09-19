@@ -73,9 +73,9 @@ private:
 	void processIfThen(string controlVar, int lineNumber);
 	void processCall(string value, int lineNumber);
 
-	bool processModTable();			//process var table also
-	bool processUseTable();			//process var and const tables also
-	bool processProcTable();
+	void processModTable();			//process var table also
+	void processUseTable();			//process var and const tables also
+	void processProcTable();
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);
 

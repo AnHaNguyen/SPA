@@ -242,6 +242,7 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ASTCurParent.push_back(assignNode);
 
 	// Supposed that left side is always variable
+	// Add left child first
 	TNode* leftVar = new TNode(leftSide, VARIABLE, lineNumber);
 
 	ast.at(procedureNumber)->addToTree(leftVar);
@@ -340,7 +341,7 @@ void DesignExtractor::processParentTable(AST* ast){
 		string typeOfPar = parStmtLst->getType();
 		int parLine = parStmtLst->getLine();
 
-		if(typeOfPar == WHILE) {
+		if(typeOfPar == WHILE | typeOfPar == IF) {
 			vector<TNode*> childStmtLst = middleNode->getChildList();
 
 			for(unsigned j = 0; j < childStmtLst.size(); j++){
@@ -353,7 +354,28 @@ void DesignExtractor::processParentTable(AST* ast){
 	}
 }
 
-bool DesignExtractor::processModTable() {	
+//------------------------Create Modify Table------------------------//
+void DesignExtractor::processModTable() {
+	for (unsigned i = 0; i < ast.size(); i++) {
+		AST* curAST = ast.at(i);
+		for (unsigned j = 0; j < curAST->getTree().size(); j++) {
+			TNode* curNode = curAST->getTree().at(j);
+			string curNodeType = curNode->getType();
+		}
+	}
+}
+
+void DesignExtractor::processUseTable() {
+	for (unsigned i = 0; i < ast.size(); i++) {
+		AST* curAST = ast.at(i);
+		for (unsigned j = 0; j < curAST->getTree().size(); j++) {
+			TNode* curNode = curAST->getTree().at(j);
+			string curNodeType = curNode->getType();
+		}
+	}
+}
+
+/*bool DesignExtractor::processModTable() {	
 	int lineNumber = 0;
 	for (unsigned i = 0; i < input.size(); i++) {			
 		string line = input.at(i);
@@ -367,9 +389,9 @@ bool DesignExtractor::processModTable() {
 		}
 	}
 	return true;
-}
+}*/
 
-bool DesignExtractor::processUseTable() {
+/*bool DesignExtractor::processUseTable() {
 	int lineNumber = 0;
 
 	for (unsigned i = 0; i < input.size(); i++) {
@@ -419,14 +441,14 @@ bool DesignExtractor::processUseTable() {
 		}
 	}
 	return true;
-}
+}*/
 
-bool DesignExtractor::isConst(string var){
+/*bool DesignExtractor::isConst(string var){
 	return (isdigit(var[0]));
-}
+}*/
 
 
-bool DesignExtractor::processProcTable() {
+/*bool DesignExtractor::processProcTable() {
 	for (unsigned i = 0; i < input.size(); i++) {
 		string proc = PROCEDURE;
 		unsigned pos = input.at(i).find(proc);
@@ -435,7 +457,7 @@ bool DesignExtractor::processProcTable() {
 		}
 	}	
 	return true;
-}
+}*/
 
 
 // Getter
