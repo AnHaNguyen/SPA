@@ -23,6 +23,12 @@ const string STMTLST = "stmtLst";
 const string WHILE = "while";
 const size_t WHILE_LEN = WHILE.length();
 
+const string IF = "if";
+const size_t IF_LEN = IF.length();
+
+const string THEN = "then";
+const string ELSE = "else";
+
 const string ASSIGN = "assign";
 const size_t ASSIGN_LEN = ASSIGN.length();
 
@@ -62,6 +68,8 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
+	void processIfThen(string controlVar, int lineNumber);
+
 	bool processModTable();			//process var table also
 	bool processUseTable();			//process var and const tables also
 	bool processProcTable();

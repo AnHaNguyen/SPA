@@ -94,6 +94,17 @@ void DesignExtractor::processAST(vector<string> input){
 
 			processAssign(leftSide, rightSide, lineNumber);
 		}
+		else if (curLine.find(IF) != string::npos){
+			size_t posThen = curLine.find(THEN);
+			string controlVar = curLine.substr(IF_LEN, posThen - IF_LEN);
+
+			lineNumber++;
+
+			processIfThen(controlVar, lineNumber);
+		}
+		else if (curLine.find(ELSE) != string::npos) {
+			continue;
+		}
 		else {
 			return;
 		}
@@ -102,7 +113,7 @@ void DesignExtractor::processAST(vector<string> input){
 		string tempLine = curLine;
 		while (true) {
 			size_t posCloseBracket = tempLine.find(CLOSE_BRACKET);
-			
+
 			if (posCloseBracket != string::npos) {
 				tempLine.erase(posCloseBracket, 1);
 				while (true) {
@@ -113,12 +124,41 @@ void DesignExtractor::processAST(vector<string> input){
 					if (typeRemovedParent != STMTLST)
 						break;
 				}
-			}
-			else {
+			} else {
 				break;
 			}
 		}
 	}
+}
+
+void DesignExtractor::processIfThen(string controlVar, int lineNumber) {
+	TNode* ifNode = new TNode(NO_VALUE, IF, lineNumber);
+	ast.at(procedureNumber)->addToTree(ifNode);
+
+	TNode* curParent = ASTCurParent.at(ASTCurParent.size() - 1);
+	curParent->setChild(ifNode);
+	ifNode->setParent(curParent);
+	ASTCurParent.push_back(ifNode);
+
+	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
+	ast.at(procedureNumber)->addToTree(controlVarNode);
+
+	ifNode->setChild(controlVarNode);
+	controlVarNode->setParent(ifNode);
+
+	// then stmtLst
+	TNode* thenNode = new TNode(THEN, STMTLST, lineNumber);
+	ast.at(procedureNumber)->addToTree(thenNode);
+	
+	ifNode->setChild(thenNode);
+	thenNode->setParent(ifNode);
+
+	// else stmtLst
+	TNode* elseNode = new TNode(ELSE, STMTLST, lineNumber);
+	ast.at(procedureNumber)->addToTree(elseNode);
+
+	ifNode->setChild(elseNode);
+	elseNode->setParent(ifNode);
 }
 
 void DesignExtractor::processProcedure(string theRestOfLine){
@@ -132,7 +172,6 @@ void DesignExtractor::processProcedure(string theRestOfLine){
 
 	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
-
 	
 	ast.at(procedureNumber)->addToTree(procNode);
 	ASTCurParent.push_back(procNode);
@@ -141,18 +180,18 @@ void DesignExtractor::processProcedure(string theRestOfLine){
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
 	procNode->setChild(stmtLstNode);
 	stmtLstNode->setParent(procNode);
-	//ast.at(procedureNumber)->makeChild(procNode, stmtLstNode);
+
 	ASTCurParent.push_back(stmtLstNode);
 }
 
 void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	// Put whileNode into tree
 	TNode* whileNode = new TNode(NO_VALUE, WHILE, lineNumber);
-	
 	ast.at(procedureNumber)->addToTree(whileNode);
-	ASTCurParent.at(ASTCurParent.size() - 1)->setChild(whileNode);
-	whileNode->setParent(ASTCurParent.at(ASTCurParent.size() - 1));
-	//ast.at(procedureNumber)->makeChild(ASTCurParent.at(ASTCurParent.size() - 1), whileNode);
+
+	TNode* curParent = ASTCurParent.at(ASTCurParent.size() - 1);
+	curParent->setChild(whileNode);
+	whileNode->setParent(curParent);
 	ASTCurParent.push_back(whileNode);
 
 	// Put StmtLst of while into tree
@@ -164,18 +203,14 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	string controlVar = theRestOfLine.substr(0, posOfOpenBracket);
 
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
-	//ast.at(procedureNumber)->makeChild(whileNode, controlVarNode);
 	whileNode->setChild(controlVarNode);
 	controlVarNode->setParent(whileNode);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
 
-	//ast.at(procedureNumber)->makeChild(whileNode, stmtLstNode);
 	whileNode->setChild(stmtLstNode);
 	stmtLstNode->setParent(whileNode);
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	ASTCurParent.push_back(stmtLstNode);
-
-	
+	ASTCurParent.push_back(stmtLstNode);	
 }
 
 // No ;} in right side
@@ -187,7 +222,6 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ast.at(procedureNumber)->addToTree(assignNode);
 	curParent->setChild(assignNode);
 	assignNode->setParent(curParent);
-	//ast.at(procedureNumber)->makeChild(curParent, assignNode);
 	ASTCurParent.push_back(assignNode);
 
 	// Supposed that left side is always variable
