@@ -28,6 +28,8 @@
 *.app
 
 # Build result
+Debug/
+Release/
 **/Debug/**
 **/Release/**
 !**/Debug/analysis.xsl
