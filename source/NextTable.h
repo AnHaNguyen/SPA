@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+using namespace std;
 typedef struct NextEntry_t {
 	int lineNo;					//stmt no
 	vector<int> nextStmts;		//list of stmt that can be next of lineNo
