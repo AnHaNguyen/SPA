@@ -25,12 +25,14 @@ const size_t WHILE_LEN = WHILE.length();
 
 const string IF = "if";
 const size_t IF_LEN = IF.length();
-
 const string THEN = "then";
 const string ELSE = "else";
 
 const string ASSIGN = "assign";
 const size_t ASSIGN_LEN = ASSIGN.length();
+
+const string CALL = "call";
+const size_t CALL_LEN = CALL.length();
 
 const string VARIABLE = "variable";
 const string CONSTANT = "constant";
@@ -69,6 +71,7 @@ private:
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
 	void processIfThen(string controlVar, int lineNumber);
+	void processCall(string value, int lineNumber);
 
 	bool processModTable();			//process var table also
 	bool processUseTable();			//process var and const tables also

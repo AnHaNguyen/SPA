@@ -99,11 +99,17 @@ void DesignExtractor::processAST(vector<string> input){
 			string controlVar = curLine.substr(IF_LEN, posThen - IF_LEN);
 
 			lineNumber++;
-
 			processIfThen(controlVar, lineNumber);
 		}
 		else if (curLine.find(ELSE) != string::npos) {
 			continue;
+		}
+		else if (curLine.find(CALL) != string::npos) {
+			size_t posSemicolon = curLine.find(SEMICOLON);
+			string callValue = curLine.substr(CALL_LEN, posSemicolon - CALL_LEN);
+
+			lineNumber++;
+			processCall(callValue, lineNumber);
 		}
 		else {
 			return;
@@ -131,7 +137,17 @@ void DesignExtractor::processAST(vector<string> input){
 	}
 }
 
+void DesignExtractor::processCall(string callValue, int lineNumber) {
+	TNode* callNode = new TNode(callValue, CALL, lineNumber);
+	ast.at(procedureNumber)->addToTree(callNode);
+
+	TNode* curParent = ASTCurParent.at(ASTCurParent.size() - 1);
+	curParent->setChild(callNode);
+	callNode->setParent(curParent);
+}
+
 void DesignExtractor::processIfThen(string controlVar, int lineNumber) {
+	// if Node
 	TNode* ifNode = new TNode(NO_VALUE, IF, lineNumber);
 	ast.at(procedureNumber)->addToTree(ifNode);
 
@@ -140,6 +156,7 @@ void DesignExtractor::processIfThen(string controlVar, int lineNumber) {
 	ifNode->setParent(curParent);
 	ASTCurParent.push_back(ifNode);
 
+	// control variable node
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
 
@@ -230,7 +247,6 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ast.at(procedureNumber)->addToTree(leftVar);
 	assignNode->setChild(leftVar);
 	leftVar->setParent(assignNode);
-	//ast.at(procedureNumber)->makeChild(assignNode, leftVar);
 
 	processRightSideAssign(ast.at(procedureNumber), assignNode, rightSide, lineNumber);
 	ASTCurParent.pop_back();
