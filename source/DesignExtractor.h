@@ -23,8 +23,16 @@ const string STMTLST = "stmtLst";
 const string WHILE = "while";
 const size_t WHILE_LEN = WHILE.length();
 
+const string IF = "if";
+const size_t IF_LEN = IF.length();
+const string THEN = "then";
+const string ELSE = "else";
+
 const string ASSIGN = "assign";
 const size_t ASSIGN_LEN = ASSIGN.length();
+
+const string CALL = "call";
+const size_t CALL_LEN = CALL.length();
 
 const string VARIABLE = "variable";
 const string CONSTANT = "constant";
@@ -62,16 +70,20 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
-	bool processModTable();			//process var table also
-	bool processUseTable();			//process var and const tables also
-	bool processProcTable();
+	void processIfThen(string controlVar, int lineNumber);
+	void processElse();
+	void processCall(string value, int lineNumber);
+
+	void processModTable();			//process var table also
+	void processUseTable();			//process var and const tables also
+	void processProcTable();
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);
 
 	bool isConst(string var);
 	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
-	string convertStmtLstNumber(int stmtLstNumber);
+	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
 

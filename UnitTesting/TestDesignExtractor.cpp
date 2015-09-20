@@ -80,37 +80,73 @@ namespace UnitTesting
 
 		TEST_METHOD(TestExtBuildAST) {
 			
-			vector <string> code1 = { "procedureFirst{", "x=2;", "z=3;}", 
-				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+			vector <string> code1 = { "procedureFirst{", "x=2;","ifxthen{", "z=3+z;}",
+				"else{", "z=1;}}",
+				"procedureSecond{", "x=0;",  "i=5;", "callThird" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
 				"procedureThird{", "z=5;", "v=z;}" };
 
 			DesignExtractor ex1 = DesignExtractor(code1);
 			vector<AST*> astList = ex1.getASTList();
+			// check number of procedures
 			Assert::AreEqual(astList.size(), (unsigned) 3);
 			
 			AST* proc1 = astList.at(0);
-			Assert::AreEqual(proc1->getTree().size(), (unsigned)8);
+			Assert::AreEqual(proc1->getTree().size(), (unsigned)17);
+			// test for 1st node: First:procedure
 			Assert::AreEqual(proc1->getTree().at(0)->getType(), (string) "procedure");
-			Assert::AreEqual(proc1->getTree().at(0)->getChildList().at(0)->getType(), (string) "stmtLst");
+			Assert::AreEqual(proc1->getTree().at(0)->getValue(), (string)"First");
+			// test for 2nd node: stmtLst
+			Assert::AreEqual(proc1->getTree().at(0)->getChildList().at(0)->getType(), STMTLST);
+			Assert::AreEqual(proc1->getTree().at(1)->getType(), STMTLST);
+			Assert::AreEqual(proc1->getTree().at(1)->getChildList().at(1)->getType(), IF);
 			Assert::AreEqual(proc1->getTree().at(1)->getChildList().size(), (unsigned)2);
-			Assert::AreEqual(proc1->getTree().at(0)->getValue(), (string) "First");
-			Assert::AreEqual(proc1->getTree().at(1)->getType(), (string) "stmtLst");
-			Assert::AreEqual(proc1->getTree().at(1)->getChildList().at(0)->getType(), (string) "assign");
+			// test for 3rd node: assign
+			Assert::AreEqual(proc1->getTree().at(1)->getChildList().at(0)->getType(), ASSIGN);
 			Assert::AreEqual(proc1->getTree().at(2)->getType(), (string) "assign");
 			Assert::AreEqual(proc1->getTree().at(2)->getChildList().at(0)->getValue(), (string) "x");
 			Assert::AreEqual(proc1->getTree().at(3)->getValue(), (string) "x");
+			// test for 4th node: 2:constant
 			Assert::AreEqual(proc1->getTree().at(2)->getChildList().at(1)->getValue(), (string) "2");
 			Assert::AreEqual(proc1->getTree().at(4)->getValue(), (string) "2");
-			Assert::AreEqual(proc1->getTree().at(6)->getParent()->getType(), (string) "assign");
-			Assert::AreEqual(proc1->getTree().at(7)->getParent()->getType(), (string) "assign");
-			Assert::AreEqual(proc1->getTree().at(5)->getParent()->getType(), (string) "stmtLst");
-			Assert::AreEqual(proc1->getTree().at(5)->getType(), (string) "assign");
-			Assert::AreEqual(proc1->getTree().at(6)->getValue(), (string) "z");
-			Assert::AreEqual(proc1->getTree().at(7)->getValue(), (string) "3");
+			// test for 5th node: if
+			Assert::AreEqual(proc1->getTree().at(5)->getType(), IF);
+			Assert::AreEqual(proc1->getTree().at(5)->getChildList().at(0)->getType(), VARIABLE);
+			Assert::AreEqual(proc1->getTree().at(6)->getType(), VARIABLE);
+			// test for 7th node: then stmtlst
+			Assert::AreEqual(proc1->getTree().at(7)->getType(), STMTLST);
+			Assert::AreEqual(proc1->getTree().at(7)->getValue(), THEN);
+			// test for 8th, 9th node: assign
+			Assert::AreEqual(proc1->getTree().at(8)->getType(), ASSIGN);
+			Assert::AreEqual(proc1->getTree().at(8)->getChildList().at(0)->getType(), VARIABLE);
+			Assert::AreEqual(proc1->getTree().at(9)->getType(), VARIABLE);
+			Assert::AreEqual(proc1->getTree().at(9)->getValue(), (string) "z");
+			//test for 12th node: plus
+			Assert::AreEqual(proc1->getTree().at(8)->getChildList().at(1)->getType(), PLUS_TEXT);
+			Assert::AreEqual(proc1->getTree().at(12)->getType(), PLUS_TEXT);
+			// test for 10th: variable z
+			Assert::AreEqual(proc1->getTree().at(10)->getValue(), (string) "3");
+			Assert::AreEqual(proc1->getTree().at(12)->getChildList().at(0)->getValue(), (string) "3");
+			// test for 11th: const 3
+			Assert::AreEqual(proc1->getTree().at(11)->getValue(), (string) "z");
+			Assert::AreEqual(proc1->getTree().at(12)->getChildList().at(1)->getValue(), (string) "z");
+			// test for 13th node: else:stmtlst
+			Assert::AreEqual(proc1->getTree().at(13)->getValue(), ELSE);
+			Assert::AreEqual(proc1->getTree().at(13)->getType(), STMTLST);
+			Assert::AreEqual(proc1->getTree().at(5)->getChildList().at(2)->getValue(), ELSE);
+			// test for 14th node: assign
+			Assert::AreEqual(proc1->getTree().at(13)->getChildList().at(0)->getType(), ASSIGN);
+			Assert::AreEqual(proc1->getTree().at(14)->getType(), ASSIGN);
+			//test for 15th node: z: variable
+			Assert::AreEqual(proc1->getTree().at(15)->getValue(), (string) "z");
+			Assert::AreEqual(proc1->getTree().at(15)->getType(), VARIABLE);
+			// test for 16th node: 1: constant
+			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getValue(), (string) "1");
+			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getType(), CONSTANT);
 
 			AST* proc2 = astList.at(1);
-			Assert::AreEqual(proc2->getTree().size(), (unsigned)42);
+			
+			Assert::AreEqual(proc2->getTree().size(), (unsigned)43);
 			Assert::AreEqual(proc2->getTree().at(0)->getType(), (string) "procedure");
 			Assert::AreEqual(proc2->getTree().at(0)->getValue(), (string) "Second");
 			Assert::AreEqual(proc2->getTree().at(2)->getType(), (string) "assign");
@@ -119,7 +155,10 @@ namespace UnitTesting
 			Assert::AreEqual(proc2->getTree().at(5)->getType(), (string) "assign");
 			Assert::AreEqual(proc2->getTree().at(6)->getValue(), (string) "i");
 			Assert::AreEqual(proc2->getTree().at(7)->getValue(), (string) "5");
-			Assert::AreEqual(proc2->getTree().at(8)->getType(), (string) "while");
+
+			Assert::AreEqual(proc2->getTree().at(8)->getType(), CALL);
+			Assert::AreEqual(proc2->getTree().at(8)->getValue(), (string) "Third");
+
 			Assert::AreEqual(proc2->getTree().at(9)->getValue(), (string) "i");
 			Assert::AreEqual(proc2->getTree().at(10)->getType(), (string) "stmtLst");
 			Assert::AreEqual(proc2->getTree().at(11)->getType(), (string) "assign");

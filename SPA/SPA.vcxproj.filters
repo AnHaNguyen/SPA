@@ -15,7 +15,6 @@
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
-    <ClCompile Include="..\Source\StmtList.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />
     <ClCompile Include="..\Source\UseTable.cpp" />
     <ClCompile Include="..\Source\Utility.cpp" />
@@ -26,6 +25,7 @@
     <ClCompile Include="..\source\PKB.cpp" />
     <ClCompile Include="..\source\main.cpp" />
     <ClCompile Include="..\source\NextTable.cpp" />
+    <ClCompile Include="..\Source\ProgLine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -42,7 +42,6 @@
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
     <ClInclude Include="..\Source\ProcTable.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
-    <ClInclude Include="..\Source\StmtList.h" />
     <ClInclude Include="..\Source\TNode.h" />
     <ClInclude Include="..\Source\UseTable.h" />
     <ClInclude Include="..\Source\Utility.h" />
@@ -52,5 +51,6 @@
     <ClInclude Include="..\source\ConstTable.h" />
     <ClInclude Include="..\source\PKB.h" />
     <ClInclude Include="..\source\NextTable.h" />
+    <ClInclude Include="..\Source\ProgLine.h" />
   </ItemGroup>
 </Project>
