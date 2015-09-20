@@ -12,10 +12,10 @@ public: CFG(string procedure);
 		~CFG();
 		string getProcedure();
 		int size();	//size of CFG
-		void addToGraph(int lineNo);
+		bool addToGraph(int lineNo);
 		void makeChild(int lineNo, int parentLine);
 		void makeParent(int lineNo, int childLine);
-		vector<int> findParent(int lineNo);
-		vector<int> findChild(int lineNo);
+		vector<GNode*> findParent(int lineNo);
+		vector<GNode*> findChild(int lineNo);
 };
 #endif

@@ -9,15 +9,22 @@ ModifyTable::ModifyTable() {
 ModifyTable::~ModifyTable() {
 }
 
-bool ModifyTable::add(int lineNo, string var) {
-	if (isContained(lineNo) == false) {
-		ModifyEntry_t *entry = new ModifyEntry_t(lineNo, var);
+
+bool ModifyTable::addToTable(string modifier, string var) {
+	if (isContained(modifier) == false) {
+		ModifyEntry_t *entry = new ModifyEntry_t(modifier, var);
 		modifyTable.push_back(*entry);
 		return true;
 	}
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
-		if (modifyTable.at(i).lineNo == lineNo) {
-			return false;
+		if (modifyTable.at(i).modifier == modifier) {
+			for (unsigned j = 0; j < modifyTable.at(i).modifiedVar.size(); j++) {
+				if (modifyTable.at(i).modifiedVar.at(j) == var) {
+					return false;
+				}
+			}
+			modifyTable.at(i).modifiedVar.push_back(var);
+			break;
 		}
 	}
 	return true;
@@ -27,42 +34,49 @@ int ModifyTable::size() {
 	return modifyTable.size();
 }
 
-vector<int> ModifyTable::getModifier(string var) {
-	vector<int> returnList;
+vector<string> ModifyTable::getModifier(string var) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
-		if (modifyTable.at(i).modifiedVar == var) {
-			returnList.push_back(modifyTable.at(i).lineNo);
+		for (unsigned j = 0; j < modifyTable.at(i).modifiedVar.size(); j++){
+			if (modifyTable.at(i).modifiedVar.at(j) == var) {
+				returnList.push_back(modifyTable.at(i).modifier);
+			}
 		}
 	}
 	return returnList;
 }
 
-string ModifyTable::getModified(int lineNo) {
-	string modVar = "";
+vector<string> ModifyTable::getModified(string modifier) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
-		if (modifyTable.at(i).lineNo == lineNo) {
-			modVar = modifyTable.at(i).modifiedVar;
+		if (modifyTable.at(i).modifier == modifier) {
+			returnList = modifyTable.at(i).modifiedVar;
 			break;
 		}
 	}
-	return modVar;
+	return returnList;
 }
 
-bool ModifyTable::isContained(int lineNo) {
+bool ModifyTable::isContained(string lineNo) {
 	for (unsigned i = 0; i < modifyTable.size(); i++) {
-		if (modifyTable.at(i).lineNo == lineNo) {
+		if (modifyTable.at(i).modifier == lineNo) {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool ModifyTable::isModified(int line, string var) {
-	if (isContained(line) == false) {
+bool ModifyTable::isModified(string modifier, string var) {
+	if (isContained(modifier) == false) {
 		return false;
 	}
-	string modVar = getModified(line);
-	return (modVar == var);
+	vector<string> modVar = getModified(modifier);
+	for (unsigned i = 0; i < modVar.size(); i++) {
+		if (modVar.at(i) == var) {
+			return true;
+		}
+	}
+	return false;
 }
 
 vector<ModifyEntry_t> ModifyTable::getTable() {

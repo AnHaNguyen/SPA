@@ -5,9 +5,9 @@
 #include <string>
 using namespace std;
 typedef struct NextEntry_t {
-	int lineNo;					//stmt no
-	vector<int> nextStmts;		//list of stmt that can be next of lineNo
-	NextEntry_t(int line, int next) {
+	string lineNo;					//stmt no
+	vector<string> nextStmts;		//list of stmt that can be next of lineNo
+	NextEntry_t(string line, string next) {
 		lineNo = line;
 		nextStmts.push_back(next);
 	}
@@ -18,12 +18,12 @@ private: vector<NextEntry_t> nextTable;
 public: NextTable();
 		~NextTable();
 		vector<NextEntry_t> getTable();			//return table as vector
-		bool addToTable(int line, int next);
-		int getPrev(int next);					//can confuse w FollowTable
-		vector<int> getNext(int prev);
+		bool addToTable(string line, string next);
+		vector<string> getPrev(string next);					//return all stmt that next can be exct after
+		vector<string> getNext(string prev);					//return all stmt that can be exct after prev
 		int size();
-		bool isContained(int line);
-		bool isNext(int prev, int next);
+		bool isContained(string line);
+		bool isNext(string prev, string next);					//check if Next(prev,next)
 };
 
 #endif

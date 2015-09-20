@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CppUnitTest.h"
+/*#include "CppUnitTest.h"
 #include "DesignExtractor.h"
 #include "ModifyTable.h"
 
@@ -216,4 +216,4 @@ namespace UnitTesting
 			Assert::AreEqual(followTable->getNext(11), 12);
 		}
 	};
-}
+}*/

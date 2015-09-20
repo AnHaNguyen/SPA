@@ -6,9 +6,9 @@
 
 using namespace std;
 typedef struct ParentEntry_t {
-	int lineNo;
-	vector<int> child;
-	ParentEntry_t(int lineNo, int child) {
+	string lineNo;
+	vector<string> child;
+	ParentEntry_t(string lineNo, string child) {
 		ParentEntry_t::lineNo = lineNo;
 		ParentEntry_t::child.push_back(child);
 	}
@@ -18,11 +18,12 @@ class ParentTable {
 private:	vector<ParentEntry_t> parentTable;
 public:	ParentTable();
 		~ParentTable();
-		bool addToTable(int lineNo, int child);		//add to Table at lineNo parent with Child
-		vector<int> getChild(int parent);			//get CHildList, return empty list if not found
-		int getParent(int child);			//get Parent, return -1 if not found
+		bool addToTable(string lineNo, string child);		//add to Table at lineNo parent with Child
+		vector<string> getChild(string parent);			//get CHildList, return empty list if not found
+		string getParent(string child);			//get Parent, return "" if not found
 		int size();
-		bool isContained(int lineNo);
+		bool isContained(string lineNo);
+		bool isParent(string lineNo, string child);
 		vector<ParentEntry_t> getTable();
 };
 

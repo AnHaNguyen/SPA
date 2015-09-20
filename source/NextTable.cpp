@@ -5,7 +5,7 @@
 NextTable::NextTable(){}
 NextTable::~NextTable() {}
 
-bool NextTable::addToTable(int prev, int next) {
+bool NextTable::addToTable(string prev, string next) {
 	if (!isContained(prev)) {
 		NextEntry_t *entry = new NextEntry_t(prev, next);
 		nextTable.push_back(*entry);
@@ -25,22 +25,25 @@ bool NextTable::addToTable(int prev, int next) {
 	return true;
 }
 
-int NextTable::getPrev(int next) {
+vector<string> NextTable::getPrev(string next) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < nextTable.size(); i++) {
 		for (unsigned j = 0; j < nextTable.at(i).nextStmts.size(); j++) {
 			if (nextTable.at(i).nextStmts.at(j) == next) {
-				return nextTable.at(i).lineNo;
+				returnList.push_back(nextTable.at(i).lineNo);
+				break;
 			}
 		}
 	}
-	return -1;
+	return returnList;
 }
 
-vector<int> NextTable::getNext(int prev) {
-	vector<int> returnList;
+vector<string> NextTable::getNext(string prev) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < nextTable.size(); i++) {
 		if (nextTable.at(i).lineNo == prev) {
 			returnList = nextTable.at(i).nextStmts;
+			break;
 		}
 	}
 	return returnList;
@@ -50,7 +53,7 @@ int NextTable::size() {
 	return nextTable.size();
 }
 
-bool NextTable::isContained(int prev) {
+bool NextTable::isContained(string prev) {
 	for (unsigned i = 0; i < nextTable.size(); i++) {
 		if (nextTable.at(i).lineNo == prev) {
 			return true;
@@ -59,14 +62,14 @@ bool NextTable::isContained(int prev) {
 	return false;
 }
 
-bool NextTable::isNext(int prev, int next) {
-	for (unsigned i = 0; i < nextTable.size(); i++) {
-		if (nextTable.at(i).lineNo == prev) {
-			for (unsigned j = 0; j < nextTable.at(i).nextStmts.size(); j++) {
-				if (nextTable.at(i).nextStmts.at(j) == next) {
-					return true;
-				}
-			}
+bool NextTable::isNext(string prev, string next) {
+	if (!isContained(prev)) {
+		return false;
+	}
+	vector<string> nextStmts = getNext(prev);
+	for (unsigned i = 0; i < nextStmts.size(); i++) {
+		if (nextStmts.at(i) == next) {
+			return true;
 		}
 	}
 	return false;

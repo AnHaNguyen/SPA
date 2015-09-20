@@ -7,11 +7,12 @@
 
 using namespace std;
 typedef struct ModifyEntry_t {
-	int lineNo;
-	string modifiedVar;
-	ModifyEntry_t(int lineNo, string var) {
-		ModifyEntry_t::lineNo = lineNo;
-		ModifyEntry_t::modifiedVar = var;
+	string modifier;
+	vector<string> modifiedVar;
+
+	ModifyEntry_t(string proc, string var) {
+		ModifyEntry_t::modifier = proc;
+		ModifyEntry_t::modifiedVar.push_back(var);
 	}
 } ModifyEntry;
 
@@ -22,13 +23,13 @@ public:
 	ModifyTable();
 	~ModifyTable();
 	vector<ModifyEntry_t> getTable();			//return whole table
-	bool add(int lineNo, string var);
-	vector<int> getModifier(string var);		//return all modifier which modify a var
-	string getModified(int line);		//return the modified var of a line
-	bool isModified(int line, string var);		//check if a line modifies a var
+	bool addToTable(string modifier, string var);
+	vector<string> getModifier(string var);		//return all modifiers which modify a var
+	vector<string> getModified(string modifier);		//return the modified vars of a line/proc
+	bool isModified(string modifier, string var);		//check if a line/proc modifies a var
 	//void printTable();
 	int size();
-	bool isContained(int lineNo);			//check if a line is contained in the table
+	bool isContained(string lineNo);			//check if a line is contained in the table
 };
 
 #endif

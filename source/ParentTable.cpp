@@ -8,7 +8,7 @@ ParentTable::ParentTable() {
 ParentTable::~ParentTable() {
 }
 
-bool ParentTable::addToTable(int lineNo, int child) {
+bool ParentTable::addToTable(string lineNo, string child) {
 	if (isContained(lineNo) == false) {
 		ParentEntry_t *entry = new ParentEntry_t(lineNo, child);
 		parentTable.push_back(*entry);
@@ -28,8 +28,8 @@ bool ParentTable::addToTable(int lineNo, int child) {
 	return true;
 }
 
-vector <int> ParentTable::getChild(int parent) {
-	vector <int> returnList;
+vector <string> ParentTable::getChild(string parent) {
+	vector <string> returnList;
 	for (unsigned i = 0; i < parentTable.size(); i++) {
 		if (parentTable.at(i).lineNo == parent) {
 			returnList = parentTable.at(i).child;
@@ -39,7 +39,7 @@ vector <int> ParentTable::getChild(int parent) {
 	return returnList;
 }
 
-int ParentTable::getParent(int child) {
+string ParentTable::getParent(string child) {
 	for (unsigned i = 0; i < parentTable.size(); i++) {
 		for (unsigned j = 0; j < parentTable.at(i).child.size(); j++) {
 			if (parentTable.at(i).child.at(j) == child) {
@@ -47,14 +47,14 @@ int ParentTable::getParent(int child) {
 			}
 		}
 	}
-	return -1;
+	return "";
 }
 
 int ParentTable::size() {
 	return parentTable.size();
 }
 
-bool ParentTable::isContained(int line) {
+bool ParentTable::isContained(string line) {
 	for (unsigned i = 0; i < parentTable.size(); i++) {
 		if (parentTable.at(i).lineNo == line) {
 			return true;
@@ -65,4 +65,17 @@ bool ParentTable::isContained(int line) {
 
 vector<ParentEntry_t> ParentTable::getTable() {
 	return parentTable;
+}
+
+bool ParentTable::isParent(string lineNo, string child) {
+	if (!isContained(lineNo)) {
+		return false;
+	}
+	vector<string> childList = getChild(lineNo);
+	for (unsigned i = 0; i < childList.size(); i++) {
+		if (childList.at(i) == child) {
+			return true;
+		}
+	}
+	return false;
 }

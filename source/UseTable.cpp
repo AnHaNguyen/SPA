@@ -9,14 +9,14 @@ UseTable::UseTable() {
 UseTable::~UseTable() {
 }
 
-bool UseTable::add(int lineNo, string var) {
+bool UseTable::addToTable(string lineNo, string var) {
 	if (isContained(lineNo) == false) {
 		UseEntry_t *entry = new UseEntry_t(lineNo, var);
 		useTable.push_back(*entry);
 		return true;
 	}
 	for (unsigned i = 0; i < useTable.size(); i++) {
-		if (useTable.at(i).lineNo == lineNo) {
+		if (useTable.at(i).userLine == lineNo) {
 			for (unsigned j = 0; j < useTable.at(i).usedVar.size(); j++) {
 				if (useTable.at(i).usedVar.at(j) == var) {
 					return false;
@@ -33,22 +33,22 @@ int UseTable::size() {
 	return useTable.size();
 }
 
-vector<int> UseTable::getUser(string var) {
-	vector<int> returnList;
+vector<string> UseTable::getUser(string var) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < useTable.size(); i++) {
 		for (unsigned j = 0; j < useTable.at(i).usedVar.size(); j++) {
 			if (useTable.at(i).usedVar.at(j) == var) {
-				returnList.push_back(useTable.at(i).lineNo);
+				returnList.push_back(useTable.at(i).userLine);
 			}
 		}
 	}
 	return returnList;
 }
 
-vector<string> UseTable::getUsed(int lineNo) {
+vector<string> UseTable::getUsed(string lineNo) {
 	vector<string> returnList;
 	for (unsigned i = 0; i < useTable.size(); i++) {
-		if (useTable.at(i).lineNo == lineNo) {
+		if (useTable.at(i).userLine == lineNo) {
 			returnList = useTable.at(i).usedVar;
 			break;
 		}
@@ -56,16 +56,16 @@ vector<string> UseTable::getUsed(int lineNo) {
 	return returnList;
 }
 
-bool UseTable::isContained(int lineNo) {
+bool UseTable::isContained(string lineNo) {
 	for (unsigned i = 0; i < useTable.size(); i++) {
-		if (useTable.at(i).lineNo == lineNo) {
+		if (useTable.at(i).userLine == lineNo) {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool UseTable::isUsed(int line, string var) {
+bool UseTable::isUsed(string line, string var) {
 	if (isContained(line) == false) {
 		return false;
 	}
