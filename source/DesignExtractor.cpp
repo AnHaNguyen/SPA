@@ -94,7 +94,7 @@ void DesignExtractor::processAST(vector<string> input){
 
 			processAssign(leftSide, rightSide, lineNumber);
 		}
-		else if (curLine.find(IF) != string::npos){
+		else if (curLine.find(IF) != string::npos && curLine.find(THEN) != string::npos){
 			size_t posThen = curLine.find(THEN);
 			string controlVar = curLine.substr(IF_LEN, posThen - IF_LEN);
 
@@ -102,7 +102,7 @@ void DesignExtractor::processAST(vector<string> input){
 			processIfThen(controlVar, lineNumber);
 		}
 		else if (curLine.find(ELSE) != string::npos) {
-			continue;
+			processElse();
 		}
 		else if (curLine.find(CALL) != string::npos) {
 			size_t posSemicolon = curLine.find(SEMICOLON);
@@ -117,20 +117,28 @@ void DesignExtractor::processAST(vector<string> input){
 
 		// Check the appearance of }
 		string tempLine = curLine;
+		
+		// trace multiple }
 		while (true) {
 			size_t posCloseBracket = tempLine.find(CLOSE_BRACKET);
-
+			
 			if (posCloseBracket != string::npos) {
 				tempLine.erase(posCloseBracket, 1);
-				while (true) {
-					TNode* removedParent = ASTCurParent.at(ASTCurParent.size() - 1);
-					string typeRemovedParent = removedParent->getType();
+
+				// remove multiple nodes
+				while (ASTCurParent.size() > 0) {
+					TNode* curPar = ASTCurParent.at(ASTCurParent.size() - 1);
+					string typeCurPar = curPar->getType();
+					string valueCurPar = curPar->getValue();
 					ASTCurParent.pop_back();
 					
-					if (typeRemovedParent != STMTLST)
+					// if 'then' stmtlst -> 'if' stmt is still parent for the 'else' stmtlst
+					if (typeCurPar != STMTLST || valueCurPar == THEN) {
 						break;
+					}
 				}
-			} else {
+			}
+			else {
 				break;
 			}
 		}
@@ -169,13 +177,20 @@ void DesignExtractor::processIfThen(string controlVar, int lineNumber) {
 	
 	ifNode->setChild(thenNode);
 	thenNode->setParent(ifNode);
+	ASTCurParent.push_back(thenNode);
+}
 
-	// else stmtLst
-	TNode* elseNode = new TNode(ELSE, STMTLST, lineNumber);
+void DesignExtractor::processElse() {
+	// current parent is ifNode
+	TNode* curIfNodePar = ASTCurParent.at(ASTCurParent.size() - 1);
+	int curParLineNum = curIfNodePar->getLine();
+
+	TNode* elseNode = new TNode(ELSE, STMTLST, curParLineNum);
 	ast.at(procedureNumber)->addToTree(elseNode);
 
-	ifNode->setChild(elseNode);
-	elseNode->setParent(ifNode);
+	curIfNodePar->setChild(elseNode);
+	elseNode->setParent(curIfNodePar);
+	ASTCurParent.push_back(elseNode);
 }
 
 void DesignExtractor::processProcedure(string theRestOfLine){
@@ -187,7 +202,7 @@ void DesignExtractor::processProcedure(string theRestOfLine){
 	// procedure + stmtLst: no line number
 	TNode* procNode = new TNode(value, PROCEDURE, 0);
 
-	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
+	string stmtLstNumText = convertNumToStr(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 	
 	ast.at(procedureNumber)->addToTree(procNode);
@@ -212,7 +227,7 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	ASTCurParent.push_back(whileNode);
 
 	// Put StmtLst of while into tree
-	string stmtLstNumText = convertStmtLstNumber(stmtLstNumber);
+	string stmtLstNumText = convertNumToStr(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 
 	// Put control variable into tree
@@ -308,12 +323,13 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 }
 
 //-------------------Create Follow Table---------------------//
-void DesignExtractor::processFollowTable(AST* ast) {
-	for (unsigned i = 0; i < ast->getTree().size(); i++) {
-		string value = convertStmtLstNumber(i - 1);
+void DesignExtractor::processFollowTable(AST* subAST) {
+	// check the whole nodes in the current ast
+	for (unsigned i = 0; i < subAST->getTree().size(); i++) {
+		string value = convertNumToStr(i - 1);
 
 		// check unique StmtLst
-		TNode* parent = ast->getTree().at(i);
+		TNode* parent = subAST->getTree().at(i);
 		if (parent->getType() == STMTLST) {
 			vector<TNode*> childLst = parent->getChildList();
 
@@ -332,10 +348,10 @@ void DesignExtractor::processFollowTable(AST* ast) {
 
 //--------------------Create Parent Table-----------------------//
 // stmtLst's parent is the parent of stmtLst's child
-void DesignExtractor::processParentTable(AST* ast){
-	for (unsigned i = 0; i < ast->getTree().size(); i++) {
-		string value = convertStmtLstNumber(i);
-		TNode* middleNode = ast->getTree().at(i);
+void DesignExtractor::processParentTable(AST* subAST){
+	for (unsigned i = 0; i < subAST->getTree().size(); i++) {
+		string value = convertNumToStr(i);
+		TNode* middleNode = subAST->getTree().at(i);
 
 		TNode* parStmtLst = middleNode->getParent();
 		string typeOfPar = parStmtLst->getType();
@@ -498,7 +514,7 @@ AST* DesignExtractor::buildSubtree(string pattern) {
 }
 
 // Smaller modules
-string DesignExtractor::convertStmtLstNumber(int stmtLstNumber){
+string DesignExtractor::convertNumToStr(int stmtLstNumber){
 	stmtLstNumber++;
 	ostringstream osstream;
 	osstream << stmtLstNumber;

@@ -71,6 +71,7 @@ private:
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
 	void processIfThen(string controlVar, int lineNumber);
+	void processElse();
 	void processCall(string value, int lineNumber);
 
 	void processModTable();			//process var table also
@@ -82,7 +83,7 @@ private:
 	bool isConst(string var);
 	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
-	string convertStmtLstNumber(int stmtLstNumber);
+	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
 
