@@ -24,6 +24,7 @@
     <ClCompile Include="..\source\DesignExtractor.cpp" />
     <ClCompile Include="..\source\PKB.cpp" />
     <ClCompile Include="..\source\main.cpp" />
+    <ClCompile Include="..\source\ProgLine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -48,5 +49,6 @@
     <ClInclude Include="..\source\DesignExtractor.h" />
     <ClInclude Include="..\source\ConstTable.h" />
     <ClInclude Include="..\source\PKB.h" />
+    <ClInclude Include="..\source\ProgLine.h" />
   </ItemGroup>
 </Project>

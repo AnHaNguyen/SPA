@@ -164,6 +164,7 @@
     <ClInclude Include="..\Source\Preprocessor\QueryPreprocessor.h" />
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
     <ClInclude Include="..\Source\ProcTable.h" />
+    <ClInclude Include="..\source\ProgLine.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
     <ClInclude Include="..\Source\TNode.h" />
     <ClInclude Include="..\Source\UseTable.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="..\Source\Preprocessor\QueryPreprocessor.cpp" />
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
+    <ClCompile Include="..\source\ProgLine.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />
     <ClCompile Include="..\Source\UseTable.cpp" />
