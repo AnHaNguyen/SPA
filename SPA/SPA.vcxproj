@@ -32,7 +32,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -155,7 +155,6 @@
     <ClInclude Include="..\Source\FollowTable.h" />
     <ClInclude Include="..\Source\GNode.h" />
     <ClInclude Include="..\Source\ModifyTable.h" />
-    <ClInclude Include="..\source\NextTable.h" />
     <ClInclude Include="..\Source\ParentTable.h" />
     <ClInclude Include="..\source\Parser.h" />
     <ClInclude Include="..\source\PKB.h" />
@@ -182,7 +181,6 @@
     <ClCompile Include="..\Source\GNode.cpp" />
     <ClCompile Include="..\source\main.cpp" />
     <ClCompile Include="..\Source\ModifyTable.cpp" />
-    <ClCompile Include="..\source\NextTable.cpp" />
     <ClCompile Include="..\Source\ParentTable.cpp" />
     <ClCompile Include="..\source\Parser.cpp" />
     <ClCompile Include="..\source\PKB.cpp" />

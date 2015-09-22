@@ -1,5 +1,5 @@
 #include "stdafx.h"
-/*#include "CppUnitTest.h"
+#include "CppUnitTest.h"
 #include "DesignExtractor.h"
 #include "ModifyTable.h"
 
@@ -43,7 +43,7 @@ namespace UnitTesting
 			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
 		}
 
-		TEST_METHOD(TestExtModTable)
+		/*TEST_METHOD(TestExtModTable)
 		{
 			
 			ModifyTable* modTable = ext.getModTable();
@@ -51,7 +51,7 @@ namespace UnitTesting
 			Assert::AreEqual(modTable->getTable().at(0).modifiedVar, x);
 			Assert::AreEqual(modTable->getTable().at(1).modifiedVar, z);
 			Assert::AreEqual(modTable->getTable().at(2).modifiedVar, x);
-			Assert::AreEqual(modTable->getTable().at(3).lineNo, 4);
+			Assert::AreEqual(modTable->getTable().at(3).modifier, (string) "4");
 		}
 
 		TEST_METHOD(TestExtUseTable)
@@ -67,8 +67,8 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->getTable().at(3).usedVar.at(1), x);
 			Assert::AreEqual(useTable->getTable().at(3).usedVar.at(2), i);
 			Assert::AreEqual(useTable->getTable().at(3).usedVar.size(), (unsigned)3);
-			Assert::AreEqual(useTable->getTable().at(6).lineNo, 12);
-		}
+			Assert::AreEqual(useTable->getTable().at(6).userLine, (string) "12");
+		}*/
 
 		TEST_METHOD(TestExtProcTable)
 		{
@@ -79,7 +79,7 @@ namespace UnitTesting
 			Assert::AreEqual(procTable->indexOf("Third"), 2);
 		}
 
-		TEST_METHOD(TestExtVarTable) {
+		/*TEST_METHOD(TestExtVarTable) {
 			VarTable* varTable = ext.getVarTable();
 			Assert::AreEqual(varTable->size(), 5);
 			Assert::AreEqual(varTable->indexOf(x), 0);
@@ -93,13 +93,13 @@ namespace UnitTesting
 		TEST_METHOD(TestExtConstTable) {
 			ConstTable* constTable = ext.getConstTable();
 			Assert::AreEqual(constTable->size(), 8);
-			Assert::AreEqual(constTable->getConst(1).at(0), (string) "2");
-			Assert::AreEqual(constTable->getConst(1).size(), (unsigned) 1);
-			Assert::AreEqual(constTable->getConst(2).at(0), (string) "3");
-			Assert::AreEqual(constTable->getConst(9).at(0), (string) "2");
-			Assert::AreEqual(constTable->getConst(11).at(0), (string) "5");
-			Assert::AreEqual(constTable->getConst(13).size(), (unsigned) 0);
-		}
+			Assert::AreEqual(constTable->getConst("1").at(0), (string) "2");
+			Assert::AreEqual(constTable->getConst("1").size(), (unsigned) 1);
+			Assert::AreEqual(constTable->getConst("2").at(0), (string) "3");
+			Assert::AreEqual(constTable->getConst("9").at(0), (string) "2");
+			Assert::AreEqual(constTable->getConst("11").at(0), (string) "5");
+			Assert::AreEqual(constTable->getConst("13").size(), (unsigned) 0);
+		}*/
 
 		TEST_METHOD(TestExtBuildAST) {
 			
@@ -241,10 +241,10 @@ namespace UnitTesting
 		TEST_METHOD(TestExtParentTable) {
 			ParentTable* parentTable = ext.getParentTable();
 
-			vector<int> childrenOfWhile = parentTable->getChild(5);
+			vector<string> childrenOfWhile = parentTable->getChild("5");
 			Assert::AreEqual(childrenOfWhile.size(), (unsigned) 2);
-			Assert::AreEqual(childrenOfWhile.at(0), 6);
-			Assert::AreEqual(childrenOfWhile.at(1), 7);
+			Assert::AreEqual(childrenOfWhile.at(0), (string) "6");
+			Assert::AreEqual(childrenOfWhile.at(1), (string) "7");
 		}
 
 		TEST_METHOD(TestExtFollowTable) {
@@ -252,26 +252,26 @@ namespace UnitTesting
 
 			Assert::AreEqual(followTable->size(), 8);
 
-			Assert::AreEqual(followTable->getNext(1), 2);
-			Assert::AreEqual(followTable->getPrev(2), 1);
-			Assert::AreEqual(followTable->getNext(2), -1);
+			Assert::AreEqual(followTable->getNext("1"), (string) "2");
+			Assert::AreEqual(followTable->getPrev("2"), (string) "1");
+			Assert::AreEqual(followTable->getNext("2"), (string) "");
 
-			Assert::AreEqual(followTable->getNext(3), 4);
-			Assert::AreEqual(followTable->getPrev(4), 3);
-			Assert::AreEqual(followTable->getNext(4), 5);
-			Assert::AreEqual(followTable->getPrev(5), 4);
+			Assert::AreEqual(followTable->getNext("3"), (string) "4");
+			Assert::AreEqual(followTable->getPrev("4"), (string) "3");
+			Assert::AreEqual(followTable->getNext("4"), (string) "5");
+			Assert::AreEqual(followTable->getPrev("5"), (string) "4");
 
-			Assert::AreNotEqual(followTable->getNext(5), 6);
-			Assert::AreNotEqual(followTable->getPrev(6), 5);
-			Assert::AreEqual(followTable->getNext(6), 7);
-			Assert::AreEqual(followTable->getPrev(7), 6);
+			Assert::AreNotEqual(followTable->getNext("5"), (string) "6");
+			Assert::AreNotEqual(followTable->getPrev("6"), (string) "5");
+			Assert::AreEqual(followTable->getNext("6"), (string) "7");
+			Assert::AreEqual(followTable->getPrev("7"), (string) "6");
 
-			Assert::AreEqual(followTable->getNext(5), 8);
-			Assert::AreEqual(followTable->getPrev(8), 5);
+			Assert::AreEqual(followTable->getNext("5"), (string) "8");
+			Assert::AreEqual(followTable->getPrev("8"), (string) "5");
 
-			Assert::AreNotEqual(followTable->getNext(10), 11);
-			Assert::AreNotEqual(followTable->getPrev(11), 10);
-			Assert::AreEqual(followTable->getNext(11), 12);
+			Assert::AreNotEqual(followTable->getNext("10"), (string) "11");
+			Assert::AreNotEqual(followTable->getPrev("11"), (string) "10");
+			Assert::AreEqual(followTable->getNext("11"), (string) "12");
 		}
 	};
-}*/
+}

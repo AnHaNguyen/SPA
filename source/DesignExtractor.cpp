@@ -13,22 +13,17 @@ DesignExtractor::DesignExtractor(){}
 
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
-	
 	initialize();
-	
 	buildAST(input);
 	for (unsigned i = 0; i < ast.size(); i++) {
 		processCallTable(ast.at(i));
+		processFollowTable(ast.at(i));
+		processParentTable(ast.at(i));
 	}
 
 	/*processModTable();
-	processUseTable();
+	processUseTable();*/
 	processProcTable();
-
-	for (unsigned i = 0; i < ast.size(); i++) {
-		processFollowTable(ast.at(i));
-		processParentTable(ast.at(i));
-	}*/
 
 	storeToPKB();
 }
@@ -159,6 +154,7 @@ void DesignExtractor::processProcedure(string theRestOfLine){
 	// procedure + stmtLst: no line number
 	TNode* procNode = new TNode(value, PROCEDURE, 0);
 
+	stmtLstNumber++;
 	string stmtLstNumText = convertNumToStr(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 	
@@ -234,6 +230,7 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	ASTCurParent.push_back(whileNode);
 
 	// Put StmtLst of while into tree
+	stmtLstNumber++;
 	string stmtLstNumText = convertNumToStr(stmtLstNumber);
 	TNode* stmtLstNode = new TNode(stmtLstNumText, STMTLST, 0);
 
@@ -338,7 +335,7 @@ void DesignExtractor::processCallTable(AST* ast) {
 
 		if (curNodeType == CALL) {
 			string callee = curNode->getValue();
-			callTable->add(caller, callee);
+			callTable->addToTable(caller, callee);
 		}
 	}
 }
@@ -347,8 +344,6 @@ void DesignExtractor::processCallTable(AST* ast) {
 void DesignExtractor::processFollowTable(AST* subAST) {
 	// check the whole nodes in the current ast
 	for (unsigned i = 0; i < subAST->getTree().size(); i++) {
-		string value = convertNumToStr(i - 1);
-
 		// check unique StmtLst
 		TNode* parent = subAST->getTree().at(i);
 		if (parent->getType() == STMTLST) {
@@ -360,8 +355,10 @@ void DesignExtractor::processFollowTable(AST* subAST) {
 
 				int prev = preChild->getLine();
 				int next = nextChild->getLine();
+				string prevStr = convertNumToStr(prev);
+				string nextStr = convertNumToStr(next);
 
-				followTable->addToTable(prev, next);
+				followTable->addToTable(prevStr, nextStr);
 			}
 		}
 	}
@@ -371,12 +368,12 @@ void DesignExtractor::processFollowTable(AST* subAST) {
 // stmtLst's parent is the parent of stmtLst's child
 void DesignExtractor::processParentTable(AST* subAST){
 	for (unsigned i = 0; i < subAST->getTree().size(); i++) {
-		string value = convertNumToStr(i);
 		TNode* middleNode = subAST->getTree().at(i);
 
 		TNode* parStmtLst = middleNode->getParent();
 		string typeOfPar = parStmtLst->getType();
 		int parLine = parStmtLst->getLine();
+		string parLineStr = convertNumToStr(parLine);
 
 		if(typeOfPar == WHILE | typeOfPar == IF) {
 			vector<TNode*> childStmtLst = middleNode->getChildList();
@@ -384,8 +381,9 @@ void DesignExtractor::processParentTable(AST* subAST){
 			for(unsigned j = 0; j < childStmtLst.size(); j++){
 				TNode* child = childStmtLst.at(j);
 				int childLine = child->getLine();
+				string childLineStr = convertNumToStr(childLine);
 
-				parentTable->addToTable(parLine, childLine);
+				parentTable->addToTable(parLineStr, childLineStr);
 			}
 		}
 	}
@@ -402,10 +400,12 @@ void DesignExtractor::processModTable() {
 
 			if (curNodeType == ASSIGN) {
 				int lineNum = curNode->getLine();
+				string lineNumStr = convertNumToStr(lineNum);
+
 				// first child is the left side variable
 				TNode* leftChildVar = curNode->getChildList().at(0);
 				string modVar = leftChildVar->getValue();
-				modTable->add(lineNum, modVar);
+				modTable->addToTable(lineNumStr, modVar);
 
 				// containers & procedure also modifies modVar
 				while (curNode->getType() != PROCEDURE) {
@@ -555,7 +555,6 @@ AST* DesignExtractor::buildSubtree(string pattern) {
 
 // Smaller modules
 string DesignExtractor::convertNumToStr(int stmtLstNumber){
-	stmtLstNumber++;
 	ostringstream osstream;
 	osstream << stmtLstNumber;
 	string stmtLstNumText = osstream.str();
