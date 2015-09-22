@@ -81,7 +81,8 @@ bool CallTable::isContainedRecur() {
 	for (unsigned i = 0; i < callTable.size(); i++) {
 		string caller = callTable.at(i).caller;
 		vector<string> callees = callTable.at(i).callees;
-		if (checkRecurDFS(caller, callees)) {
+		vector<string> processed;
+		if (checkRecurDFS(caller, callees, processed)) {
 			return true;
 		}
 	}
@@ -89,14 +90,21 @@ bool CallTable::isContainedRecur() {
 }
 
 //check is call table contains any recursion using DFS
-bool CallTable::checkRecurDFS(string caller, vector<string> callees) {
+bool CallTable::checkRecurDFS(string caller, vector<string> callees, vector<string> processed) {
 	for (unsigned i = 0; i < callees.size(); i++) {
 		if (callees.at(i) == caller) {
 			return true;
 		}
 		else {
+			for (unsigned j = 0; j < processed.size(); j++) {
+				if (processed.at(j) == callees.at(i)) {
+					return false;
+				}
+			}
+
 			vector<string> newCallees = getCallees(callees.at(i));
-			if (checkRecurDFS(caller, callees)) {
+			processed.push_back(callees.at(i));
+			if (checkRecurDFS(caller, newCallees, processed)) {
 				return true;
 			}
 		}

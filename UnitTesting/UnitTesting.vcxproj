@@ -167,8 +167,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestAST.cpp" />
+    <ClCompile Include="TestCallTable.cpp" />
+    <ClCompile Include="TestCFG.cpp" />
+    <ClCompile Include="TestConstTable.cpp" />
     <ClCompile Include="TestDesignExtractor.cpp" />
     <ClCompile Include="TestFollowTable.cpp" />
+    <ClCompile Include="TestGNode.cpp" />
     <ClCompile Include="TestModifyTable.cpp" />
     <ClCompile Include="TestNextTable.cpp" />
     <ClCompile Include="TestParentTable.cpp" />

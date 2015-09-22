@@ -17,7 +17,7 @@ typedef struct callEntry_t {
 
 class CallTable {
 private: vector<callEntry_t> callTable;
-		 bool checkRecurDFS(string caller, vector<string> callees);
+		 bool checkRecurDFS(string caller, vector<string> callees,vector<string> processed);
 
 public: 
 	CallTable();
