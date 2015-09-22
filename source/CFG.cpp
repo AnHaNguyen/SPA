@@ -19,66 +19,64 @@ string CFG::getProcedure() {
 }
 
 //add a node to a graph
-void CFG::addToGraph(int lineNo) {
-	GNode* newNode = new GNode(lineNo);
+bool CFG::addToGraph(GNode* node) {
 	for (unsigned i = 0; i < cfg.size(); i++){
-		if ((*cfg.at(i)).getLine() == lineNo) {
-			return;
+		if ((*cfg.at(i)).getLine() == node->getLine()) {
+			return false;
 		}
 	}
-	cfg.push_back(newNode);
+	cfg.push_back(node);
+	return true;
 }
 
 //make a node at lineNo to be child of node at parentLine
 //both nodes need to be added to graph beforehand.
-void CFG::makeChild(int lineNo, int parentLine) {	
-	for (unsigned i = 0; i < cfg.size(); i++) {
-		if ((*cfg.at(i)).getLine() == parentLine) {
+void CFG::makeChild(GNode* parent, GNode* child) {	
+	/*for (unsigned i = 0; i < cfg.size(); i++) {
+		if ((*cfg.at(i)).getLine() == parentLine->getLine()) {
 			GNode* newNode = new GNode(lineNo);
 			GNode* par = cfg.at(i);
 			(*par).setChild(newNode);
 			(*newNode).setParent(par);
 		}
-	}
+	}*/
+	child->setParent(parent);
+	parent->setChild(child);
 }
 
-void CFG::makeParent(int lineNo, int childLine) {
-	for (unsigned i = 0; i < cfg.size(); i++) {
+void CFG::makeParent(GNode* child, GNode* parent) {
+	/*for (unsigned i = 0; i < cfg.size(); i++) {
 		if ((*cfg.at(i)).getLine() == childLine) {
 			GNode* newNode = new GNode(lineNo);
 			GNode* child = cfg.at(i);
 			(*child).setParent(newNode);
 			(*newNode).setChild(child);
 		}
-	}
+	}*/
+	parent->setChild(child);
+	child->setParent(parent);
 }
 
 //find all parents of a stmt
-vector<int> CFG::findParent(int lineNo) {
-	vector<int> parentStmt;
+vector<GNode*> CFG::findParent(int lineNo) {
+	vector<GNode* > parent;
 	for (unsigned i = 0; i < cfg.size(); i++) {
 		if ((*cfg.at(i)).getLine() == lineNo) {
-			vector<GNode* > parent = (*cfg.at(i)).getParent();
-			for (unsigned j = 0; j < parent.size(); j++) {
-				parentStmt.push_back((*parent.at(j)).getLine());
-			}
+			parent = (*cfg.at(i)).getParent();
 			break;
 		}
 	}
-	return parentStmt;
+	return parent;
 }
 
 //find all child of stmt
-vector<int> CFG::findChild(int lineNo) {
-	vector<int> childStmt;
+vector<GNode*> CFG::findChild(int lineNo) {
+	vector<GNode*> child;
 	for (unsigned i = 0; i < cfg.size(); i++) {
 		if ((*cfg.at(i)).getLine() == lineNo) {
-			vector<GNode* > child = (*cfg.at(i)).getChild();
-			for (unsigned j = 0; j < child.size(); j++) {
-				childStmt.push_back((*child.at(j)).getLine());
-			}
+			child = (*cfg.at(i)).getChild();
 			break;
 		}
 	}
-	return childStmt;
+	return child;
 }
