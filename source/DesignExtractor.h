@@ -5,6 +5,7 @@
 #include <vector>
 #include "TNode.h"
 #include "AST.h"
+#include "CallTable.h"
 #include "FollowTable.h"
 #include "ParentTable.h"
 #include "ModifyTable.h"
@@ -38,19 +39,27 @@ const string VARIABLE = "variable";
 const string CONSTANT = "constant";
 const string WHITE_SPACE = " ";
 const string NO_VALUE = "";
+
 const string OPEN_BRACKET = "{";
 const string CLOSE_BRACKET = "}";
+const string ROUND_OPEN_BRACKET = "(";
+const string ROUND_CLOSE_BRACKET = ")";
 const string SEMICOLON = ";";
 const string EQUAL = "=";
 
 const string PLUS = "+";
 const string PLUS_TEXT = "plus";
+const string MINUS = "-";
+const string MINUS_TEXT = "minus";
+const string TIMES = "*";
+const string TIMES_TEXT = "times";
 
 class DesignExtractor{
 private:
 	vector<string> input;
 	vector<AST*> ast;
 
+	CallTable* callTable;
 	FollowTable* followTable;
 	ParentTable* parentTable;
 	UseTable* useTable;
@@ -72,8 +81,9 @@ private:
 	void processAssign(string leftSide, string rightSide, int lineNumber);
 	void processIfThen(string controlVar, int lineNumber);
 	void processElse();
-	void processCall(string value, int lineNumber);
+	void processCallAST(string value, int lineNumber);
 
+	void processCallTable(AST* ast);
 	void processModTable();			//process var table also
 	void processUseTable();			//process var and const tables also
 	void processProcTable();
@@ -93,6 +103,7 @@ public:
 	~DesignExtractor();
 	
 	vector<AST*> buildAST(vector<string> input);
+	CallTable* getCallTable();
 	FollowTable* getFollowTable();
 	ParentTable* getParentTable();
 	ModifyTable* getModTable();

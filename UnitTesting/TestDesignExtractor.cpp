@@ -20,6 +20,29 @@ namespace UnitTesting
 		string i = "i";
 		string v = "v";
 		DesignExtractor ext = DesignExtractor(code);
+
+		TEST_METHOD(TestExtCallTable) 
+		{
+			vector<string>code2 = { "procedureFirst{", "callSecond;", "callThird;","callFourth;}",
+			"procedureSecond{", "y=y+3+x;", "callThird;}",
+			"procedureThird{", "callFourth;}",
+			"procedureFourth{", "y=1;}"};
+
+			DesignExtractor ext2 = DesignExtractor(code2);
+			CallTable* callTable = ext2.getCallTable();
+
+			Assert::AreEqual(callTable->size(), 3);
+			Assert::AreEqual(callTable->getCallees("First").at(0), (string) "Second");
+			Assert::AreEqual(callTable->getCallees("First").at(1), (string) "Third");
+			Assert::AreEqual(callTable->getCallees("First").at(2), (string) "Fourth");
+			Assert::AreEqual(callTable->getCallees("Second").at(0), (string) "Third");
+
+			Assert::AreEqual(callTable->getCallers("Third").at(0), (string) "First");
+			Assert::AreEqual(callTable->getCallers("Third").at(1), (string) "Second");
+			Assert::AreEqual(callTable->getCallers("Fourth").at(0), (string) "First");
+			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
+		}
+
 		TEST_METHOD(TestExtModTable)
 		{
 			
@@ -82,8 +105,7 @@ namespace UnitTesting
 			
 			vector <string> code1 = { "procedureFirst{", "x=2;","ifxthen{", "z=3+z;}",
 				"else{", "z=1;}}",
-				"procedureSecond{", "x=0;",  "i=5;", "callThird" , "whilei{" ,"x=x+2+y;",
-				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureSecond{", "i=5;", "callThird" , "whilei{" ,"x=x+2+y;}" ,"z=z+2+i;}",
 				"procedureThird{", "z=5;", "v=z;}" };
 
 			DesignExtractor ex1 = DesignExtractor(code1);
@@ -146,37 +168,37 @@ namespace UnitTesting
 
 			AST* proc2 = astList.at(1);
 			
-			Assert::AreEqual(proc2->getTree().size(), (unsigned)43);
+			Assert::AreEqual(proc2->getTree().size(), (unsigned)23);
+			// test for procedure Second
 			Assert::AreEqual(proc2->getTree().at(0)->getType(), (string) "procedure");
 			Assert::AreEqual(proc2->getTree().at(0)->getValue(), (string) "Second");
 			Assert::AreEqual(proc2->getTree().at(2)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(3)->getValue(), (string) "x");
-			Assert::AreEqual(proc2->getTree().at(4)->getValue(), (string) "0");
-			Assert::AreEqual(proc2->getTree().at(5)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(6)->getValue(), (string) "i");
-			Assert::AreEqual(proc2->getTree().at(7)->getValue(), (string) "5");
+			Assert::AreEqual(proc2->getTree().at(3)->getValue(), (string) "i");
+			Assert::AreEqual(proc2->getTree().at(4)->getValue(), (string) "5");
+			// test for 5th Node: Third: Call
+			Assert::AreEqual(proc2->getTree().at(5)->getType(), CALL);
+			Assert::AreEqual(proc2->getTree().at(5)->getValue(), (string) "Third");
 
-			Assert::AreEqual(proc2->getTree().at(8)->getType(), CALL);
-			Assert::AreEqual(proc2->getTree().at(8)->getValue(), (string) "Third");
+			Assert::AreEqual(proc2->getTree().at(6)->getType(), WHILE);
+			Assert::AreEqual(proc2->getTree().at(7)->getValue(), (string) "i");
+			Assert::AreEqual(proc2->getTree().at(8)->getType(), STMTLST);
 
-			Assert::AreEqual(proc2->getTree().at(9)->getValue(), (string) "i");
-			Assert::AreEqual(proc2->getTree().at(10)->getType(), (string) "stmtLst");
-			Assert::AreEqual(proc2->getTree().at(11)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(12)->getValue(), (string) "x");
-			Assert::AreEqual(proc2->getTree().at(13)->getValue(), (string) "x");
-			Assert::AreEqual(proc2->getTree().at(14)->getValue(), (string) "2");
-			Assert::AreEqual(proc2->getTree().at(15)->getType(), (string) "plus");
-			Assert::AreEqual(proc2->getTree().at(16)->getValue(), (string) "y");
-			Assert::AreEqual(proc2->getTree().at(17)->getType(), (string) "plus");
-			Assert::AreEqual(proc2->getTree().at(18)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(23)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(30)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(35)->getType(), (string) "assign");
+			Assert::AreEqual(proc2->getTree().at(9)->getType(), ASSIGN);
+			Assert::AreEqual(proc2->getTree().at(10)->getValue(), (string) "x");
+			Assert::AreEqual(proc2->getTree().at(10)->getType(), VARIABLE);
+			Assert::AreEqual(proc2->getTree().at(12)->getValue(), (string) "2");
+			Assert::AreEqual(proc2->getTree().at(13)->getType(), PLUS_TEXT);
+			Assert::AreEqual(proc2->getTree().at(14)->getValue(), (string) "y");
+			Assert::AreEqual(proc2->getTree().at(15)->getType(), PLUS_TEXT);
+			Assert::AreEqual(proc2->getTree().at(16)->getType(), ASSIGN);
+			Assert::AreEqual(proc2->getTree().at(17)->getValue(), (string) "z");
+			Assert::AreEqual(proc2->getTree().at(18)->getValue(), (string) "z");
+			Assert::AreEqual(proc2->getTree().at(19)->getType(), CONSTANT);
 
-			Assert::AreEqual(proc2->getTree().at(1)->getChildList().size(), (unsigned)6);
+			Assert::AreEqual(proc2->getTree().at(1)->getChildList().size(), (unsigned)4);
 			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(0)->getType(), (string) "assign");
 			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(2)->getType(), (string) "while");
-			Assert::AreEqual(proc2->getTree().at(1)->getType(), (string)"stmtLst");
+			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(1)->getType(), CALL);
 
 			TNode* ass = proc2->getTree().at(1)->getChildList().at(3);
 			Assert::AreEqual(ass->getChildList().at(0)->getValue(), (string) "z");
@@ -185,19 +207,16 @@ namespace UnitTesting
 			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(1)->getValue(), (string) "i");
 			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getType(), (string) "plus");
 			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getChildList().at(0)->getValue(), (string) "z");
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getChildList().at(1)->getValue(), (string) "x");
+			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getChildList().at(1)->getValue(), (string) "2");
 			
 			TNode* whi = proc2->getTree().at(1)->getChildList().at(2);
 			Assert::AreEqual(whi->getChildList().at(0)->getValue(), (string) "i");
 			
 			Assert::AreEqual(whi->getChildList().at(1)->getType(), (string) "stmtLst");
-			Assert::AreEqual(whi->getChildList().at(1)->getChildList().size(), (unsigned) 2);
+			Assert::AreEqual(whi->getChildList().at(1)->getChildList().size(), (unsigned) 1);
 			TNode* ass1 = whi->getChildList().at(1)->getChildList().at(0);
-			TNode* ass2 = whi->getChildList().at(1)->getChildList().at(1);
 			Assert::AreEqual(ass1->getChildList().at(0)->getValue(), (string) "x");
 			Assert::AreEqual(ass1->getChildList().at(1)->getChildList().at(1)->getValue(), (string) "y");
-			Assert::AreEqual(ass2->getChildList().at(1)->getChildList().at(1)->getType(), (string) "constant");
-			Assert::AreEqual(ass2->getChildList().at(1)->getChildList().at(0)->getValue(), (string) "i");
 
 			AST* proc3 = astList.at(2);
 			Assert::AreEqual(proc3->getTree().size(), (unsigned)8);
