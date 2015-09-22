@@ -64,3 +64,42 @@ bool CallTable::isContained(string caller) {
 	return false;
 }
 
+bool CallTable::isCall(string caller, string callee) {
+	if (!isContained(caller)) {
+		return false;
+	}
+	vector<string> callees = getCallees(caller);
+	for (unsigned i = 0; i < callees.size(); i++) {
+		if (callees.at(i) == callee) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CallTable::isContainedRecur() {
+	for (unsigned i = 0; i < callTable.size(); i++) {
+		string caller = callTable.at(i).caller;
+		vector<string> callees = callTable.at(i).callees;
+		if (checkRecurDFS(caller, callees)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+//check is call table contains any recursion using DFS
+bool CallTable::checkRecurDFS(string caller, vector<string> callees) {
+	for (unsigned i = 0; i < callees.size(); i++) {
+		if (callees.at(i) == caller) {
+			return true;
+		}
+		else {
+			vector<string> newCallees = getCallees(callees.at(i));
+			if (checkRecurDFS(caller, callees)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

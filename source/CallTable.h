@@ -17,6 +17,7 @@ typedef struct callEntry_t {
 
 class CallTable {
 private: vector<callEntry_t> callTable;
+		 bool checkRecurDFS(string caller, vector<string> callees);
 
 public: 
 	CallTable();
@@ -28,6 +29,8 @@ public:
 	int size();
 	bool isContained(string caller);
 	vector<callEntry_t> getTable();			//return whole table as vector
+	bool isContainedRecur();
+	bool isCall(string caller, string callee);		//check Calls(p1,p2);
 };
 
 
