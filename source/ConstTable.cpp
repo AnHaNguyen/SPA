@@ -8,45 +8,50 @@ ConstTable::ConstTable() {
 ConstTable::~ConstTable() {
 }
 
-bool ConstTable::addToTable(int line, string constant){
-	if (isConstOfLine(line, constant)) {
-		return false;
+bool ConstTable::addToTable(string line, string constant){
+	if (!isContained(line)) {
+		ConstEntry_t *entry = new ConstEntry_t(line, constant);
+		constTable.push_back(*entry);
+		return true;
 	} 
-	ConstEntry_t *entry = new ConstEntry_t(line, constant);
-	constTable.push_back(*entry);
+	for (unsigned i = 0; i < constTable.size(); i++){
+		if (constTable.at(i).line == line){
+			for (unsigned j = 0; j < constTable.at(i).constants.size(); j++) {
+				if (constTable.at(i).constants.at(j) == constant) {
+					return false;
+				}
+			}
+			constTable.at(i).constants.push_back(constant);
+			break;
+		}
+	}
 	return true;
 }
 
-vector<string> ConstTable::getConst(int line) {
+vector<string> ConstTable::getConst(string line) {
 	vector<string> returnList;
 	for (unsigned i = 0; i < constTable.size(); i++){
 		if (constTable.at(i).line == line) {
-			returnList.push_back(constTable.at(i).constant);
+			returnList = constTable.at(i).constants;
+			break;
 		}
 	}
 	return returnList;
 }
 
-vector<int> ConstTable::getLine(string constant) {
-	vector<int> returnList;
+vector<string> ConstTable::getLine(string constant) {
+	vector<string> returnList;
 	for (unsigned i = 0; i < constTable.size(); i++) {
-		if (constTable.at(i).constant == constant) {
-			returnList.push_back(constTable.at(i).line);
+		for (unsigned j = 0; j < constTable.at(i).constants.size(); j++){
+			if (constTable.at(i).constants.at(j) == constant) {
+				returnList.push_back(constTable.at(i).line);
+			}
 		}
 	}
 	return returnList;
 }
 
-bool ConstTable::isContained(string constant){
-	for (unsigned i = 0; i < constTable.size(); i++) {
-		if (constTable.at(i).constant == constant) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool ConstTable::isContained(int line) {
+bool ConstTable::isContained(string line) {
 	for (unsigned i = 0; i < constTable.size(); i++) {
 		if (constTable.at(i).line == line) {
 			return true;
@@ -55,10 +60,13 @@ bool ConstTable::isContained(int line) {
 	return false;
 }
 
-bool ConstTable::isConstOfLine(int line, string constant) {
-	for (unsigned i = 0; i < constTable.size(); i++) {
-		if (constTable.at(i).constant == constant 
-			&& constTable.at(i).line == line) {
+bool ConstTable::isConstOfLine(string line, string constant) {
+	if (!isContained(line)) {
+		return false;
+	}
+	vector<string> constants = getConst(line);
+	for (unsigned i = 0; i < constants.size(); i++) {
+		if (constants.at(i) == constant) {
 			return true;
 		}
 	}
