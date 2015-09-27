@@ -181,6 +181,7 @@
     <ClCompile Include="testPreprocessor.cpp" />
     <ClCompile Include="TestUseTable.cpp" />
     <ClCompile Include="TestTNode.cpp" />
+    <ClCompile Include="TestUtility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
