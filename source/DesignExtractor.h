@@ -72,6 +72,7 @@ private:
 	int stmtLstNumber;
 	int procedureNumber;
 	vector<TNode*> ASTCurParent;
+	vector<vector<string>> memoryModTable;
 
 	void initialize();			//initialize tables
 	void storeToPKB();			//store tables after process to pkb

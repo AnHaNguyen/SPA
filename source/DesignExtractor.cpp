@@ -19,10 +19,12 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 		processCallTable(ast.at(i));
 		processFollowTable(ast.at(i));
 		processParentTable(ast.at(i));
+
+		memoryModTable.push_back(vector<string>());
 	}
 
-	/*processModTable();
-	processUseTable();*/
+	processModTable();
+	//processUseTable();
 	processProcTable();
 
 	storeToPKB();
@@ -41,6 +43,7 @@ void DesignExtractor::initialize() {
 	constTable = new ConstTable();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
+	memoryModTable = vector<vector<string>>();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -393,6 +396,9 @@ void DesignExtractor::processParentTable(AST* subAST){
 void DesignExtractor::processModTable() {
 	for (unsigned i = 0; i < ast.size(); i++) {
 		AST* curAST = ast.at(i);
+		if (memoryModTable.at(i).size() > 0) {
+			break;
+		}
 
 		for (unsigned j = 0; j < curAST->getTree().size(); j++) {
 			TNode* curNode = curAST->getTree().at(j);
@@ -411,11 +417,33 @@ void DesignExtractor::processModTable() {
 				while (curNode->getType() != PROCEDURE) {
 					TNode* curPar = curNode->getParent();
 					string curParType = curPar->getType();
+
+					// container while or if
+					if (curParType == WHILE || curParType == IF || curParType == PROCEDURE) {
+						int lineNum = curPar->getLine();
+						string lineNumStr = convertNumToStr(lineNum);
+
+						modTable->addToTable(lineNumStr, modVar);
+					}
+
+					curNode = curPar;
+				}
+			}
+			else if (curNodeType == CALL) {
+				// check procName w ast -> processModTable in callee's ast
+				string callee = curNode->getValue();
+				for (int k = 0; k < ast.size(); k++) {
+					string procName = ast.at(k)->getProcedure();
+					if (procName == callee) {
+						processModTable();
+						break;
+					}
 				}
 			}
 		}
 	}
 }
+
 
 void DesignExtractor::processUseTable() {
 	for (unsigned i = 0; i < ast.size(); i++) {

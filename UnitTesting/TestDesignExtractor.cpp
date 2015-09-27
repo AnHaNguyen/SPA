@@ -43,18 +43,12 @@ namespace UnitTesting
 			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
 		}
 
-		/*TEST_METHOD(TestExtModTable)
+		TEST_METHOD(TestExtModTable)
 		{
 			
-			ModifyTable* modTable = ext.getModTable();
-			Assert::AreEqual(modTable->size(),11);
-			Assert::AreEqual(modTable->getTable().at(0).modifiedVar, x);
-			Assert::AreEqual(modTable->getTable().at(1).modifiedVar, z);
-			Assert::AreEqual(modTable->getTable().at(2).modifiedVar, x);
-			Assert::AreEqual(modTable->getTable().at(3).modifier, (string) "4");
 		}
 
-		TEST_METHOD(TestExtUseTable)
+		/*TEST_METHOD(TestExtUseTable)
 		{
 			UseTable* useTable = ext.getUseTable();
 			Assert::AreEqual(useTable->size(), 7);
