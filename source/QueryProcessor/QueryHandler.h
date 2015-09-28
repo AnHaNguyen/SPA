@@ -22,22 +22,22 @@ public:
 
 	bool getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable);
 
-	void getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, string>> &modTable);
+	void getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable);
 
-	void getFollowTable(vector<pair<string, int>> &folTable);
+	void getFollowTable(vector<pair<string, string>> &folTable);
 
-	vector<pair<string, string>>  getConstTable();
+	vector<pair<string, vector<string>>>  getConstTable();
 
 
 	vector<string> getAssignTable();
 
 	bool QueryHandler::containSign(string str);
 
-	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, int>> vec2);
-	int QueryHandler::getPos(vector<string> intVec);
+	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
+	int QueryHandler::getPos(vector<int> intVec);
 
-	vector<pair<string, string>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
-	vector<pair<string, int>> QueryHandler::toConvention(vector<FollowEntry_t> table);
+	vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
+	vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table);
 	vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x);

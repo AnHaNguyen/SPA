@@ -39,11 +39,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//Handle suchThat
 	vector<string> folVec;
-	vector<pair<string, int>>  folTable;
+	vector<pair<string, string>>  folTable;
 
 	vector<string> mvarVec;
 	vector<string> modVec;
-	vector<pair<string, string>>  modTable;
+	vector<pair<string, vector<string>>>  modTable;
 
 	vector<string> parVec;
 	vector<string>  parTable;
@@ -55,8 +55,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> usedTable;
 
 
-	vector<string> PTCheck;
-	vector<string> STCheck;
+	vector<int> PTCheck;
+	vector<int> STCheck;
 
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
@@ -278,7 +278,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<string> temp2 = getAssignTable();
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					vector<string> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
 						for (int j = 0; j < temp3.size(); j++) {
@@ -290,7 +290,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = getAssignTable();
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1);
 				}
 			}
@@ -333,7 +333,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(firstAttx.first);
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					vector<string> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
 						for (int j = 0; j < temp1.size(); j++) {
@@ -345,7 +345,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(firstAttx.first);
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1);
 				}
 			}
@@ -357,7 +357,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "variable") {
 					vector<string> temp1 = getAssignTable();
 					for (int i = 0; i < temp1.size(); i++) {
-						pvarVec.push_back(PKB::getModifyTable()->getModified(temp1[i]));
+						pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
 					}
 				}
 				else {
@@ -371,7 +371,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					vector<string> temp2 = PKB::getUseTable()->getUser(secondAttx.first);
 					vector<string> temp3 = intersection(temp1, temp2);
 					for (int i = 0; i < temp3.size(); i++) {
-						pvarVec.push_back(PKB::getModifyTable()->getModified(temp3[i]));
+						pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
 					}
 				}
 				else {
@@ -386,7 +386,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					vector<string> temp1 = getAssignTable();
 					if (result->getResult() == firstAtt) {
 						for (int i = 0; i < temp1.size(); i++) {
-							pvarVec.push_back(PKB::getModifyTable()->getModified(temp1[i]));
+							pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
 						}
 					}
 					else {
@@ -403,7 +403,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<string> temp2 = getAssignTable();
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					vector<string> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
 						for (int j = 0; j < temp1.size(); j++) {
@@ -415,7 +415,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = getAssignTable();
-					vector<pair<string, string>> temp1 = getConstTable();
+					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1);
 				}
 			}
@@ -436,7 +436,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	vector<string> final1;
 	vector<string> final2;
-	if (getPos(STCheck) != "na") {
+	if (getPos(STCheck) != -1) {
 		switch (getPos(STCheck)) {
 		case 0:
 			final2 = folVec;
@@ -643,9 +643,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 	}
 	if (!final2.empty()) {
-		for (int i = 0; i < final2.size(); i++) {
-			final1.push_back(to_string(final2[i]));
-		}
+		final1 = final2;
 	}
 	return final1;
 }
@@ -657,7 +655,7 @@ void QueryHandler::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userT
 	usedTable = toConvention(useTab, 2);
 }
 
-bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable){
+bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable) {
 	vector<ParentEntry_t> parTab;
 	ParentTable* ParentTable = PKB::getParentTable();
 	parTab = ParentTable->getTable();
@@ -673,31 +671,32 @@ bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vect
 	return true;
 }
 
-void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, string>> &modTable){
+void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable) {
 	ModifyTable* ModifyTable = PKB::getModifyTable();
 	modTab = ModifyTable->getTable();
 	modTable = toConvention(modTab);
 }
 
-void QueryHandler::getFollowTable(vector<pair<string, int>> &folTable){
+void QueryHandler::getFollowTable(vector<pair<string, string>> &folTable) {
 	vector<FollowEntry_t> folTab;
 	FollowTable* FollowTable = PKB::getFollowTable();
 	folTab = FollowTable->getTable();
 	folTable = toConvention(folTab);
 }
 
-vector<pair<string, string>> QueryHandler::getConstTable(){
+vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
 	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
-	vector<pair<string, string>> temp3;
+	vector<pair<string, vector<string>>> temp3;
 	for (int i = 0; i < temp1.size(); i++) {
-		pair<string, string> temp;
+		pair<string, vector<string>> temp;
 		temp.first = temp1[i].line;
-		temp.second = temp1[i].constant;
+		temp.second = temp1[i].constants;
 		temp3.push_back(temp);
 	}
 	return temp3;
 }
 
+/*
 vector<string> QueryHandler::getAssignTable() {
 	vector<string> ansVec;
 	vector<AST*> ast = PKB::getASTList();
@@ -708,7 +707,7 @@ vector<string> QueryHandler::getAssignTable() {
 		}
 	}
 	return ansVec;
-}
+}*/
 
 bool QueryHandler::containSign(string str) {
 	if (str.find("+") != string::npos || str.find("-") != string::npos || str.find("*") != string::npos) {
@@ -755,7 +754,7 @@ void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<string
 	}
 	else {
 		if (isInt(firstAtt)) {
-			uvarVec = useTab->getUsed(stoi(firstAtt));
+			uvarVec = useTab->getUsed(firstAtt);
 		}
 	}
 }
@@ -768,7 +767,7 @@ void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<stri
 			parVec.push_back("all");
 		}
 		if (isInt(secondAtt)) {
-			int temp = parTab->getParent(stoi(secondAtt));
+			string temp = parTab->getParent(secondAtt);
 			if (temp != "na") {
 				parVec.push_back(temp);
 			}
@@ -776,7 +775,7 @@ void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<stri
 	}
 	else {
 		if (isInt(firstAtt)) {
-			parVec = parTab->getChild(stoi(firstAtt));
+			parVec = parTab->getChild(firstAtt);
 		}
 	}
 }
@@ -785,7 +784,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 {
 	ModifyTable* modTab = PKB::getModifyTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-		if (getSymMean(secondAtt) == "variable"||secondAtt=="_") {
+		if (getSymMean(secondAtt) == "variable" || secondAtt == "_") {
 			modVec.push_back("all");
 		}
 		else {
@@ -794,7 +793,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 	}
 	else {
 		if (isInt(firstAtt)) {
-			mvarVec.push_back(modTab->getModified(stoi(firstAtt)));
+			mvarVec = modTab->getModified(firstAtt);
 		}
 	}
 }
@@ -803,7 +802,7 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
 	string ans = "na";
 	//Case 1st: n/a
-	if (firstAtt=="_"||getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a
 		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 			ans = "all";
@@ -854,30 +853,30 @@ string QueryHandler::getSymMean(string sym) {
 	return "";
 }
 
-int QueryHandler::getPos(vector<string> intVec) {
+int QueryHandler::getPos(vector<int> intVec) {
 	for (int i = 0; i < intVec.size(); i++) {
 		if (intVec[i] == 1) {
 			return i;
 		}
 	}
-	return "na";
+	return -1;
 }
 //To convetion
-vector<pair<string, int>> QueryHandler::toConvention(vector<FollowEntry_t> table) {
-	vector<pair<string, int>> ansVec;
+vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table) {
+	vector<pair<string, string>> ansVec;
 	for (int i = 0; i < table.size(); i++) {
-		pair<string, int> temp;
+		pair<string, string> temp;
 		temp.first = table[i].prev;
 		temp.second = table[i].next;
 		ansVec.push_back(temp);
 	}
 	return ansVec;
 }
-vector<pair<string, string>> QueryHandler::toConvention(vector<ModifyEntry_t>  table) {
-	vector<pair<string, string>> ansVec;
+vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table) {
+	vector<pair<string, vector<string>>> ansVec;
 	for (int i = 0; i < table.size(); i++) {
-		pair<string, string> temp;
-		temp.first = table[i].lineNo;
+		pair<string, vector<string>> temp;
+		temp.first = table[i].modifier;
 		temp.second = table[i].modifiedVar;
 		ansVec.push_back(temp);
 	}
@@ -902,7 +901,7 @@ vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x) {
 vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, bool x) {
 	vector<string> ansVec;
 	for (int i = 0; i < table.size(); i++) {
-		ansVec.push_back(table[i].lineNo);
+		ansVec.push_back(table[i].userLine);
 	}
 	return ansVec;
 }
@@ -963,7 +962,7 @@ vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<strin
 	}
 	return ansVec;
 }
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, int>> vec2) {
+vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2) {
 	vector<string> ansVec;
 	for (size_t i = 0; i != (sizeof vec1); i++) {
 		int current = vec1[i];
