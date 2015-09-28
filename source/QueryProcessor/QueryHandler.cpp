@@ -65,13 +65,10 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		string secondAtt = suchThat->getSecondAttr();
 
 		//Handle follows
-		vector<FollowEntry_t> folTab;
 		if (syn == "Follows") {
 			folVec.push_back(handleFollows(firstAtt, secondAtt));
 			if (folVec.size() > 0 && folVec.front() == -2) {
-				FollowTable* FollowTable = PKB::getFollowTable();
-				folTab = FollowTable->getTable();
-				folTable = toConvention(folTab);
+				getFollowTable(folTable);
 			}
 		}
 
@@ -81,9 +78,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			queue<int> folQ;
 			folQ.push(folVec[0]);
 			if (folVec.size() > 0 && folVec.front() == -2) {
-				FollowTable* FollowTable = PKB::getFollowTable();
-				folTab = FollowTable->getTable();
-				folTable = toConvention(folTab);
+				getFollowTable(folTable);
 			}
 			else {
 				while (!folQ.empty()) {
@@ -113,25 +108,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "Modifies") {
 			handleModifies(firstAtt, secondAtt, modVec, mvarVec);
 			if (modVec.size() > 0 && modVec.front() == -2) {
-				ModifyTable* ModifyTable = PKB::getModifyTable();
-				modTab = ModifyTable->getTable();
-				modTable = toConvention(modTab);
+				getModifyTable(modTab, modTable);
 			}
 		}
 
 		//Handle parent
-		vector<ParentEntry_t> parTab;
 		if (syn == "Parent") {
 			handleParent(firstAtt, secondAtt, parVec);
 			if (parVec.size() > 0 && parVec.front() == -2) {
-				ParentTable* ParentTable = PKB::getParentTable();
-				parTab = ParentTable->getTable();
-				if (result->getResult() == firstAtt) {
-					parTable = toConvention(parTab, 1);
-				}
-				else if (result->getResult() == secondAtt) {
-					nestTable = toConvention(parTab, 2);
-				}
+				getParentTable(result, firstAtt, parTable, secondAtt, nestTable);
 			}
 		}
 
@@ -139,16 +124,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "Parent*") {
 			handleParent(firstAtt, secondAtt, parVec);
 			queue<int> parQ;
-
 			if (parVec.size() > 0 && parVec.front() == -2) {
-				ParentTable* ParentTable = PKB::getParentTable();
-				parTab = ParentTable->getTable();
-				if (result->getResult() == firstAtt) {
-					parTable = toConvention(parTab, 1);
-				}
-				else if (result->getResult() == secondAtt) {
-					nestTable = toConvention(parTab, 2);
-				}
+				getParentTable(result, firstAtt, parTable, secondAtt, nestTable);
 			}
 			else {
 				parQ.push(parVec.front());
@@ -181,10 +158,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (syn == "Uses") {
 			handleUses(firstAtt, secondAtt, useVec, uvarVec);
 			if (useVec.size() > 0 && useVec.front() == -2) {
-				UseTable* UseTable = PKB::getUseTable();
-				useTab = UseTable->getTable();
-				userTable = toConvention(useTab, true);
-				usedTable = toConvention(useTab, 2);
+				getUseTable(useTab, userTable, usedTable);
 			}
 		}
 
@@ -676,8 +650,43 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	return final1;
 }
 
-vector<pair<int, string>> QueryHandler::getConstTable()
-{
+void QueryHandler::getUseTable(vector<UseEntry_t> &useTab, vector<int> &userTable, vector<string> &usedTable) {
+	UseTable* UseTable = PKB::getUseTable();
+	useTab = UseTable->getTable();
+	userTable = toConvention(useTab, true);
+	usedTable = toConvention(useTab, 2);
+}
+
+bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<int> &parTable, string &secondAtt, vector<int> &nestTable){
+	vector<ParentEntry_t> parTab;
+	ParentTable* ParentTable = PKB::getParentTable();
+	parTab = ParentTable->getTable();
+	if (result->getResult() == firstAtt) {
+		parTable = toConvention(parTab, 1);
+	}
+	else if (result->getResult() == secondAtt) {
+		nestTable = toConvention(parTab, 2);
+	}
+	if (parTab.empty()) {
+		return false;
+	}
+	return true;
+}
+
+void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<int, string>> &modTable){
+	ModifyTable* ModifyTable = PKB::getModifyTable();
+	modTab = ModifyTable->getTable();
+	modTable = toConvention(modTab);
+}
+
+void QueryHandler::getFollowTable(vector<pair<int, int>> &folTable){
+	vector<FollowEntry_t> folTab;
+	FollowTable* FollowTable = PKB::getFollowTable();
+	folTab = FollowTable->getTable();
+	folTable = toConvention(folTab);
+}
+
+vector<pair<int, string>> QueryHandler::getConstTable(){
 	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
 	vector<pair<int, string>> temp3;
 	for (int i = 0; i < temp1.size(); i++) {
@@ -776,7 +785,7 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<in
 {
 	ModifyTable* modTab = PKB::getModifyTable();
 	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-		if (getSymMean(secondAtt) == "variable") {
+		if (getSymMean(secondAtt) == "variable"||secondAtt=="_") {
 			modVec.push_back(-2);
 		}
 		else {
@@ -794,9 +803,9 @@ int QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
 	int ans = -1;
 	//Case 1st: n/a
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+	if (firstAtt=="_"||getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a
-		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 			ans = -2;
 		}
 		//Case 2nd: 1, 2...
@@ -834,7 +843,7 @@ bool QueryHandler::isInt(string &secondAtt)
 	}
 }
 
-
+//Get synonym
 string QueryHandler::getSymMean(string sym) {
 	for (vector<int>::size_type i = 0; i != symTable.size(); i++) {
 		vector<string> current = symTable[i];

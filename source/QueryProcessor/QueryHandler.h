@@ -18,6 +18,14 @@ public:
 	~QueryHandler();
 	vector<string> queryRec(QueryTree* query);
 
+	void getUseTable(vector<UseEntry_t> &useTab, vector<int> &userTable, vector<string> &usedTable);
+
+	bool getParentTable(PreResultNode * result, string &firstAtt, vector<int> &parTable, string &secondAtt, vector<int> &nestTable);
+
+	void getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<int, string>> &modTable);
+
+	void getFollowTable(vector<pair<int, int>> &folTable);
+
 	vector<pair<int, string>>  getConstTable();
 
 
@@ -34,11 +42,11 @@ public:
 	vector<int> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x);
 
-	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
+	void atoPair(pair<string, bool> &firstAttx, string &firstAtt);
 
-	void handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec);
+	void handleUses(string &firstAtt, string &secondAtt, vector<int> &useVec, vector<string> &uvarVec);
 
-	void handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec);
+	void handleParent(string &firstAtt, string &secondAtt, vector<int> &parVec);
 
 	void handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &varVec);
 
