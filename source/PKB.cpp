@@ -17,6 +17,9 @@ vector<AST*> PKB::astList;
 VarTable* PKB::varTable;
 ProcTable* PKB::procTable;
 ConstTable* PKB::constTable;
+CallTable* PKB::callTable;
+NextTable* PKB::nextTable;
+vector<CFG* > PKB::cfgList;
 
 PKB::PKB() {
 }
@@ -85,13 +88,37 @@ void PKB::setConstTable(ConstTable* constTable) {
 	PKB::constTable = constTable;
 }
 
+CallTable* PKB::getCallTable() {
+	return callTable;
+}
+
+void PKB::setCallTable(CallTable* callTable) {
+	PKB::callTable = callTable;
+}
+
+NextTable* PKB::getNextTable() {
+	return nextTable;
+}
+
+void PKB::setNextTable(NextTable* nextTable) {
+	PKB::nextTable = nextTable;
+}
+
+vector<CFG*> PKB::getCFGList() {
+	return cfgList;
+}
+
+void PKB::setCFGList(vector<CFG* > cfgList) {
+	PKB::cfgList = cfgList;
+}
+
 vector<int> PKB::checkAssign(string pattern, bool contains_) {
 	vector<int> returnList;
-	DesignExtractor ext = DesignExtractor();
-	AST* subtree = ext.buildSubtree(pattern);
-	for (unsigned i = 0; i < astList.size(); i++) {
-		vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
-		returnList.insert(returnList.end(), temp.begin(), temp.end());
-	}
+	//DesignExtractor ext = DesignExtractor();
+	//AST* subtree = ext.buildSubtree(pattern);
+	//for (unsigned i = 0; i < astList.size(); i++) {
+	//	vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
+	//	returnList.insert(returnList.end(), temp.begin(), temp.end());
+	//}
 	return returnList;
 }

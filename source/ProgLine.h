@@ -1,5 +1,5 @@
-#ifndef STMTLIST_H
-#define STMTLIST_H
+#ifndef ProgLine_H
+#define ProgLine_H
 
 #include <string>
 #include <vector>
@@ -13,11 +13,12 @@ typedef struct stmt_t{
 		type = typ;
 	}
 } stmt;
-class StmtList {
-private: vector<stmt_t> stmtList;		//list contains all stmt and its type (assign/if/while/call)
+
+class ProgLine {
+private: vector<stmt_t> progLine;		//list contains all stmt and its type (assign/if/while/call)
 public: 
-		StmtList();
-		~StmtList();
+		ProgLine();
+		~ProgLine();
 		bool addToList(int lineNo, string type, string proc);		//add a stmt to List, return true if successful
 		string getType(int lineNo);					//get Type of a stmt
 		string getProcedure(int lineNo);			//get Procedure of a stmt

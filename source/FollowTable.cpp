@@ -8,7 +8,7 @@ FollowTable::FollowTable() {
 FollowTable::~FollowTable() {
 }
 
-bool FollowTable::addToTable(int prev, int next) {
+bool FollowTable::addToTable(string prev, string next) {
 	if (isContained(prev)) {
 		return false;
 	}
@@ -17,29 +17,29 @@ bool FollowTable::addToTable(int prev, int next) {
 	return true;
 }
 
-int FollowTable::getNext(int prev) {
+string FollowTable::getNext(string prev) {
 	for (unsigned i = 0; i < followTable.size(); i++) {
 		if (followTable.at(i).prev == prev) {
 			return followTable.at(i).next;
 		}
 	}
-	return -1;
+	return "";
 }
 
-int FollowTable::getPrev(int next) {
+string FollowTable::getPrev(string next) {
 	for (unsigned i = 0; i < followTable.size(); i++) {
 		if (followTable.at(i).next == next) {
 			return followTable.at(i).prev;
 		}
 	}
-	return -1;
+	return "";
 }
 
 int FollowTable::size() {
 	return followTable.size();
 }
 
-bool FollowTable::isContained(int prev) {
+bool FollowTable::isContained(string prev) {
 	for (unsigned i = 0; i < followTable.size(); i++) {
 		if (followTable.at(i).prev == prev) {
 			return true;
@@ -50,4 +50,11 @@ bool FollowTable::isContained(int prev) {
 
 vector<FollowEntry_t> FollowTable::getTable() {
 	return followTable;
+}
+
+bool FollowTable::isFollows(string prev, string next) {
+	if (!isContained(prev)) {
+		return false;
+	}
+	return (next == getNext(prev));
 }

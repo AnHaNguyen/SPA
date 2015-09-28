@@ -5,9 +5,9 @@
 #include <string>
 using namespace std;
 typedef struct FollowEntry_t {		//follow(prev,next)
-	int prev;
-	int next;
-	FollowEntry_t(int prev, int next) {
+	string prev;
+	string next;
+	FollowEntry_t(string prev, string next) {
 		FollowEntry_t::prev = prev;
 		FollowEntry_t::next = next;
 	}
@@ -17,11 +17,12 @@ class FollowTable {
 private: vector<FollowEntry_t> followTable;
 public: FollowTable();
 		~FollowTable();
-		bool addToTable(int prev, int next);
-		int getNext(int prev);			//return next stmt follows prev, if not found return -1
-		int getPrev(int next);			//return prev stmt next follows, if not found return -1
+		bool addToTable(string prev, string next);
+		string getNext(string prev);			//return next stmt follows prev, if not found return ""
+		string getPrev(string next);			//return prev stmt next follows, if not found return ""
 		int size();						//size of table
-		bool isContained(int prev);		//check if table contains a prev stmt
+		bool isContained(string prev);		//check if table contains a prev stmt
 		vector<FollowEntry_t> getTable();		//return table
+		bool isFollows(string prev, string next);	//check if next follows prev
 };
 #endif

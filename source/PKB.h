@@ -10,6 +10,9 @@
 #include "VarTable.h"
 #include "ProcTable.h"
 #include "ConstTable.h"
+#include "CallTable.h"
+#include "NextTable.h"
+#include "CFG.h"
 
 class PKB {
 private: static FollowTable* followTable;
@@ -20,6 +23,9 @@ private: static FollowTable* followTable;
 		 static VarTable* varTable;
 		 static ProcTable* procTable;
 		 static ConstTable* constTable;
+		 static CallTable* callTable;
+		 static NextTable* nextTable;
+		 static vector<CFG*> cfgList;
 
 public:
 		 PKB();
@@ -40,6 +46,12 @@ public:
 		 static void setProcTable(ProcTable* procTable);			//for Extractor
 		 static ConstTable* getConstTable();				//for Query
 		 static void setConstTable(ConstTable* constTable);			//for Extractor
+		 static CallTable* getCallTable();					//for Query
+		 static void setCallTable(CallTable* callTable);			//for Extractor
+		 static NextTable* getNextTable();					//for Query
+		 static void setNextTable(NextTable* nextTable);			//for Extractor
+		 static vector<CFG*> getCFGList();					//for Query
+		 static void setCFGList(vector<CFG*> cfgList);				//for Extractor
 
 		 static vector<int> checkAssign(string pattern, bool contains_);	//to check pattern
 };

@@ -5,6 +5,7 @@
 #include <vector>
 #include "TNode.h"
 #include "AST.h"
+#include "CallTable.h"
 #include "FollowTable.h"
 #include "ParentTable.h"
 #include "ModifyTable.h"
@@ -23,26 +24,42 @@ const string STMTLST = "stmtLst";
 const string WHILE = "while";
 const size_t WHILE_LEN = WHILE.length();
 
+const string IF = "if";
+const size_t IF_LEN = IF.length();
+const string THEN = "then";
+const string ELSE = "else";
+
 const string ASSIGN = "assign";
 const size_t ASSIGN_LEN = ASSIGN.length();
+
+const string CALL = "call";
+const size_t CALL_LEN = CALL.length();
 
 const string VARIABLE = "variable";
 const string CONSTANT = "constant";
 const string WHITE_SPACE = " ";
 const string NO_VALUE = "";
+
 const string OPEN_BRACKET = "{";
 const string CLOSE_BRACKET = "}";
+const string ROUND_OPEN_BRACKET = "(";
+const string ROUND_CLOSE_BRACKET = ")";
 const string SEMICOLON = ";";
 const string EQUAL = "=";
 
 const string PLUS = "+";
 const string PLUS_TEXT = "plus";
+const string MINUS = "-";
+const string MINUS_TEXT = "minus";
+const string TIMES = "*";
+const string TIMES_TEXT = "times";
 
 class DesignExtractor{
 private:
 	vector<string> input;
 	vector<AST*> ast;
 
+	CallTable* callTable;
 	FollowTable* followTable;
 	ParentTable* parentTable;
 	UseTable* useTable;
@@ -62,16 +79,21 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	void processAssign(string leftSide, string rightSide, int lineNumber);
-	bool processModTable();			//process var table also
-	bool processUseTable();			//process var and const tables also
-	bool processProcTable();
+	void processIfThen(string controlVar, int lineNumber);
+	void processElse();
+	void processCallAST(string value, int lineNumber);
+
+	void processCallTable(AST* ast);
+	void processModTable();			//process var table also
+	void processUseTable();			//process var and const tables also
+	void processProcTable();
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);
 
 	bool isConst(string var);
 	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
 
-	string convertStmtLstNumber(int stmtLstNumber);
+	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
 
@@ -81,6 +103,7 @@ public:
 	~DesignExtractor();
 	
 	vector<AST*> buildAST(vector<string> input);
+	CallTable* getCallTable();
 	FollowTable* getFollowTable();
 	ParentTable* getParentTable();
 	ModifyTable* getModTable();

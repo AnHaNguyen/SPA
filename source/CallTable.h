@@ -17,16 +17,20 @@ typedef struct callEntry_t {
 
 class CallTable {
 private: vector<callEntry_t> callTable;
+		 bool checkRecurDFS(string caller, vector<string> callees,vector<string> processed);
 
 public: 
 	CallTable();
 	~CallTable();
-	void add(string caller, string callee);
+	bool addToTable(string caller, string callee);
 	//void printTable();
-	vector<string> getCallees(string caller);
-	vector<string> getCallers(string callee);
+	vector<string> getCallees(string caller);		//Calls("First", P2)
+	vector<string> getCallers(string callee);		//Calls(P1,"First")
 	int size();
 	bool isContained(string caller);
+	vector<callEntry_t> getTable();			//return whole table as vector
+	bool isContainedRecur();
+	bool isCall(string caller, string callee);		//check Calls(p1,p2);
 };
 
 

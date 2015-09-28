@@ -57,6 +57,22 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TestProcessor.cpp">
+    <ClCompile Include="TestCFG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCallTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConstTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestNextTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
