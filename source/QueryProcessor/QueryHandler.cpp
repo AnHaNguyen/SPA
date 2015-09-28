@@ -251,7 +251,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "variable") {
 					vector<string> tempVec;
 					tempVec = getAssignTable();
-
 					for (int i = 0; i < tempVec.size(); i++) {
 						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
 						for (int j = 0; j < current.size(); j++) {
@@ -279,19 +278,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "constant") {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector<string> temp3 = intersection(temp2, temp1);
+					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
-						for (int j = 0; j < temp3.size(); j++) {
-							if (temp3[i] == temp1[j].first) {
-								pconVec.push_back(temp1[j].second);
-							}
-						}
+						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1);
+					patVec = intersection(temp2, temp1, true);
 				}
 			}
 		}
@@ -334,19 +329,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "constant") {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(firstAttx.first);
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector<string> temp3 = intersection(temp2, temp1);
+					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
-						for (int j = 0; j < temp1.size(); j++) {
-							if (temp1[j].first == temp3[i]) {
-								pvarVec.push_back(temp1[j].second);
-							}
-						}
+						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(firstAttx.first);
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1);
+					patVec = intersection(temp2, temp1, true);
 				}
 			}
 		}
@@ -404,19 +395,15 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "constant") {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector<string> temp3 = intersection(temp2, temp1);
+					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
 					for (int i = 0; i < temp3.size(); i++) {
-						for (int j = 0; j < temp1.size(); j++) {
-							if (temp1[j].first == temp3[i]) {
-								pvarVec.push_back(temp1[j].second);
-							}
-						}
+						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
 				else if (selType == "assign") {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1);
+					patVec = intersection(temp2, temp1, true);
 				}
 			}
 		}
@@ -499,7 +486,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		case 4:
 			if (selType == "variable") {
 				for (int i = 0; i < modTable.size(); i++) {
-					final1.push_back(modTable[i].second);
+					final1.insert(final1.end(), modTable[i].second.begin(), modTable[i].second.end());
 				}
 			}
 			else {
@@ -509,13 +496,13 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			switch (getPos(PTCheck)) {
 			case 0:
-				final2 = intersection(patVec, modTable);
+				final2 = intersection(patVec, modTable, true);
 				break;
 			case 1:
-				final1 = intersection(pvarVec, modTable);
+				final1 = intersection(pvarVec, modTable, true);
 				break;
 			case 2:
-				final1 = intersection(pconVec, modTable);
+				final1 = intersection(pconVec, modTable, true);
 				break;
 			default:
 				break;
@@ -947,6 +934,19 @@ vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string>
 		for (size_t j = 0; j != (sizeof vec2); j++) {
 			if (vec2[j].first == current) {
 				ansVec.push_back(vec2[j]);
+			}
+		}
+	}
+	return ansVec;
+}
+
+vector <string> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check) {
+	vector <string> ansVec;
+	for (size_t i = 0; i != (sizeof vec1); i++) {
+		string current = vec1[i];
+		for (size_t j = 0; j != (sizeof vec2); j++) {
+			if (vec2[j].first == current) {
+				ansVec.push_back(current);
 			}
 		}
 	}
