@@ -57,9 +57,7 @@ public:
 	bool isInt(string &secondAtt);
 	string QueryHandler::getSymMean(string sym);
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2);
-	vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2);
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
-	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
-	vector<pair<string, string>> QueryHandler::intersection(vector<pair<string, string>> vec1, vector<pair<string, string>> vec2);
+	vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string> vec1, vector<pair<string, vector<string>>> vec2);
 };
 #endif

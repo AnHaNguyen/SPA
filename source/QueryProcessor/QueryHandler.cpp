@@ -915,16 +915,6 @@ vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x) {
 	return ansVec;
 }
 //Implement intersection method (case pair (n1, v1) and select v or n
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2) {
-	vector<string> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
-		int current = vec1[i];
-		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
-			ansVec.push_back(current);
-		}
-	}
-	return ansVec;
-}
 
 vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2) {
 	vector<string> ansVec;
@@ -950,38 +940,13 @@ vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<strin
 	return ansVec;
 }
 
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2) {
-	vector<string> ansVec;
+vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2) {
+	vector < pair<string, vector<string>>> ansVec;
 	for (size_t i = 0; i != (sizeof vec1); i++) {
-		int current = vec1[i];
+		string current = vec1[i];
 		for (size_t j = 0; j != (sizeof vec2); j++) {
 			if (vec2[j].first == current) {
-				ansVec.push_back(current);
-			}
-		}
-	}
-	return ansVec;
-}
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2) {
-	vector<string> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
-		int current = vec1[i];
-		for (size_t j = 0; j != (sizeof vec2); j++) {
-			if (vec2[j].first == current) {
-				ansVec.push_back(current);
-			}
-		}
-	}
-	return ansVec;
-}
-
-vector<pair<string, string>> QueryHandler::intersection(vector<pair<string, string>> vec1, vector<pair<string, string>> vec2) {
-	vector<pair<string, string>> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
-		pair<string, string> current = vec1[i];
-		for (size_t j = 0; j != (sizeof vec2); j++) {
-			if (vec2[j] == current) {
-				ansVec.push_back(current);
+				ansVec.push_back(vec2[j]);
 			}
 		}
 	}
