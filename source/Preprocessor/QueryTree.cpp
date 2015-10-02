@@ -161,7 +161,7 @@ void QueryTree::setSymbolTable(vector<string> terms){
     }
 
 	for (int i = 0; i < symbolTable.size(); i++) {
-		for (int j = 0; j < symbolTable[i].size(); j++) {
+		for (int j = 1; j < symbolTable[i].size(); j++) {
 			if (!isValidIdent(symbolTable[i][j])) {
 				//cout << "wrong symbol table"  << endl;
 				isValid = false;
