@@ -21,9 +21,16 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 		processParentTable(ast.at(i));
 	}
 
-	/*processModTable();
-	processUseTable();*/
 	processProcTable();
+	int procNumber = procTable->size();
+	for (int i = 0; i < procNumber; i++) {
+		completedProc.push_back(false);
+	}
+
+	processModTable();
+
+	/*processUseTable();*/
+	
 
 	storeToPKB();
 }
@@ -41,6 +48,7 @@ void DesignExtractor::initialize() {
 	constTable = new ConstTable();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
+	completedProc = vector<bool>();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -192,6 +200,7 @@ void DesignExtractor::processIfThen(string controlVar, int lineNumber) {
 	// control variable node
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
+	varTable->addVar(controlVar);
 
 	ifNode->setChild(controlVarNode);
 	controlVarNode->setParent(ifNode);
@@ -239,6 +248,8 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	string controlVar = theRestOfLine.substr(0, posOfOpenBracket);
 
 	TNode* controlVarNode = new TNode(controlVar, VARIABLE, lineNumber);
+	varTable->addVar(controlVar);
+
 	whileNode->setChild(controlVarNode);
 	controlVarNode->setParent(whileNode);
 	ast.at(procedureNumber)->addToTree(controlVarNode);
@@ -262,6 +273,7 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 
 	// Add left child first
 	TNode* leftVar = new TNode(leftSide, VARIABLE, lineNumber);
+	varTable->addVar(leftSide);
 
 	ast.at(procedureNumber)->addToTree(leftVar);
 	assignNode->setChild(leftVar);
@@ -294,6 +306,14 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 	string leftSubTree = rightSide.substr(0, plusList.at(0));
 	string typeOfLeft = exprType(leftSubTree);
 
+	// add const & var into the corresponding table
+	if (typeOfLeft == VARIABLE) {
+		varTable->addVar(leftSubTree);
+	}
+	else if (typeOfLeft == CONSTANT) {
+		constTable->addToTable(convertNumToStr(lineNumber), leftSubTree);
+	}
+
 	TNode* leftSubTreeNode = new TNode(leftSubTree, typeOfLeft, lineNumber);
 	subAST->addToTree(leftSubTreeNode);
 
@@ -303,6 +323,13 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 
 		string rightSubTree = rightSide.substr(prevPlus + 1, nextPlus - prevPlus -1);	
 		string typeOfRight = exprType(rightSubTree);
+
+		if (typeOfRight == VARIABLE) {
+			varTable->addVar(rightSubTree);
+		}
+		else if (typeOfRight == CONSTANT) {
+			constTable->addToTable(convertNumToStr(lineNumber),rightSubTree);
+		}
 
 		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
@@ -391,6 +418,7 @@ void DesignExtractor::processParentTable(AST* subAST){
 
 //------------------------Create Modify Table------------------------//
 void DesignExtractor::processModTable() {
+	// use AST for assignment
 	for (unsigned i = 0; i < ast.size(); i++) {
 		AST* curAST = ast.at(i);
 
@@ -408,13 +436,72 @@ void DesignExtractor::processModTable() {
 				modTable->addToTable(lineNumStr, modVar);
 
 				// containers & procedure also modifies modVar
+				// get an assign node, then go up all the way until the root
 				while (curNode->getType() != PROCEDURE) {
 					TNode* curPar = curNode->getParent();
 					string curParType = curPar->getType();
+
+					// add lineNum for container + assign
+					// name for proc
+					if (curParType == WHILE || curParType == IF) {
+						int containerLineNum = curPar->getLine();
+						string containerLineNumStr = convertNumToStr(containerLineNum);
+						modTable->addToTable(containerLineNumStr, modVar);
+					}
+					else if (curParType == PROCEDURE) {
+						string procName = curPar->getValue();
+						modTable->addToTable(procName, modVar);
+					}
+
+					curNode = curPar;
 				}
 			}
 		}
 	}
+
+	// update ModTable with Call
+	// for every procedure
+	for (int i = 0; i < procTable->size(); i++) {
+		string caller = procTable->getProc(i);
+		if (!completedProc.at(i)) {
+			vector<string> callees = callTable->getCallees(caller);
+
+			if (callees.size() > 0) {
+				for (int j = 0; j < callees.size(); j++) {
+					string callee = callees.at(j);
+					updateModTable(caller, callee);
+				}
+			}
+		}
+
+		completedProc.at(i) = true;
+	}
+}
+	/*
+	* Update modTable for the Call only
+	*/
+void DesignExtractor::updateModTable(string caller, string callee) {
+	vector<string> calleeOfCalleeList = callTable->getCallees(callee);
+	int idxCallee = procTable->indexOf(callee);
+
+	// if callee's modTable is completed then add(caller, modVarOfCallee)
+	if (calleeOfCalleeList.size() > 0 || !completedProc.at(idxCallee)) {
+		for (int i = 0; i < calleeOfCalleeList.size(); i++) {
+			updateModTable(callee, calleeOfCalleeList.at(i));
+		}
+	}
+
+	// base case when callee doesnt call any other procedure
+	// add all modVar of callee to caller's modTable
+	vector<string> modVarList = modTable->getModified(callee);
+	for (int i = 0; i < modVarList.size(); i++) {
+		modTable->addToTable(caller, modVarList.at(i));
+	}
+
+	// mark the proc as complete after add all modVar into modTable
+	// or this given procedure doesnt call any other procedure
+	int indexProc = procTable->indexOf(callee);
+	completedProc.at(indexProc) = true;
 }
 
 void DesignExtractor::processUseTable() {
@@ -427,7 +514,7 @@ void DesignExtractor::processUseTable() {
 	}
 }
 
-//------------------Create procedure table----------------//
+//------------------Create procedure table------------------//
 void DesignExtractor::processProcTable() {
 	for (unsigned i = 0; i < ast.size(); i++) {
 		AST* curAST = ast.at(i);
@@ -450,9 +537,9 @@ void DesignExtractor::processProcTable() {
 		}
 	}
 	return true;
-}*/
+}
 
-/*bool DesignExtractor::processUseTable() {
+bool DesignExtractor::processUseTable() {
 	int lineNumber = 0;
 
 	for (unsigned i = 0; i < input.size(); i++) {
@@ -502,9 +589,9 @@ void DesignExtractor::processProcTable() {
 		}
 	}
 	return true;
-}*/
+}
 
-/*bool DesignExtractor::isConst(string var){
+bool DesignExtractor::isConst(string var){
 	return (isdigit(var[0]));
 }*/
 

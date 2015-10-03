@@ -71,6 +71,7 @@ private:
 	int lineNumber;
 	int stmtLstNumber;
 	int procedureNumber;
+	vector<bool> completedProc;
 	vector<TNode*> ASTCurParent;
 
 	void initialize();			//initialize tables
@@ -84,8 +85,10 @@ private:
 	void processCallAST(string value, int lineNumber);
 
 	void processCallTable(AST* ast);
-	void processModTable();			//process var table also
-	void processUseTable();			//process var and const tables also
+	void processModTable();
+	void updateModTable(string caller, string callee);
+	void processUseTable();
+	void updateUseTable(string caller, string callee);
 	void processProcTable();
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);

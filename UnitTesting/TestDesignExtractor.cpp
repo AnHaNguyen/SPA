@@ -10,16 +10,6 @@ namespace UnitTesting
 	TEST_CLASS(DesignExtractorTest)
 	{
 	public:
-		vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
-			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;", 
-			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
-			"procedureThird{", "z=5;", "v=z;}" };
-		string x = "x";
-		string y = "y";
-		string z = "z";
-		string i = "i";
-		string v = "v";
-		DesignExtractor ext = DesignExtractor(code);
 
 		TEST_METHOD(TestExtCallTable) 
 		{
@@ -43,17 +33,58 @@ namespace UnitTesting
 			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
 		}
 
-		/*TEST_METHOD(TestExtModTable)
+		TEST_METHOD(TestExtModTable)
 		{
-			
+			vector <string> code = { "procedureFirst{", "x=2;}",
+				"procedureSecond{", "x=0;", "whilei{" ,"y=x+2;", "x=3;", "callFirst;}" ,"x=y+z;}",
+				"procedureThird{", "z=5;", "callSecond;", "callFourth;}",
+				"procedureFourth{", "e=e+1;", "f=1;", "callFifth;}",
+				"procedureFifth{", "t=t+1+t+3;", "q=i+e;", "w=1;}",
+				"procedureSixth{", "ifxthen{", "x=3;}", "else{", "asdasdy=4;}}" };
+			DesignExtractor ext = DesignExtractor(code);
 			ModifyTable* modTable = ext.getModTable();
-			Assert::AreEqual(modTable->size(),11);
-			Assert::AreEqual(modTable->getTable().at(0).modifiedVar, x);
-			Assert::AreEqual(modTable->getTable().at(1).modifiedVar, z);
-			Assert::AreEqual(modTable->getTable().at(2).modifiedVar, x);
-			Assert::AreEqual(modTable->getTable().at(3).modifier, (string) "4");
+			
+			Assert::AreEqual(modTable->getModified("1").at(0), (string) "x");
+			Assert::AreEqual(modTable->getModified("First").at(0), (string) "x");
+
+			Assert::AreEqual(modTable->getModified("2").at(0), (string) "x");
+			vector<string> modifierOfY = modTable->getModifier("y");
+
+			Assert::AreEqual(modTable->isModified("Second", "y"), true);
+			Assert::AreEqual(modTable->isModified("4", "y"), true);
+			Assert::AreEqual(modTable->isModified("3", "y"), true);
+
+			vector<string> modifierOfX = modTable->getModifier("x");
+			Assert::AreEqual(modifierOfX.at(0), (string) "1");
+			Assert::AreEqual(modifierOfX.at(1), (string) "First");
+			Assert::AreEqual(modifierOfX.at(2), (string) "2");
+			Assert::AreEqual(modifierOfX.at(3), (string) "Second");
+			Assert::AreEqual(modifierOfX.at(4), (string) "3");
+			Assert::AreEqual(modifierOfX.at(5), (string) "5");
+			Assert::AreEqual(modifierOfX.at(6), (string) "7");
+
+			Assert::AreEqual(modTable->isModified("Third", "x"), true);
+			Assert::AreEqual(modTable->isModified("Third", "y"), true);
+			Assert::AreEqual(modTable->isModified("Third", "z"), true);
+
+			Assert::AreEqual(modTable->isModified("Fourth", "e"), true);
+			Assert::AreEqual(modTable->isModified("Fourth", "f"), true);
+
+			// Test for call function
+			Assert::AreEqual(modTable->isModified("Third", "e"), true);
+			Assert::AreEqual(modTable->isModified("Third", "f"), true);
+			Assert::AreEqual(modTable->isModified("Third", "t"), true);
+			Assert::AreEqual(modTable->isModified("Third", "q"), true);
+			Assert::AreEqual(modTable->isModified("Third", "w"), true);
+
+			// Test for if-then-else
+			Assert::AreEqual(modTable->isModified("Sixth", "x"), true);
+			Assert::AreEqual(modTable->isModified("Sixth", "asdasdy"), true);
+			Assert::AreEqual(modTable->isModified("18", "x"), true);
+			Assert::AreEqual(modTable->isModified("17", "x"), true);
 		}
 
+		/*
 		TEST_METHOD(TestExtUseTable)
 		{
 			UseTable* useTable = ext.getUseTable();
@@ -72,6 +103,11 @@ namespace UnitTesting
 
 		TEST_METHOD(TestExtProcTable)
 		{
+			vector <string> code = { "procedureFirst{", "x=2;}",
+				"procedureSecond{", "y=2;}",
+				"procedureThird{", "z=2;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
 			ProcTable* procTable = ext.getProcTable();
 			Assert::AreEqual(procTable->size(), 3);
 			Assert::AreEqual(procTable->indexOf("First"), 0);
@@ -79,18 +115,30 @@ namespace UnitTesting
 			Assert::AreEqual(procTable->indexOf("Third"), 2);
 		}
 
-		/*TEST_METHOD(TestExtVarTable) {
+		TEST_METHOD(TestExtVarTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
 			VarTable* varTable = ext.getVarTable();
 			Assert::AreEqual(varTable->size(), 5);
-			Assert::AreEqual(varTable->indexOf(x), 0);
-			Assert::AreEqual(varTable->indexOf(y), 3);
-			Assert::AreEqual(varTable->indexOf(z), 1);
-			Assert::AreEqual(varTable->indexOf(v), 4);
-			Assert::AreEqual(varTable->indexOf(i), 2);
+			Assert::AreEqual(varTable->indexOf("x"), 0);
+			Assert::AreEqual(varTable->indexOf("y"), 3);
+			Assert::AreEqual(varTable->indexOf("z"), 1);
+			Assert::AreEqual(varTable->indexOf("v"), 4);
+			Assert::AreEqual(varTable->indexOf("i"), 2);
 			Assert::AreEqual(varTable->indexOf("t"), -1);
 		}
 
 		TEST_METHOD(TestExtConstTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
 			ConstTable* constTable = ext.getConstTable();
 			Assert::AreEqual(constTable->size(), 8);
 			Assert::AreEqual(constTable->getConst("1").at(0), (string) "2");
@@ -99,10 +147,9 @@ namespace UnitTesting
 			Assert::AreEqual(constTable->getConst("9").at(0), (string) "2");
 			Assert::AreEqual(constTable->getConst("11").at(0), (string) "5");
 			Assert::AreEqual(constTable->getConst("13").size(), (unsigned) 0);
-		}*/
+		}
 
 		TEST_METHOD(TestExtBuildAST) {
-			
 			vector <string> code1 = { "procedureFirst{", "x=2;","ifxthen{", "z=3+z;}",
 				"else{", "z=1;}}",
 				"procedureSecond{", "i=5;", "callThird" , "whilei{" ,"x=x+2+y;}" ,"z=z+2+i;}",
@@ -239,6 +286,12 @@ namespace UnitTesting
 		}
 
 		TEST_METHOD(TestExtParentTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
 			ParentTable* parentTable = ext.getParentTable();
 
 			vector<string> childrenOfWhile = parentTable->getChild("5");
@@ -248,6 +301,12 @@ namespace UnitTesting
 		}
 
 		TEST_METHOD(TestExtFollowTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
 			FollowTable* followTable = ext.getFollowTable();
 
 			Assert::AreEqual(followTable->size(), 8);
