@@ -14,6 +14,18 @@ namespace TestPreprocessor
 	{
 	public:
 
+		TEST_METHOD(prog_line)
+		{
+			QueryPreprocessor pro;
+			string declare = "assign a1, a2; stmt s1; prog_line n; variable v;";
+			string input = "Select n pattern a1(_,\"x\") such that Uses(n,v)";
+			QueryTree* tree = pro.startProcess(declare, input);
+
+			Assert::AreEqual(true, tree->getValidity());
+			Assert::AreEqual((string)"n", tree->getResult()->getResult());
+			return;
+		}
+
 		TEST_METHOD(no_such_no_pattern)
 		{
 			QueryPreprocessor pro0;

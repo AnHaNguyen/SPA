@@ -18,40 +18,47 @@ public:
 	~QueryHandler();
 	vector<string> queryRec(QueryTree* query);
 
-	vector<pair<int, string>>  getConstTable();
+	void getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable);
+
+	bool getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable);
+
+	void getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable);
+
+	void getFollowTable(vector<pair<string, string>> &folTable);
+
+	vector<pair<string, vector<string>>>  getConstTable();
 
 
-	vector<int> getAssignTable();
+	vector<string> getAssignTable();
 
 	bool QueryHandler::containSign(string str);
 
-	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, int>> vec2);
+	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
 	int QueryHandler::getPos(vector<int> intVec);
 
-	vector<pair<int, string>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
-	vector<pair<int, int>> QueryHandler::toConvention(vector<FollowEntry_t> table);
-	vector<int> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x);
-	vector<int> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
+	vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
+	vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table);
+	vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x);
+	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x);
 
-	void atoPair(std::pair<std::string, bool> &firstAttx, std::string &firstAtt);
+	void atoPair(pair<string, bool> &firstAttx, string &firstAtt);
 
-	void handleUses(std::string &firstAtt, std::string &secondAtt, std::vector<int> &useVec, std::vector<std::string> &uvarVec);
+	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec);
 
-	void handleParent(std::string &firstAtt, std::string &secondAtt, std::vector<int> &parVec);
+	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
 
-	void handleModifies(string &firstAtt, string &secondAtt, vector<int> &modVec, vector<string> &varVec);
+	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &varVec);
 
-	int handleFollows(string &firstAtt, string &secondAtt);
+	string handleFollows(string &firstAtt, string &secondAtt);
 
 	vector< vector<string> > symTable;
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 	bool isInt(string &secondAtt);
 	string QueryHandler::getSymMean(string sym);
-	vector<int> QueryHandler::intersection(vector<int> vec1, vector<int> vec2);
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2);
-	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<int, string>> vec2);
-	vector<int> QueryHandler::intersection(vector<int> vec1, vector<pair<int, string>> vec2);
-	vector<pair<int, string>> QueryHandler::intersection(vector<pair<int, string>> vec1, vector<pair<int, string>> vec2);
+	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
+	vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string> vec1, vector<pair<string, vector<string>>> vec2);
+	vector <string> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check);
 };
 #endif
