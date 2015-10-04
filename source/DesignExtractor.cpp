@@ -274,11 +274,12 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ASTCurParent.pop_back();
 }
 
-void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, string rightSide, int lineNumber){
+void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
+											string rightSideText, int lineNumber){
 	vector<int> plusList;
 
 	// Find the position of each plus sign
-	string tempStr = rightSide;
+	string tempStr = rightSideText;
 	while (true) {
 		int posOfPlus = tempStr.find(PLUS);
 
@@ -294,7 +295,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 	}
 
 	// Create subtree of assignment
-	string leftSubTree = rightSide.substr(0, plusList.at(0));
+	string leftSubTree = rightSideText.substr(0, plusList.at(0));
 	string typeOfLeft = exprType(leftSubTree);
 
 	// add const & var into the corresponding table
@@ -306,15 +307,16 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 	}
 
 	TNode* leftSubTreeNode = new TNode(leftSubTree, typeOfLeft, lineNumber);
-	subAST->addToTree(leftSubTreeNode);
+	curProcSubAST->addToTree(leftSubTreeNode);
 
 	for(unsigned i = 0; i < plusList.size() - 1; i++){
 		int prevPlus = plusList.at(i);
 		int nextPlus = plusList.at(i + 1);
 
-		string rightSubTree = rightSide.substr(prevPlus + 1, nextPlus - prevPlus -1);	
+		string rightSubTree = rightSideText.substr(prevPlus + 1, nextPlus - prevPlus -1);	
 		string typeOfRight = exprType(rightSubTree);
 
+		// add var & const to corresponding table when creating ast
 		if (typeOfRight == VARIABLE) {
 			varTable->addVar(rightSubTree);
 		}
@@ -325,7 +327,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
 		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
-		subAST->addToTree(rightSubTreeNode);
+		curProcSubAST->addToTree(rightSubTreeNode);
 		
 		plusNode->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(plusNode);
@@ -333,7 +335,7 @@ void DesignExtractor::processRightSideAssign(AST* subAST, TNode* curParent, stri
 		rightSubTreeNode->setParent(plusNode);
 		
 		leftSubTreeNode = plusNode;
-		subAST->addToTree(leftSubTreeNode);
+		curProcSubAST->addToTree(leftSubTreeNode);
 	}
 
 	// Stick subtree to main tree

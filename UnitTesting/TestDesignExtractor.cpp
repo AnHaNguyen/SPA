@@ -108,6 +108,13 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "y"), true);
 			Assert::AreEqual(useTable->isUsed("Third", "z"), true);
 
+			// Test for call
+			Assert::AreEqual(useTable->isUsed("11", "i"), true);
+			Assert::AreEqual(useTable->isUsed("11", "x"), true);
+			Assert::AreEqual(useTable->isUsed("11", "o"), true);
+			Assert::AreEqual(useTable->isUsed("12", "w"), true);
+			Assert::AreEqual(useTable->isUsed("13", "r"), true);
+
 			// Procedure First
 			Assert::AreEqual(useTable->isUsed("Third", "t"), true);
 			Assert::AreEqual(useTable->isUsed("Third", "u"), true);
