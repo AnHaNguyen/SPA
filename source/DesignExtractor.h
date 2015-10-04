@@ -54,6 +54,9 @@ const string MINUS_TEXT = "minus";
 const string TIMES = "*";
 const string TIMES_TEXT = "times";
 
+const string USE_VAR = "Use";
+const string MODIFY_VAR = "Modify";
+
 class DesignExtractor{
 private:
 	vector<string> input;
@@ -71,7 +74,8 @@ private:
 	int lineNumber;
 	int stmtLstNumber;
 	int procedureNumber;
-	vector<bool> completedProc;
+	// all var in right side of assignment
+	vector<string> useVarList;
 	vector<TNode*> ASTCurParent;
 
 	void initialize();			//initialize tables
@@ -85,10 +89,14 @@ private:
 	void processCallAST(string value, int lineNumber);
 
 	void processCallTable(AST* ast);
-	void processModTable();
-	void updateModTable(string caller, string callee);
-	void processUseTable();
-	void updateUseTable(string caller, string callee);
+	void processModUseTable();
+	// mod/usetable with call
+	void processModUseTableWCall();
+	void updateModUseTableWCall(string caller, string callee);
+	// for usetable
+	void processRightBranchAST(TNode* rightBranch, string lineNumStr);
+	void addVarToContainer(string container, vector<string> varList, string type);
+
 	void processProcTable();
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);

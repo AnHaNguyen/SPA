@@ -33,73 +33,91 @@ namespace UnitTesting
 			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
 		}
 
-		TEST_METHOD(TestExtModTable)
+		TEST_METHOD(TestExtModUseTable)
 		{
-			vector <string> code = { "procedureFirst{", "x=2;}",
-				"procedureSecond{", "x=0;", "whilei{" ,"y=x+2;", "x=3;", "callFirst;}" ,"x=y+z;}",
-				"procedureThird{", "z=5;", "callSecond;", "callFourth;}",
-				"procedureFourth{", "e=e+1;", "f=1;", "callFifth;}",
-				"procedureFifth{", "t=t+1+t+3;", "q=i+e;", "w=1;}",
-				"procedureSixth{", "ifxthen{", "x=3;}", "else{", "asdasdy=4;}}" };
+			vector <string> code = { "procedureFirst{","iftthen{", "k=2+u;}", "else{", "c=2+o;}}",
+				"procedureSecond{", "x=0;", "whilei{" ,"y=x+2;", "x=3+m;", "callFirst;}" ,"x=y+z;}",
+				"procedureThird{", "z=5;", "callSecond;", "callFourth;", "callFifth;}",
+				"procedureFourth{", "e=e+1;", "f=1+w;}",
+				"procedureFifth{", "r=r+5;}" };
+
 			DesignExtractor ext = DesignExtractor(code);
 			ModifyTable* modTable = ext.getModTable();
-			
-			Assert::AreEqual(modTable->getModified("1").at(0), (string) "x");
-			Assert::AreEqual(modTable->getModified("First").at(0), (string) "x");
-
-			Assert::AreEqual(modTable->getModified("2").at(0), (string) "x");
-			vector<string> modifierOfY = modTable->getModifier("y");
-
-			Assert::AreEqual(modTable->isModified("Second", "y"), true);
-			Assert::AreEqual(modTable->isModified("4", "y"), true);
-			Assert::AreEqual(modTable->isModified("3", "y"), true);
-
-			vector<string> modifierOfX = modTable->getModifier("x");
-			Assert::AreEqual(modifierOfX.at(0), (string) "1");
-			Assert::AreEqual(modifierOfX.at(1), (string) "First");
-			Assert::AreEqual(modifierOfX.at(2), (string) "2");
-			Assert::AreEqual(modifierOfX.at(3), (string) "Second");
-			Assert::AreEqual(modifierOfX.at(4), (string) "3");
-			Assert::AreEqual(modifierOfX.at(5), (string) "5");
-			Assert::AreEqual(modifierOfX.at(6), (string) "7");
-
-			Assert::AreEqual(modTable->isModified("Third", "x"), true);
-			Assert::AreEqual(modTable->isModified("Third", "y"), true);
-			Assert::AreEqual(modTable->isModified("Third", "z"), true);
-
-			Assert::AreEqual(modTable->isModified("Fourth", "e"), true);
-			Assert::AreEqual(modTable->isModified("Fourth", "f"), true);
-
-			// Test for call function
-			Assert::AreEqual(modTable->isModified("Third", "e"), true);
-			Assert::AreEqual(modTable->isModified("Third", "f"), true);
-			Assert::AreEqual(modTable->isModified("Third", "t"), true);
-			Assert::AreEqual(modTable->isModified("Third", "q"), true);
-			Assert::AreEqual(modTable->isModified("Third", "w"), true);
-
-			// Test for if-then-else
-			Assert::AreEqual(modTable->isModified("Sixth", "x"), true);
-			Assert::AreEqual(modTable->isModified("Sixth", "asdasdy"), true);
-			Assert::AreEqual(modTable->isModified("18", "x"), true);
-			Assert::AreEqual(modTable->isModified("17", "x"), true);
-		}
-
-		/*
-		TEST_METHOD(TestExtUseTable)
-		{
 			UseTable* useTable = ext.getUseTable();
-			Assert::AreEqual(useTable->size(), 7);
-			Assert::AreEqual(useTable->getTable().at(0).usedVar.at(0), i);
-			Assert::AreEqual(useTable->getTable().at(1).usedVar.at(0), x);
-			Assert::AreEqual(useTable->getTable().at(1).usedVar.at(1), y);
-			Assert::AreEqual(useTable->getTable().at(1).usedVar.size(), (unsigned) 2);
-			Assert::AreEqual(useTable->getTable().at(2).usedVar.at(0), i);
-			Assert::AreEqual(useTable->getTable().at(3).usedVar.at(0), z);
-			Assert::AreEqual(useTable->getTable().at(3).usedVar.at(1), x);
-			Assert::AreEqual(useTable->getTable().at(3).usedVar.at(2), i);
-			Assert::AreEqual(useTable->getTable().at(3).usedVar.size(), (unsigned)3);
-			Assert::AreEqual(useTable->getTable().at(6).userLine, (string) "12");
-		}*/
+			
+			Assert::AreEqual(modTable->isModified("First", "k"), true);
+			Assert::AreEqual(modTable->isModified("First", "c"), true);
+			Assert::AreEqual(modTable->isModified("First", "t"), false);
+
+			// Test for if-the-else stmt
+			Assert::AreEqual(modTable->isModified("1", "t"), false);
+			Assert::AreEqual(modTable->isModified("1", "k"), true);
+			Assert::AreEqual(modTable->isModified("1", "c"), true);
+			Assert::AreEqual(modTable->isModified("2", "k"), true);
+			Assert::AreEqual(modTable->isModified("3", "c"), true);
+
+			Assert::AreEqual(modTable->isModified("Second", "k"), true);
+			Assert::AreEqual(modTable->isModified("Second", "c"), true);
+			Assert::AreEqual(modTable->isModified("Second", "i"), false);
+			Assert::AreEqual(modTable->isModified("Second", "x"), true);
+			Assert::AreEqual(modTable->isModified("Second", "y"), true);
+
+			// test for while stmt
+			Assert::AreEqual(modTable->isModified("5", "i"), false);
+			Assert::AreEqual(modTable->isModified("5", "y"), true);
+			Assert::AreEqual(modTable->isModified("5", "x"), true);
+			// call in procedure Second
+			Assert::AreEqual(modTable->isModified("8", "k"), true);
+			Assert::AreEqual(modTable->isModified("8", "c"), true);
+			// container contains call in procedure Second
+			Assert::AreEqual(modTable->isModified("5", "k"), true);
+			Assert::AreEqual(modTable->isModified("5", "c"), true);
+
+
+			// Test for useTable
+			Assert::AreEqual(useTable->isUsed("1", "t"), true);
+			Assert::AreEqual(useTable->isUsed("First", "u"), true);
+			Assert::AreEqual(useTable->isUsed("First", "o"), true);
+
+			Assert::AreEqual(useTable->isUsed("Second", "i"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "x"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "m"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "y"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "z"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "t"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "u"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "o"), true);
+
+			// Test for while loop with call 
+			Assert::AreEqual(useTable->isUsed("5", "t"), true);
+			Assert::AreEqual(useTable->isUsed("5", "u"), true);
+			Assert::AreEqual(useTable->isUsed("5", "o"), true);
+
+			Assert::AreEqual(useTable->isUsed("8", "t"), true);
+			Assert::AreEqual(useTable->isUsed("8", "u"), true);
+			Assert::AreEqual(useTable->isUsed("8", "o"), true);
+
+			Assert::AreEqual(useTable->isUsed("Second", "t"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "u"), true);
+			Assert::AreEqual(useTable->isUsed("Second", "o"), true);
+
+			// Test for procedure Third
+			Assert::AreEqual(useTable->isUsed("Third", "i"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "x"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "m"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "y"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "z"), true);
+
+			// Procedure First
+			Assert::AreEqual(useTable->isUsed("Third", "t"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "u"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "o"), true);
+
+			
+			Assert::AreEqual(useTable->isUsed("Third", "e"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "w"), true);
+			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
+		}
 
 		TEST_METHOD(TestExtProcTable)
 		{

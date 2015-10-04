@@ -22,15 +22,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	}
 
 	processProcTable();
-	int procNumber = procTable->size();
-	for (int i = 0; i < procNumber; i++) {
-		completedProc.push_back(false);
-	}
-
-	processModTable();
-
-	/*processUseTable();*/
-	
+	processModUseTable();	
 
 	storeToPKB();
 }
@@ -48,7 +40,6 @@ void DesignExtractor::initialize() {
 	constTable = new ConstTable();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
-	completedProc = vector<bool>();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -417,7 +408,7 @@ void DesignExtractor::processParentTable(AST* subAST){
 }
 
 //------------------------Create Modify Table------------------------//
-void DesignExtractor::processModTable() {
+void DesignExtractor::processModUseTable() {
 	// use AST for assignment
 	for (unsigned i = 0; i < ast.size(); i++) {
 		AST* curAST = ast.at(i);
@@ -435,6 +426,11 @@ void DesignExtractor::processModTable() {
 				string modVar = leftChildVar->getValue();
 				modTable->addToTable(lineNumStr, modVar);
 
+				// second child of the assignment is the right side, including right subtree
+				useVarList = vector<string>();
+				TNode* rightChild = curNode->getChildList().at(1);
+				processRightBranchAST(rightChild, lineNumStr);
+
 				// containers & procedure also modifies modVar
 				// get an assign node, then go up all the way until the root
 				while (curNode->getType() != PROCEDURE) {
@@ -447,10 +443,20 @@ void DesignExtractor::processModTable() {
 						int containerLineNum = curPar->getLine();
 						string containerLineNumStr = convertNumToStr(containerLineNum);
 						modTable->addToTable(containerLineNumStr, modVar);
+
+						// control var for if-then-else & while container
+						string containerLeftChild = curPar->getChildList().at(0)->getValue();
+						useTable->addToTable(containerLineNumStr, containerLeftChild);
+						// add control Var to useVarList
+						useVarList.push_back(containerLeftChild);
+
+						addVarToContainer(containerLineNumStr, useVarList, USE_VAR);
 					}
 					else if (curParType == PROCEDURE) {
 						string procName = curPar->getValue();
 						modTable->addToTable(procName, modVar);
+
+						addVarToContainer(procName, useVarList, USE_VAR);
 					}
 
 					curNode = curPar;
@@ -459,57 +465,111 @@ void DesignExtractor::processModTable() {
 		}
 	}
 
-	// update ModTable with Call
-	// for every procedure
-	for (int i = 0; i < procTable->size(); i++) {
-		string caller = procTable->getProc(i);
-		if (!completedProc.at(i)) {
-			vector<string> callees = callTable->getCallees(caller);
+	processModUseTableWCall();
+}
 
-			if (callees.size() > 0) {
-				for (int j = 0; j < callees.size(); j++) {
-					string callee = callees.at(j);
-					updateModTable(caller, callee);
+void DesignExtractor::processModUseTableWCall() {
+	// process mod/use table for call type
+	for (unsigned i = 0; i < ast.size(); i++) {
+		AST* curAST = ast.at(i);
+
+		for (unsigned j = 0; j < curAST->getTree().size(); j++) {
+			TNode* curNode = curAST->getTree().at(j);
+			string curNodeType = curNode->getType();
+
+			if (curNodeType == CALL) {
+				string callee = curNode->getValue();
+				int callStmt = curNode->getLine();
+				string callStmtStr = convertNumToStr(callStmt);
+
+				updateModUseTableWCall(callStmtStr, callee);
+
+				// go up to procedure & add all mod/use var to other container
+				while (curNode->getType() != PROCEDURE) {
+					TNode* curPar = curNode->getParent();
+					string curParType = curPar->getType();
+
+					vector<string> modVarListCur = modTable->getModified(callStmtStr);
+					vector<string> useVarListCur = useTable->getUsed(callStmtStr);
+
+					if (curParType == WHILE || curParType == IF) {
+						int containerLineNum = curPar->getLine();
+						string containerLineNumStr = convertNumToStr(containerLineNum);
+
+						addVarToContainer(containerLineNumStr, modVarListCur, MODIFY_VAR);
+						addVarToContainer(containerLineNumStr, useVarListCur, USE_VAR);
+					}
+					else if (curParType == PROCEDURE) {
+						string procName = curPar->getValue();
+
+						addVarToContainer(procName, modVarListCur, MODIFY_VAR);
+						addVarToContainer(procName, useVarListCur, USE_VAR);
+					}
+
+					curNode = curPar;
 				}
 			}
 		}
-
-		completedProc.at(i) = true;
 	}
 }
-	/*
-	* Update modTable for the Call only
-	*/
-void DesignExtractor::updateModTable(string caller, string callee) {
+
+//-----------------Smaller module for ModTable----------------//
+// add all mod/use var from a proc (callee) to its caller
+// but doesnt guarantee the proc's mod/use table finishing because of container + stmt in each proc
+void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
 	vector<string> calleeOfCalleeList = callTable->getCallees(callee);
 	int idxCallee = procTable->indexOf(callee);
 
-	// if callee's modTable is completed then add(caller, modVarOfCallee)
-	if (calleeOfCalleeList.size() > 0 || !completedProc.at(idxCallee)) {
+	// if callee's mod/useTable is completed then add(caller, varOfCallee)
+	if (calleeOfCalleeList.size() > 0) {
 		for (int i = 0; i < calleeOfCalleeList.size(); i++) {
-			updateModTable(callee, calleeOfCalleeList.at(i));
+			updateModUseTableWCall(callee, calleeOfCalleeList.at(i));
 		}
 	}
 
 	// base case when callee doesnt call any other procedure
-	// add all modVar of callee to caller's modTable
+	// add all modVar, useVar of callee to caller's modTable, useTable
 	vector<string> modVarList = modTable->getModified(callee);
+	vector<string> useVarList2 = useTable->getUsed(callee);
+
 	for (int i = 0; i < modVarList.size(); i++) {
 		modTable->addToTable(caller, modVarList.at(i));
 	}
 
-	// mark the proc as complete after add all modVar into modTable
-	// or this given procedure doesnt call any other procedure
-	int indexProc = procTable->indexOf(callee);
-	completedProc.at(indexProc) = true;
+	for (int i = 0; i < useVarList2.size(); i++) {
+		useTable->addToTable(caller, useVarList2.at(i));
+	}
 }
 
-void DesignExtractor::processUseTable() {
-	for (unsigned i = 0; i < ast.size(); i++) {
-		AST* curAST = ast.at(i);
-		for (unsigned j = 0; j < curAST->getTree().size(); j++) {
-			TNode* curNode = curAST->getTree().at(j);
-			string curNodeType = curNode->getType();
+//--------------Process Right Branch of the Assignment--------------//
+void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr) {
+	string rightNodeType = rightNode->getType();
+
+	if (rightNodeType == VARIABLE) {
+		string rightNodeValue = rightNode->getValue();
+		useVarList.push_back(rightNodeValue);
+		useTable->addToTable(lineNumStr, rightNodeValue);
+	}
+
+	vector<TNode*> childList = rightNode->getChildList();
+	if (childList.size() > 0) {
+		for (int i = 0; i < childList.size(); i++) {
+			TNode* processedNode = childList.at(i);
+			processRightBranchAST(processedNode, lineNumStr);
+		}
+	}
+}
+
+//---------------Smaller modules for Use Table----------------//
+void DesignExtractor::addVarToContainer(string container, vector<string> varList, string type) {
+	for (int i = 0; i < varList.size(); i++) {
+		string iVar = varList.at(i);
+
+		if (type == USE_VAR) {
+			useTable->addToTable(container, iVar);
+		}
+		else if (type == MODIFY_VAR) {
+			modTable->addToTable(container, iVar);
 		}
 	}
 }
