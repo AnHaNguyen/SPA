@@ -17,15 +17,15 @@ bool ProgLine::addToList(int lineNo, string type, string procedure) {
 }
 
 string ProgLine::getType(int lineNo) {
-	if (progLine.size() < lineNo) {
-		return NULL;
+	if (progLine.size() < lineNo || lineNo <= 0) {
+		return "";
 	}
 	else return progLine.at(lineNo - 1).type;
 }
 
 string ProgLine::getProcedure(int lineNo) {
-	if (progLine.size() < lineNo) {
-		return NULL;
+	if (progLine.size() < lineNo || lineNo <= 0) {
+		return "";
 	}
 	else return progLine.at(lineNo - 1).procedure;
 }

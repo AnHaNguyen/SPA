@@ -8,6 +8,7 @@
 #include "VarTable.h"
 #include "ProcTable.h"
 #include "ConstTable.h"
+#include "ProgLine.h"
 
 FollowTable* PKB::followTable;
 UseTable* PKB::useTable;
@@ -20,6 +21,7 @@ ConstTable* PKB::constTable;
 CallTable* PKB::callTable;
 NextTable* PKB::nextTable;
 vector<CFG* > PKB::cfgList;
+ProgLine* PKB::progLine;
 
 PKB::PKB() {
 }
@@ -112,13 +114,71 @@ void PKB::setCFGList(vector<CFG* > cfgList) {
 	PKB::cfgList = cfgList;
 }
 
-vector<int> PKB::checkAssign(string pattern, bool contains_) {
-	vector<int> returnList;
-	//DesignExtractor ext = DesignExtractor();
-	//AST* subtree = ext.buildSubtree(pattern);
-	//for (unsigned i = 0; i < astList.size(); i++) {
-	//	vector<int> temp = astList.at(i)->findSubtree(subtree, contains_);
-	//	returnList.insert(returnList.end(), temp.begin(), temp.end());
-	//}
+ProgLine* PKB::getProgLine() {
+	return progLine;
+}
+
+void PKB::setProgLine(ProgLine* progLine) {
+	PKB::progLine = progLine;
+}
+
+vector<string> PKB::checkAssign(string pattern, bool contains_) {
+	vector<string> returnList;
+	DesignExtractor ext = DesignExtractor();
+	AST* subtree = ext.buildSubtree(pattern);
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<string> temp = astList.at(i)->findSubtree(subtree, contains_);
+		returnList.insert(returnList.end(), temp.begin(), temp.end());
+	}
+	return returnList;
+}
+
+vector<string> PKB::patternIf(string controlVar) {
+	vector<string> returnList;
+	if (controlVar == "_") {
+		vector<int> result = progLine->getLinesOfType("if");
+		for (unsigned i = 0; i < result.size(); i++) {
+			returnList.push_back(to_string(result.at(i)));
+		}
+	}
+	else {
+		vector<TNode*> ifNodes;
+		for (unsigned i = 0; i < astList.size(); i++) {
+			vector<TNode*>ifs = astList.at(i)->getType("if");
+			for (unsigned j = 0; j < ifs.size(); j++) {
+				ifNodes.push_back(ifs.at(j));
+			}
+		}
+		for (unsigned i = 0; i < ifNodes.size(); i++) {
+			if (ifNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
+				returnList.push_back(to_string(ifNodes.at(i)->getLine()));
+			}
+		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::patternWhile(string controlVar) {
+	vector<string> returnList;
+	if (controlVar == "_") {
+		vector<int> result = progLine->getLinesOfType("while");
+		for (unsigned i = 0; i < result.size(); i++) {
+			returnList.push_back(to_string(result.at(i)));
+		}
+	}
+	else {
+		vector<TNode*> whileNodes;
+		for (unsigned i = 0; i < astList.size(); i++) {
+			vector<TNode*> whiles = astList.at(i)->getType("while");
+			for (unsigned j = 0; j < whiles.size(); j++) {
+				whileNodes.push_back(whiles.at(j));
+			}
+		}
+		for (unsigned i = 0; i < whileNodes.size(); i++) {
+			if (whileNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
+				returnList.push_back(to_string(whileNodes.at(i)->getLine()));
+			}
+		}
+	}
 	return returnList;
 }

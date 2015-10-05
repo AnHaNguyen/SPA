@@ -14,18 +14,33 @@ namespace UnitTesting
 			"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 			"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
 			"procedureThird{", "z=5;", "v=z;}" };
-		DesignExtractor ext = DesignExtractor(code);
 
 		TEST_METHOD(TestCheckAssign)
 		{
 			// TODO: Your test code here
-			vector<int> result = PKB::checkAssign("2", false);
+			DesignExtractor ext = DesignExtractor(code);
+			vector<string> result = PKB::checkAssign("2", false);
 			Assert::AreEqual(result.size(), (unsigned)	1);
-			Assert::AreEqual(result.at(0), 1);
+			Assert::AreEqual(result.at(0),(string) "1");
 			result = PKB::checkAssign("2", true);
 			Assert::AreEqual(result.size(), (unsigned)3);
-			Assert::AreEqual(result.at(1), 6);
-			Assert::AreEqual(result.at(2), 9);
+			Assert::AreEqual(result.at(1), (string) "6");
+			Assert::AreEqual(result.at(2), (string) "9");
+		}
+		TEST_METHOD(TestCheckIf)
+		{
+			//vector<string> result = PKB::patternIf()
+		}
+		TEST_METHOD(TestCheckWhile) 
+		{
+			vector<string> result = PKB::patternWhile("_");
+			Assert::AreEqual(result.size(), (unsigned)1);
+			Assert::AreEqual(result.at(0), (string)"5");
+			result = PKB::patternWhile("x");
+			Assert::AreEqual(result.size(), (unsigned)0);
+			result = PKB::patternWhile("i");
+			Assert::AreEqual(result.size(), (unsigned)1);
+			Assert::AreEqual(result.at(0), (string)"5");
 		}
 	};
 }

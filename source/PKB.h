@@ -13,6 +13,7 @@
 #include "CallTable.h"
 #include "NextTable.h"
 #include "CFG.h"
+#include "ProgLine.h"
 
 class PKB {
 private: static FollowTable* followTable;
@@ -26,6 +27,7 @@ private: static FollowTable* followTable;
 		 static CallTable* callTable;
 		 static NextTable* nextTable;
 		 static vector<CFG*> cfgList;
+		 static ProgLine* progLine;
 
 public:
 		 PKB();
@@ -52,8 +54,12 @@ public:
 		 static void setNextTable(NextTable* nextTable);			//for Extractor
 		 static vector<CFG*> getCFGList();					//for Query
 		 static void setCFGList(vector<CFG*> cfgList);				//for Extractor
+		 static ProgLine* getProgLine();					//for Query
+		 static void setProgLine(ProgLine* progLine);				//for Extractor
 
-		 static vector<int> checkAssign(string pattern, bool contains_);	//to check pattern
+		 static vector<string> checkAssign(string pattern, bool contains_);	//to check pattern Assign
+		 static vector<string> patternIf(string controlVar);			//to check pattern If
+		 static vector<string> patternWhile(string controlVar);			//to check pattern While
 };
 
 #endif
