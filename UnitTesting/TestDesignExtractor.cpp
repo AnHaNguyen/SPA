@@ -357,5 +357,24 @@ namespace UnitTesting
 			Assert::AreNotEqual(followTable->getPrev("11"), (string) "10");
 			Assert::AreEqual(followTable->getNext("11"), (string) "12");
 		}
+
+		TEST_METHOD(TestProgLine) {
+			vector <string> code = { "procedureFirst{", "x=2;}",
+				"procedureSecond{", "ifxthen{", "i=5;}", "else{", "x=4;}" , "whilei{" ,"x=x+2+y;}" ,"z=z+x+i;}",
+				"procedureThird{", "z=5;}" };
+			DesignExtractor ext = DesignExtractor(code);
+			ProgLine* progLine = ext.getProgLine();
+
+			Assert::AreEqual(progLine->getType(1), ASSIGN);
+			Assert::AreEqual(progLine->getProcedure(1), (string) "First");
+
+			Assert::AreEqual(progLine->getType(2), IF);
+			Assert::AreEqual(progLine->getType(3), ASSIGN);
+			Assert::AreEqual(progLine->getType(4), ASSIGN);
+			Assert::AreEqual(progLine->getType(5), WHILE);
+			Assert::AreEqual(progLine->getProcedure(3), (string) "Second");
+
+			Assert::AreEqual(progLine->getProcedure(8), (string) "Third");
+		}
 	};
 }

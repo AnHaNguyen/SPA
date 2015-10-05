@@ -13,6 +13,7 @@
 #include "VarTable.h"
 #include "ProcTable.h"
 #include "ConstTable.h"
+#include "ProgLine.h"
 #include "PKB.h"
 
 using namespace std;
@@ -59,6 +60,8 @@ const string MODIFY_VAR = "Modify";
 
 class DesignExtractor{
 private:
+	string curProcName;
+	TNode* curNodeRightSide;
 	vector<string> input;
 	vector<AST*> ast;
 
@@ -70,6 +73,7 @@ private:
 	VarTable* varTable;
 	ProcTable* procTable;
 	ConstTable* constTable;
+	ProgLine* progLine;
 
 	int lineNumber;
 	int stmtLstNumber;
@@ -83,7 +87,12 @@ private:
 	void processAST(vector<string> input);
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
+	// Process assignment
 	void processAssign(string leftSide, string rightSide, int lineNumber);
+	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
+	AST* processFactor(string factor, TNode* signNode, int lineNumber, AST* curProcSubAST);
+	AST* processFactorWCloseBracket(string factor, int lineNumber, AST* curProcSubAST, TNode* stackNode);
+
 	void processIfThen(string controlVar, int lineNumber);
 	void processElse();
 	void processCallAST(string value, int lineNumber);
@@ -102,7 +111,7 @@ private:
 	void processParentTable(AST* ast);
 
 	bool isConst(string var);
-	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
+	
 
 	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
@@ -122,6 +131,7 @@ public:
 	VarTable* getVarTable();
 	ProcTable* getProcTable();
 	ConstTable* getConstTable();
+	ProgLine* getProgLine();
 	vector<AST*> getASTList();
 	AST* buildSubtree(string pattern);
 };

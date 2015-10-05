@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <sstream>
+#include <stack>
 #include "DesignExtractor.h"
 
 using namespace std;
@@ -22,7 +23,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	}
 
 	processProcTable();
-	processModUseTable();	
+	processModUseTable();
 
 	storeToPKB();
 }
@@ -38,6 +39,7 @@ void DesignExtractor::initialize() {
 	varTable = new VarTable();
 	procTable = new ProcTable();
 	constTable = new ConstTable();
+	progLine = new ProgLine();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
 
@@ -55,6 +57,7 @@ void DesignExtractor::storeToPKB() {
 	PKB::setConstTable(constTable);
 	PKB::setParentTable(parentTable);
 	PKB::setFollowTable(followTable);
+	//PKB::setProgLine(progLine);
 }
 
 //-------------------------AST-------------------------//
@@ -81,6 +84,8 @@ void DesignExtractor::processAST(vector<string> input){
 		else if (curLine.find(WHILE) != string::npos) {
 			string theRestOfLine = curLine.substr(WHILE_LEN);
 			lineNumber++;
+
+			progLine->addToList(lineNumber, WHILE, curProcName);
 			processWhile(theRestOfLine, lineNumber);
 		}
 		else if (curLine.find(EQUAL) != string::npos) {
@@ -91,13 +96,15 @@ void DesignExtractor::processAST(vector<string> input){
 			string rightSide = curLine.substr(posEqualSign + 1, posSemicolon - posEqualSign - 1);
 			lineNumber++;
 
+			progLine->addToList(lineNumber, ASSIGN, curProcName);
 			processAssign(leftSide, rightSide, lineNumber);
 		}
 		else if (curLine.find(IF) != string::npos && curLine.find(THEN) != string::npos){
 			size_t posThen = curLine.find(THEN);
 			string controlVar = curLine.substr(IF_LEN, posThen - IF_LEN);
-
 			lineNumber++;
+
+			progLine->addToList(lineNumber, IF, curProcName);
 			processIfThen(controlVar, lineNumber);
 		}
 		else if (curLine.find(ELSE) != string::npos) {
@@ -106,8 +113,9 @@ void DesignExtractor::processAST(vector<string> input){
 		else if (curLine.find(CALL) != string::npos) {
 			size_t posSemicolon = curLine.find(SEMICOLON);
 			string callValue = curLine.substr(CALL_LEN, posSemicolon - CALL_LEN);
-
 			lineNumber++;
+
+			progLine->addToList(lineNumber, CALL, curProcName);
 			processCallAST(callValue, lineNumber);
 		}
 		else {
@@ -147,11 +155,12 @@ void DesignExtractor::processAST(vector<string> input){
 void DesignExtractor::processProcedure(string theRestOfLine){
 	// remove bracket {
 	size_t posOfOpenBracket = theRestOfLine.find(OPEN_BRACKET);
-	string value = theRestOfLine.substr(0, posOfOpenBracket);
+	string procName = theRestOfLine.substr(0, posOfOpenBracket);
+	curProcName = procName;
 
 	// Put procedure into tree
 	// procedure + stmtLst: no line number
-	TNode* procNode = new TNode(value, PROCEDURE, 0);
+	TNode* procNode = new TNode(procName, PROCEDURE, 0);
 
 	stmtLstNumber++;
 	string stmtLstNumText = convertNumToStr(stmtLstNumber);
@@ -274,6 +283,7 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ASTCurParent.pop_back();
 }
 
+
 void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
 											string rightSideText, int lineNumber){
 	vector<int> plusList;
@@ -344,6 +354,120 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 		leftSubTreeNode->setParent(curParent);
 	}
 }
+
+/*void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
+											string rightSideText, int lineNumber) {
+	stack<TNode*> TNodeStack = stack<TNode*>();
+	int rightSideStrLen = rightSideText.length();
+	int prevToken = 0;
+	curNodeRightSide = new TNode();
+	
+	for (int i = 0; i < rightSideStrLen; i++) {
+		string curChar = rightSideText.substr(i, 1);
+
+		if(curChar == ROUND_OPEN_BRACKET && curNodeRightSide != new TNode()){
+			TNodeStack.push(curNodeRightSide);
+			curNodeRightSide = new TNode();
+			prevToken = i;
+		}
+		else if (curChar == ROUND_CLOSE_BRACKET) {
+			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			TNode* stackNode = TNodeStack.top();
+			TNodeStack.pop();
+
+			curProcSubAST = processFactorWCloseBracket(factor, lineNumber, curProcSubAST, stackNode);
+			prevToken = i;
+		}
+		else if (curChar == TIMES) {
+			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			TNode* timesSignNode = new TNode(NO_VALUE, TIMES_TEXT, lineNumber);
+
+			curProcSubAST = processFactor(factor, timesSignNode, lineNumber, curProcSubAST);
+			prevToken = i;
+		}
+		else if (curChar == PLUS) {
+			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			TNode* plusSignNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
+
+			curProcSubAST = processFactor(factor, plusSignNode, lineNumber, curProcSubAST);
+			prevToken = i;
+		}
+		else if (curChar == MINUS) {
+			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			TNode* minusSignNode = new TNode(NO_VALUE, MINUS_TEXT, lineNumber);
+
+			curProcSubAST = processFactor(factor, minusSignNode, lineNumber, curProcSubAST);
+			prevToken = i;
+		}
+	}
+}
+
+AST* DesignExtractor::processFactorWCloseBracket(string factor, int lineNumber, 
+												AST* curProcSubAST, TNode* stackNode) {
+	if (factor != "") {
+		string typeOfFactor = exprType(factor);
+
+		if (typeOfFactor == VARIABLE) {
+			varTable->addVar(factor);
+		}
+		else if (typeOfFactor == CONSTANT) {
+			constTable->addToTable(convertNumToStr(lineNumber), factor);
+		}
+
+		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
+		curProcSubAST->addToTree(factorNode);
+
+		factorNode->setParent(curNodeRightSide);
+		curNodeRightSide->setChild(factorNode);
+	}
+
+	curProcSubAST->addToTree(stackNode);
+	stackNode->setChild(curNodeRightSide);
+	curNodeRightSide->setParent(stackNode);
+
+	curNodeRightSide = stackNode;
+
+	return curProcSubAST;
+}
+
+AST* DesignExtractor::processFactor(string factor, TNode* signNode,
+									int lineNumber, AST* curProcSubAST) {
+	curProcSubAST->addToTree(signNode);
+
+	if (factor == "") {
+		curNodeRightSide->setParent(signNode);
+		signNode->setChild(curNodeRightSide);
+	}
+	else {
+		string typeOfFactor = exprType(factor);
+
+		if (typeOfFactor == VARIABLE) {
+			varTable->addVar(factor);
+		}
+		else if (typeOfFactor == CONSTANT) {
+			constTable->addToTable(convertNumToStr(lineNumber), factor);
+		}
+		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
+
+		curProcSubAST->addToTree(factorNode);
+
+		if (curNodeRightSide == new TNode()) {
+			signNode->setChild(factorNode);
+			factorNode->setParent(signNode);
+		}
+		else {
+			curNodeRightSide->setChild(factorNode);
+			factorNode->setParent(curNodeRightSide);
+
+			curNodeRightSide->setParent(signNode);
+			signNode->setChild(curNodeRightSide);
+		}
+	}
+
+	curNodeRightSide = signNode;
+
+	return curProcSubAST;
+}*/
 
 //---------------------Create Call Table------------------//
 void DesignExtractor::processCallTable(AST* ast) {
@@ -689,6 +813,10 @@ ConstTable* DesignExtractor::getConstTable() {
 
 ProcTable* DesignExtractor::getProcTable() {
 	return procTable;
+}
+
+ProgLine* DesignExtractor::getProgLine() {
+	return progLine;
 }
 
 vector<AST*> DesignExtractor::getASTList() {
