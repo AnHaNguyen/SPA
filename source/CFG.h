@@ -1,6 +1,7 @@
 #ifndef CFG_H
 #define CFG_H
 #include "GNode.h"
+#include "NextTable.h"
 
 using namespace std;
 class CFG {
@@ -17,5 +18,6 @@ public: CFG(string procedure);
 		void makeParent(GNode* child, GNode* parent);			//child already inside CFG
 		vector<GNode*> findParent(int lineNo);
 		vector<GNode*> findChild(int lineNo);
+		void buildNextTable(NextTable* nextTable);
 };
 #endif

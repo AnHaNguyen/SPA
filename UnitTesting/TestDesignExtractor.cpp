@@ -478,16 +478,16 @@ namespace UnitTesting
 			DesignExtractor ext = DesignExtractor(code);
 			ProgLine* progLine = ext.getProgLine();
 
-			Assert::AreEqual(progLine->getType(1), ASSIGN);
-			Assert::AreEqual(progLine->getProcedure(1), (string) "First");
+			Assert::AreEqual(progLine->getType((string)"1"), ASSIGN);
+			Assert::AreEqual(progLine->getProcedure((string)"1"), (string) "First");
 
-			Assert::AreEqual(progLine->getType(2), IF);
-			Assert::AreEqual(progLine->getType(3), ASSIGN);
-			Assert::AreEqual(progLine->getType(4), ASSIGN);
-			Assert::AreEqual(progLine->getType(5), WHILE);
-			Assert::AreEqual(progLine->getProcedure(3), (string) "Second");
+			Assert::AreEqual(progLine->getType((string)"2"), IF);
+			Assert::AreEqual(progLine->getType((string)"3"), ASSIGN);
+			Assert::AreEqual(progLine->getType((string)"4"), ASSIGN);
+			Assert::AreEqual(progLine->getType((string)"5"), WHILE);
+			Assert::AreEqual(progLine->getProcedure((string)"3"), (string) "Second");
 
-			Assert::AreEqual(progLine->getProcedure(8), (string) "Third");
+			Assert::AreEqual(progLine->getProcedure((string)"8"), (string) "Third");
 		}
 	};
 }

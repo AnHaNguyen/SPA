@@ -20,11 +20,12 @@ public:
 		ProgLine();
 		~ProgLine();
 		bool addToList(int lineNo, string type, string proc);		//add a stmt to List, return true if successful
-		string getType(int lineNo);					//get Type of a stmt
-		string getProcedure(int lineNo);			//get Procedure of a stmt
+		string getType(string lineNo);					//get Type of a stmt
+		string getProcedure(string lineNo);			//get Procedure of a stmt
 		int numOfLines();			//return number of lines of whole program
-		vector<int> getLinesOfProc(string procedure);		//get all stmt of a proc
-		vector<int> getLinesOfType(string type);	//get all stmt of a type
+		vector<string> getLinesOfProc(string procedure);		//get all stmt of a proc
+		vector<string> getLinesOfType(string type);	//get all stmt of a type
+		vector<stmt_t> getTable();
 };
 
 #endif
