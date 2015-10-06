@@ -74,3 +74,7 @@ bool NextTable::isNext(string prev, string next) {
 	}
 	return false;
 }
+
+vector<NextEntry_t> NextTable::getTable() {
+	return nextTable;
+}

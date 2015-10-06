@@ -80,3 +80,14 @@ vector<GNode*> CFG::findChild(int lineNo) {
 	}
 	return child;
 }
+
+void CFG::buildNextTable(NextTable* nextTable) {
+	for (unsigned i = 0; i < cfg.size(); i++) {
+		GNode* node = cfg.at(i);
+		int nodeLine = node->getLine();
+		for (unsigned j = 0; j < node->getChild().size(); j++) {
+			int childLine = node->getChild().at(j)->getLine();
+			nextTable->addToTable(to_string(nodeLine), to_string(childLine));
+		}
+	}
+}
