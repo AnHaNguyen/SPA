@@ -10,7 +10,9 @@
 
 using namespace std;
 
-DesignExtractor::DesignExtractor(){}
+DesignExtractor::DesignExtractor(){
+	initialize();
+}
 
 DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	input = parsedInput;
@@ -57,7 +59,7 @@ void DesignExtractor::storeToPKB() {
 	PKB::setConstTable(constTable);
 	PKB::setParentTable(parentTable);
 	PKB::setFollowTable(followTable);
-	//PKB::setProgLine(progLine);
+	PKB::setProgLine(progLine);
 }
 
 //-------------------------AST-------------------------//

@@ -110,8 +110,8 @@ vector<int> AST::getAssign() {
 	return returnList;
 }
 
-vector<int> AST::findSubtree(AST* subtree, bool contains_) {
-	vector<int> returnList;
+vector<string> AST::findSubtree(AST* subtree, bool contains_) {
+	vector<string> returnList;
 	vector<TNode*> assignList = getType("assign");
 	TNode* subtreeRoot = subtree->getTree().at(0);
 	
@@ -124,14 +124,14 @@ vector<int> AST::findSubtree(AST* subtree, bool contains_) {
 	if (!contains_) {				//pattern (_,"x+y")	
 		for (unsigned i = 0; i < operList.size(); i++) {
 			if (compare(operList.at(i), subtreeRoot)) {
-				returnList.push_back(operList.at(i)->getLine());
+				returnList.push_back(to_string(operList.at(i)->getLine()));
 			}
 		}
 	}
 	else {						//pattern (_,_"x+y"_)
 		for (unsigned i = 0; i < operList.size(); i++) {
 			if (compareSubtree(operList.at(i), subtreeRoot)) {
-				returnList.push_back(operList.at(i)->getLine());
+				returnList.push_back(to_string(operList.at(i)->getLine()));
 			}
 		}
 	}

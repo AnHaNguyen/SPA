@@ -23,7 +23,7 @@ string VarTable::getVar(int index) {
 }
 
 int VarTable::indexOf(string var) {
-	for (int i = 0; i < VarTable::size(); i++) {
+	for (int i = 0; i < varTable.size(); i++) {
 		if (VarTable::getVar(i) == var) {
 			return i;
 		}

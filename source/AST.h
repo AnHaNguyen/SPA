@@ -24,7 +24,7 @@ public:
 	vector<TNode* > getLine(int line);//return a list of node* with same line number
 	string getProcedure();		//return procedure name of tree
 	
-	vector<int> findSubtree(AST* subtree, bool contains_);		//find all lines in  tree that contains subtree	
+	vector<string> findSubtree(AST* subtree, bool contains_);		//find all lines in  tree that contains subtree	
 															//case pattern a(_,"x+y")
 															//case pattern a(_,_"x+y"_)
 
