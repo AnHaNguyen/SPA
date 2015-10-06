@@ -71,18 +71,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		string syn = suchThat->getSynonym();
 		stFirst = suchThat->getFirstAttr();
 		stSecond = suchThat->getSecondAttr();
-		/*if (stFirst == stSecond && stFirst != "_") {
-			return final;
-		}*/
 
 		//Handle follows
 		if (syn == "Follows") {
 			folVec.push_back(handleFollows(stFirst, stSecond));
 			if (folVec.size() > 0 && folVec.front() == "all") {
 				getFollowTable(folTable);
-			}
-			if (folVec.size() > 0 && folVec.front() == "allAss") {
-				folVec = getAssignTable();
 			}
 		}
 
@@ -242,9 +236,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		string pType = getSymMean(syn);
 		ptFirst = pattern->getFirstAttr();
 		ptSecond = pattern->getSecondAttr();
-		/*if (ptFirst == ptSecond&&ptFirst != "_") {
-			return final;
-		}*/
 
 		pair<string, bool> ptFirstX;
 		pair<string, bool> ptSecondX;
@@ -440,11 +431,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//Check if pattern or such that is false
 	if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck) == -1) {
-		
+		rmEString(final);
 		return final;
 	}
 	if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
-		
+		rmEString(final);
 		return final;
 	}
 	//Check case select not equal to each attribute
@@ -478,7 +469,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (getSymMean(rs) == "if") {
 			final = PKB::getProgLine()->getLinesOfType("if");
 		}
-		//final.push_back("weeeeeeee");
+		rmEString(final);
 		return final;
 	}
 
@@ -502,6 +493,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			if (getPos(PTCheck) == 0) {
 				final = intersection(patVec, folTable);
+			}
+			if (final.size() > 0 && selType == "assign") {
+				final = intersection(final, getAssignTable());
 			}
 			break;
 		case 2:
@@ -599,6 +593,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 		//return final;
 	}
+	rmEString(final);
 	return final;
 }
 
@@ -750,30 +745,25 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
 	string ans = "na";
-	//Case 1st: a
-	if (getSymMean(firstAtt) == "assign") {
-		if (getSymMean(firstAtt) == "assign") {
-			ans = "allAss";
-		}
-		/*if (isInt(secondAtt)) {
-			ans = folTab->getPrev(secondAtt);
-		}*/
-	}
-	//Case 1st: n/s
-	else if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-		//Case 2nd: n/s
-		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
+	//Case 1st: n/a
+	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+		//Case 2nd: n/a
+		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 			ans = "all";
 		}
 		//Case 2nd: 1, 2...
 		if (isInt(secondAtt)) {
-			ans = folTab->getPrev(secondAtt);
+			if (folTab->getPrev(secondAtt) != "") {
+				ans = folTab->getPrev(secondAtt);
+			}
 		}
 	}
 	//Case 1st: 1, 2
 	else {
 		if (isInt(firstAtt) && !isInt(secondAtt)) {
-			ans = folTab->getNext(firstAtt);
+			if (folTab->getNext(firstAtt) != "") {
+				ans = folTab->getNext(firstAtt);
+			}
 		}
 		else {
 			if (folTab->isFollows(firstAtt, secondAtt)) {
@@ -811,6 +801,16 @@ bool QueryHandler::contain(string str, vector<string> vec) {
 			return true;
 		}
 		else return false;
+	}
+}
+
+void QueryHandler::rmEString(vector<string> vec) {
+	if (vec.size() > 0) {
+		for (int i = 0; i < vec.size(); i++) {
+			if (vec[i] == "" || vec[i] == "na") {
+				vec.erase(vec.begin() + i);
+			}
+		}
 	}
 }
 //Get synonym
@@ -889,7 +889,7 @@ vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x) {
 
 vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2) {
 	vector<string> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
+	for (size_t i = 0; i < vec1.size(); i++) {
 		string current = vec1[i];
 		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
 			ansVec.push_back(current);
@@ -900,9 +900,9 @@ vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> ve
 
 vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2) {
 	vector<string> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
+	for (size_t i = 0; i < vec1.size(); i++) {
 		string current = vec1[i];
-		for (size_t j = 0; j != (sizeof vec2); j++) {
+		for (size_t j = 0; j < (sizeof vec2); j++) {
 			if (vec2[j].second == current) {
 				ansVec.push_back(current);
 			}
@@ -913,9 +913,9 @@ vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<strin
 
 vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2) {
 	vector < pair<string, vector<string>>> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
+	for (size_t i = 0; i < vec1.size(); i++) {
 		string current = vec1[i];
-		for (size_t j = 0; j != (sizeof vec2); j++) {
+		for (size_t j = 0; j < (sizeof vec2); j++) {
 			if (vec2[j].first == current) {
 				ansVec.push_back(vec2[j]);
 			}
@@ -926,9 +926,9 @@ vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string>
 
 vector <string> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check) {
 	vector <string> ansVec;
-	for (size_t i = 0; i != (sizeof vec1); i++) {
+	for (size_t i = 0; i < vec1.size(); i++) {
 		string current = vec1[i];
-		for (size_t j = 0; j != (sizeof vec2); j++) {
+		for (size_t j = 0; j < (sizeof vec2); j++) {
 			if (vec2[j].first == current) {
 				ansVec.push_back(current);
 			}

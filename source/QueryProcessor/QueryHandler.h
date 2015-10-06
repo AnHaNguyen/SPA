@@ -44,6 +44,7 @@ public:
 	string QueryHandler::getSymMean(string sym);
 	vector <vector<string>> symTable;
 	bool QueryHandler::contain(string str, vector<string> vec);
+	void QueryHandler::rmEString(vector<string> vec);
 
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2);
