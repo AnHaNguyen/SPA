@@ -434,39 +434,36 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 	}
 	//Check case select not belongs to each attribute
-	//string rs = result->getResult();
-	//if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
-	//	if (query->getSuchThat()->getSynonym() == "" && getPos(STCheck)==-1) {
-	//		return final;
-	//	}
-	//	if (query->getPattern()->getSynonym() == "" && getPos(PTCheck) == -1) {
-	//		return final;
-	//	}
-	//	if (getSymMean(rs) == "prog_line"||"stmt") {
-	//		//final.push_back(PKB::)
-	//	}
-	//	if (getSymMean(rs) == "variable") {
-	//		final = PKB::getVarTable();
-	//	}
-	//	if (getSymMean(rs) == "assign") {
-	//		final = AST::getAssign();
-	//	}
-	//	if (getSymMean(rs) == "procedure") {
-	//		final = PKB::getProcTable();
-	//	}
-	//	if (getSymMean(rs) == "while") {
-	//		final = PKB::
-	//	}
-	//	if (getSymMean(rs) == "if") {
-	//		final = PKB::
-	//	}
-	//	if (getSymMean(rs) == "constant") {
-	//		final = PKB::getConstTable();
-	//	}
-	//	if (getSymMean(rs) == "while") {
-	//		final = PKB::
-	//	}
-	//}
+	string rs = result->getResult();
+	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
+		if (query->getSuchThat()->getSynonym() == "" && getPos(STCheck)==-1) {
+			return final;
+		}
+		if (query->getPattern()->getSynonym() == "" && getPos(PTCheck) == -1) {
+			return final;
+		}
+		if (getSymMean(rs) == "prog_line"||"stmt") {
+			//final.push_back(PKB::)
+		}
+		if (getSymMean(rs) == "variable") {
+			final = PKB::getVarTable()->getTable();
+		}
+		if (getSymMean(rs) == "constant") {
+			final = PKB::getConstTable()->getTable;
+		}
+		if (getSymMean(rs) == "procedure") {
+			final = PKB::getProcTable()->getTable();
+		}
+		if (getSymMean(rs) == "assign") {
+			final = PKB::getProgLine()->getLinesOfType("assign");
+		}
+		if (getSymMean(rs) == "while") {
+			final = PKB::getProgLine()->getLinesOfType("while");
+		}
+		if (getSymMean(rs) == "if") {
+			final = PKB::getProgLine()->getLinesOfType("if");
+		}
+	}
 
 	//Return function
 	if (getPos(STCheck) != -1) {
