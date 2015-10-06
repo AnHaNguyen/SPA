@@ -5,6 +5,7 @@
 #include <vector>
 #include "TNode.h"
 #include "AST.h"
+#include "CFG.h"
 #include "CallTable.h"
 #include "FollowTable.h"
 #include "ParentTable.h"
@@ -61,9 +62,10 @@ const string MODIFY_VAR = "Modify";
 class DesignExtractor{
 private:
 	string curProcName;
-	TNode* curNodeRightSide;
+	TNode* curNodeInRightSideAss;
 	vector<string> input;
 	vector<AST*> ast;
+	vector<CFG*> cfg;
 
 	CallTable* callTable;
 	FollowTable* followTable;
@@ -111,7 +113,6 @@ private:
 	void processParentTable(AST* ast);
 
 	bool isConst(string var);
-	
 
 	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);

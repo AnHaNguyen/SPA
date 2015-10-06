@@ -77,9 +77,9 @@ void DesignExtractor::processAST(vector<string> input){
 		if (curLine.find(PROCEDURE) != string::npos) {
 			// new procedure, clear all old elements of old procedure
 			ASTCurParent.clear();
-
 			string theRestOfLine = curLine.substr(PROC_LEN);
 			ast.push_back(new AST());
+
 			procedureNumber++;
 			processProcedure(theRestOfLine);
 		}
@@ -259,7 +259,7 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 	whileNode->setChild(stmtLstNode);
 	stmtLstNode->setParent(whileNode);
 	ast.at(procedureNumber)->addToTree(stmtLstNode);
-	ASTCurParent.push_back(stmtLstNode);	
+	ASTCurParent.push_back(stmtLstNode);
 }
 
 /*-------------No ;} in right side-------------*/
@@ -285,7 +285,6 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ASTCurParent.pop_back();
 }
 
-/*
 void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
 											string rightSideText, int lineNumber){
 	vector<int> plusList;
@@ -355,24 +354,29 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 		curParent->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(curParent);
 	}
-}*/
+}
 
+/*
+//--------------------Assignment with +, -, *, (, )-------------------//
+void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent,
+	string rightSideText, int lineNumber) {
+	rightSideText += SEMICOLON;
 
-//------------------------------------Progress---------------------------------------//
-void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
-											string rightSideText, int lineNumber) {
 	stack<TNode*> TNodeStack = stack<TNode*>();
 	int rightSideStrLen = rightSideText.length();
-	int prevToken = 0;
-	curNodeRightSide = new TNode();
-	
-	for (int i = 0; i < rightSideStrLen; i++) {
+	unsigned prevToken = 0;
+	curNodeInRightSideAss = new TNode();
+
+	for (unsigned i = 0; i < rightSideStrLen; i++) {
 		string curChar = rightSideText.substr(i, 1);
 
-		if(curChar == ROUND_OPEN_BRACKET && curNodeRightSide != new TNode()){
-			TNodeStack.push(curNodeRightSide);
-			curNodeRightSide = new TNode();
-			prevToken = i;
+		if (curChar == ROUND_OPEN_BRACKET) {
+			if (curNodeInRightSideAss != new TNode()) {
+				TNodeStack.push(curNodeInRightSideAss);
+			}
+
+			curNodeInRightSideAss = new TNode();
+			prevToken = i + 1;
 		}
 		else if (curChar == ROUND_CLOSE_BRACKET) {
 			string factor = rightSideText.substr(prevToken, i - prevToken);
@@ -380,28 +384,48 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 			TNodeStack.pop();
 
 			curProcSubAST = processFactorWCloseBracket(factor, lineNumber, curProcSubAST, stackNode);
-			prevToken = i;
+			prevToken = i + 1;
 		}
 		else if (curChar == TIMES) {
 			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* timesSignNode = new TNode(NO_VALUE, TIMES_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, timesSignNode, lineNumber, curProcSubAST);
-			prevToken = i;
+			prevToken = i + 1;
 		}
 		else if (curChar == PLUS) {
 			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* plusSignNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, plusSignNode, lineNumber, curProcSubAST);
-			prevToken = i;
+			prevToken = i + 1;
 		}
 		else if (curChar == MINUS) {
 			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* minusSignNode = new TNode(NO_VALUE, MINUS_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, minusSignNode, lineNumber, curProcSubAST);
-			prevToken = i;
+			prevToken = i + 1;
+		}
+		else if (curChar == SEMICOLON) {
+			string factor = rightSideText.substr(prevToken, i - prevToken);
+			if (factor != "") {
+				string type = exprType(factor);
+				if (type == VARIABLE) {
+					varTable->addVar(factor);
+				}
+				else if (type == CONSTANT) {
+					constTable->addToTable(convertNumToStr(lineNumber), factor);
+				}
+
+				TNode* lastNode = new TNode(factor, type, lineNumber);
+
+				curProcSubAST->addToTree(lastNode);
+				curNodeInRightSideAss->setChild(lastNode);
+				lastNode->setParent(curNodeInRightSideAss);
+			}
+
+			return;
 		}
 	}
 }
@@ -421,15 +445,14 @@ AST* DesignExtractor::processFactorWCloseBracket(string factor, int lineNumber,
 		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
 		curProcSubAST->addToTree(factorNode);
 
-		factorNode->setParent(curNodeRightSide);
-		curNodeRightSide->setChild(factorNode);
+		factorNode->setParent(curNodeInRightSideAss);
+		curNodeInRightSideAss->setChild(factorNode);
 	}
 
-	curProcSubAST->addToTree(stackNode);
-	stackNode->setChild(curNodeRightSide);
-	curNodeRightSide->setParent(stackNode);
+	stackNode->setChild(curNodeInRightSideAss);
+	curNodeInRightSideAss->setParent(stackNode);
 
-	curNodeRightSide = stackNode;
+	curNodeInRightSideAss = stackNode;
 
 	return curProcSubAST;
 }
@@ -439,8 +462,10 @@ AST* DesignExtractor::processFactor(string factor, TNode* signNode,
 	curProcSubAST->addToTree(signNode);
 
 	if (factor == "") {
-		curNodeRightSide->setParent(signNode);
-		signNode->setChild(curNodeRightSide);
+		if (curNodeInRightSideAss != new TNode()) {
+			curNodeInRightSideAss->setParent(signNode);
+			signNode->setChild(curNodeInRightSideAss);
+		}
 	}
 	else {
 		string typeOfFactor = exprType(factor);
@@ -451,28 +476,28 @@ AST* DesignExtractor::processFactor(string factor, TNode* signNode,
 		else if (typeOfFactor == CONSTANT) {
 			constTable->addToTable(convertNumToStr(lineNumber), factor);
 		}
-		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
 
+		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
 		curProcSubAST->addToTree(factorNode);
 
-		if (curNodeRightSide == new TNode()) {
+		if (curNodeInRightSideAss == new TNode()) {
 			signNode->setChild(factorNode);
 			factorNode->setParent(signNode);
 		}
 		else {
-			curNodeRightSide->setChild(factorNode);
-			factorNode->setParent(curNodeRightSide);
+			curNodeInRightSideAss->setChild(factorNode);
+			factorNode->setParent(curNodeInRightSideAss);
 
-			curNodeRightSide->setParent(signNode);
-			signNode->setChild(curNodeRightSide);
+			curNodeInRightSideAss->setParent(signNode);
+			signNode->setChild(curNodeInRightSideAss);
 		}
 	}
 
-	curNodeRightSide = signNode;
+	curNodeInRightSideAss = signNode;
 
 	return curProcSubAST;
 }
-//--------------------------------------------------------------------------//
+*/
 
 //---------------------Create Call Table------------------//
 void DesignExtractor::processCallTable(AST* ast) {
@@ -644,7 +669,7 @@ void DesignExtractor::processModUseTableWCall() {
 	}
 }
 
-//-----------------Smaller module for ModTable----------------//
+//-----------------Smaller module for ModTable-------------------//
 // add all mod/use var from a proc (callee) to its caller
 // but doesnt guarantee the proc's mod/use table finishing because of container + stmt in each proc
 void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
