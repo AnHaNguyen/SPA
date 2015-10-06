@@ -18,6 +18,16 @@ QueryHandler::~QueryHandler() {}
 
 
 vector<string> QueryHandler::queryRec(QueryTree* query) {
+
+	//Initiate global values
+	PreResultNode* result;
+	PreSuchThatNode* suchThat;
+	PrePatternNode* pattern;
+	string stFirst;
+	string stSecond;
+	string ptFirst;
+	string ptSecond;
+
 	//Return check
 	vector<int> PTCheck;
 	vector<int> STCheck;
@@ -25,13 +35,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	//check validity
 	if (query->getValidity() == false)
-		return{};
-
-	//Initiate nodes
-	PreResultNode* result;
-	PreSuchThatNode* suchThat;
-	PrePatternNode* pattern;
-
+		return final;
 	if (query->getSymbolTable().size() != 0) {
 		symTable = query->getSymbolTable();
 	}
@@ -63,8 +67,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
 		string syn = suchThat->getSynonym();
-		string stFirst = suchThat->getFirstAttr();
-		string stSecond = suchThat->getSecondAttr();
+		stFirst = suchThat->getFirstAttr();
+		stSecond = suchThat->getSecondAttr();
 		if (stFirst == stSecond&&stFirst != "_") {
 			return final;
 		}
@@ -231,8 +235,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		pattern = query->getPattern();
 		string syn = pattern->getSynonym();
 		string pType = getSymMean(syn);
-		string ptFirst = pattern->getFirstAttr();
-		string ptSecond = pattern->getSecondAttr();
+		ptFirst = pattern->getFirstAttr();
+		ptSecond = pattern->getSecondAttr();
 		if (ptFirst == ptSecond&&ptFirst != "_") {
 			return final;
 		}
@@ -428,8 +432,21 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			PTCheck[2] = 1;
 		}
 	}
+	//Check case select not belongs to each attribute
+	string rs = result->getResult();
+	if (rs != stFirst && rs != stSecond && rs != ptFirst&&rs != ptSecond) {
+		if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck)==-1) {
+			return final;
+		}
+		if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
+			return final;
+		}
+		if (getSymMean(rs) == "prog_line"||"stmt") {
+			final.push_back
+		}
+	}
 
-	
+	//Return function
 	if (getPos(STCheck) != -1) {
 		switch (getPos(STCheck)) {
 		case 0:
