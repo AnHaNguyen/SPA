@@ -111,3 +111,7 @@ bool CallTable::checkRecurDFS(string caller, vector<string> callees, vector<stri
 	}
 	return false;
 }
+
+vector<callEntry_t> CallTable::getTable() {
+	return callTable;
+}

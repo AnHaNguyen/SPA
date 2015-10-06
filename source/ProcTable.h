@@ -18,6 +18,7 @@ public:
 	string getProc(int index);
 	int size();
 	string printProcTable();
+	vector<string> getTable();
 };
 
 #endif
