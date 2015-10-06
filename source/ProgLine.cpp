@@ -16,32 +16,34 @@ bool ProgLine::addToList(int lineNo, string type, string procedure) {
 	return true;
 }
 
-string ProgLine::getType(int lineNo) {
-	if (progLine.size() < lineNo || lineNo <= 0) {
+string ProgLine::getType(string lineNo) {
+	int line = atoi(lineNo.c_str());
+	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
-	else return progLine.at(lineNo - 1).type;
+	else return progLine.at(line - 1).type;
 }
 
-string ProgLine::getProcedure(int lineNo) {
-	if (progLine.size() < lineNo || lineNo <= 0) {
+string ProgLine::getProcedure(string lineNo) {
+	int line = atoi(lineNo.c_str());
+	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
-	else return progLine.at(lineNo - 1).procedure;
+	else return progLine.at(line - 1).procedure;
 }
 
 int ProgLine::numOfLines() {
 	return progLine.size();
 }
 
-vector<int> ProgLine::getLinesOfProc(string procedure) {
-	vector<int> returnList;
+vector<string> ProgLine::getLinesOfProc(string procedure) {
+	vector<string> returnList;
 	for (unsigned i = 1; i <= progLine.size(); i++) {
-		if (getProcedure(i) == procedure) {
-			returnList.push_back(i);
+		if (getProcedure(to_string(i)) == procedure) {
+			returnList.push_back(to_string(i));
 			int j = i + 1;
-			while (getProcedure(j) == procedure) {
-				returnList.push_back(j);
+			while (getProcedure(to_string(j)) == procedure) {
+				returnList.push_back(to_string(j));
 				j++;
 			}
 			break;
@@ -50,12 +52,22 @@ vector<int> ProgLine::getLinesOfProc(string procedure) {
 	return returnList;
 }
 
-vector<int> ProgLine::getLinesOfType(string type){
-	vector<int> returnList;
+vector<string> ProgLine::getLinesOfType(string type){
+	vector<string> returnList;
+	if (type == "prog_line" || type == "stmt") {
+		for (unsigned i = 1; i <= progLine.size(); i++) {
+			returnList.push_back(to_string(i));
+		}
+		return returnList;
+	}
 	for (unsigned i = 1; i <= progLine.size(); i++) {
-		if (getType(i) == type) {
-			returnList.push_back(i);
+		if (getType(to_string(i)) == type) {
+			returnList.push_back(to_string(i));
 		}
 	}
 	return returnList;
+}
+
+vector<stmt_t> ProgLine::getTable() {
+	return progLine;
 }
