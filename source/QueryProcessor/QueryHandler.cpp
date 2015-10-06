@@ -10,6 +10,7 @@
 #include "../FollowTable.h"
 #include "../ModifyTable.h"
 #include "../ParentTable.h"
+#include "../ProgLine.h"
 
 
 
@@ -652,18 +653,13 @@ vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
 	return temp3;
 }
 
-/*
+
 vector<string> QueryHandler::getAssignTable() {
 	vector<string> ansVec;
-	vector<AST*> ast = PKB::getASTList();
-	for (int i = 0; i < ast.size(); i++) {
-		vector<string> current = ast[i]->getAssign();
-		for (int j = 0; j < current.size(); j++) {
-			ansVec.push_back(current[j]);
-		}
-	}
+	ProgLine* progLine = PKB::getProgLine();
+	ansVec = progLine->getLinesOfType("assign");
 	return ansVec;
-}*/
+}
 
 bool QueryHandler::containSign(string str) {
 	if (str.find("+") != string::npos || str.find("-") != string::npos || str.find("*") != string::npos) {
