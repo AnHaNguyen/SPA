@@ -271,8 +271,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						}
 					}
 				}
-				//Select type = assign
-				else if (selType == "assign") {
+				//Select type = assign or not found
+				else {
 					vector<string> tempVec;
 					tempVec = getAssignTable();
 					for (int i = 0; i < tempVec.size(); i++) {
@@ -296,7 +296,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
-				else if (selType == "assign") {
+				else {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1, true);
@@ -332,7 +332,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						}
 					}
 				}
-				else if (selType == "assign") {
+				else {
 					patVec = intersection(temp1, temp2);
 				}
 			}
@@ -347,7 +347,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
-				else if (selType == "assign") {
+				else {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1, true);
@@ -413,7 +413,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 					}
 				}
-				else if (selType == "assign") {
+				else {
 					vector<string> temp2 = getAssignTable();
 					vector<pair<string, vector<string>>> temp1 = getConstTable();
 					patVec = intersection(temp2, temp1, true);
@@ -436,10 +436,10 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	//Check case select not belongs to each attribute
 	string rs = result->getResult();
 	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
-		if (query->getSuchThat()->getSynonym() == "" && getPos(STCheck)==-1) {
+		if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck)==-1) {
 			return final;
 		}
-		if (query->getPattern()->getSynonym() == "" && getPos(PTCheck) == -1) {
+		if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
 			return final;
 		}
 		if (getSymMean(rs) == "prog_line"||"stmt") {
@@ -470,10 +470,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (getSymMean(rs) == "if") {
 			final = PKB::getProgLine()->getLinesOfType("if");
 		}
+		return final;
 	}
 
 	//Return function
-	if (getPos(STCheck) != -1) {
+	if (query->getPattern()->getSynonym() != "" && query->getSuchThat()->getSynonym() != "" && getPos(STCheck) != -1) {
 		switch (getPos(STCheck)) {
 		case 0:
 			final = folVec;
@@ -593,7 +594,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			break;
 		}
 	}
-	else {
+	if (query->getPattern()->getSynonym() != "" && query->getSuchThat()->getSynonym() == "" && getPos(PTCheck) != -1) {
 		switch (getPos(PTCheck)) {
 		case 0:
 			final = patVec;
