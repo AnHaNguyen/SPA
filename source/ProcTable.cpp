@@ -43,3 +43,7 @@ string ProcTable::printProcTable() {
 	}
 	return out;
 }
+
+vector<string> ProcTable::getTable() {
+	return procTable;
+}

@@ -24,6 +24,7 @@ public:
 	string printVarTable();
 	int indexOf(string var);
 	int size();
+	vector<string> getTable();
 }; 
 
 #endif

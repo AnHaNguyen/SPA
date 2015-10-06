@@ -136,9 +136,9 @@ vector<string> PKB::checkAssign(string pattern, bool contains_) {
 vector<string> PKB::patternIf(string controlVar) {
 	vector<string> returnList;
 	if (controlVar == "_") {
-		vector<int> result = progLine->getLinesOfType("if");
+		vector<string> result = progLine->getLinesOfType("if");
 		for (unsigned i = 0; i < result.size(); i++) {
-			returnList.push_back(to_string(result.at(i)));
+			returnList.push_back(result.at(i));
 		}
 	}
 	else {
@@ -161,9 +161,9 @@ vector<string> PKB::patternIf(string controlVar) {
 vector<string> PKB::patternWhile(string controlVar) {
 	vector<string> returnList;
 	if (controlVar == "_") {
-		vector<int> result = progLine->getLinesOfType("while");
+		vector<string> result = progLine->getLinesOfType("while");
 		for (unsigned i = 0; i < result.size(); i++) {
-			returnList.push_back(to_string(result.at(i)));
+			returnList.push_back(result.at(i));
 		}
 	}
 	else {

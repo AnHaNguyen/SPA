@@ -43,3 +43,7 @@ string VarTable::printVarTable() {
 	}
 	return out;
 }
+
+vector<string> VarTable::getTable() {
+	return varTable;
+}
