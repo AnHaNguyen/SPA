@@ -449,7 +449,14 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			final = PKB::getVarTable()->getTable();
 		}
 		if (getSymMean(rs) == "constant") {
-			final = PKB::getConstTable()->getTable;
+			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
+			for (int i = 0; i < constTable.size(); i++) {
+				for (int j = 0; j < constTable[i].constants.size(); j++) {
+					if (!contain(constTable[i].constants[j], final)) {
+						final.push_back(constTable[i].constants[j]);
+					}
+				}
+			}
 		}
 		if (getSymMean(rs) == "procedure") {
 			final = PKB::getProcTable()->getTable();
@@ -791,6 +798,14 @@ bool QueryHandler::isInt(string &secondAtt)
 	}
 }
 
+bool QueryHandler::contain(string str, vector<string> vec) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (find(begin(vec), end(vec), str) != end(vec)) {
+			return true;
+		}
+		else return false;
+	}
+}
 //Get synonym
 string QueryHandler::getSymMean(string sym) {
 	for (vector<string>::size_type i = 0; i != symTable.size(); i++) {
