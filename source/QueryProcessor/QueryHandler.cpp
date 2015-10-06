@@ -35,8 +35,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> final;
 
 	//check validity
-	if (query->getValidity() == false)
+	if (query->getValidity() == false) {
 		return final;
+	}
 	if (query->getSymbolTable().size() != 0) {
 		symTable = query->getSymbolTable();
 	}
@@ -70,9 +71,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		string syn = suchThat->getSynonym();
 		stFirst = suchThat->getFirstAttr();
 		stSecond = suchThat->getSecondAttr();
-		if (stFirst == stSecond&&stFirst != "_") {
+		/*if (stFirst == stSecond && stFirst != "_") {
 			return final;
-		}
+		}*/
 
 		//Handle follows
 		if (syn == "Follows") {
@@ -238,9 +239,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		string pType = getSymMean(syn);
 		ptFirst = pattern->getFirstAttr();
 		ptSecond = pattern->getSecondAttr();
-		if (ptFirst == ptSecond&&ptFirst != "_") {
+		/*if (ptFirst == ptSecond&&ptFirst != "_") {
 			return final;
-		}
+		}*/
 
 		pair<string, bool> ptFirstX;
 		pair<string, bool> ptSecondX;
@@ -433,17 +434,21 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			PTCheck[2] = 1;
 		}
 	}
-	//Check case select not belongs to each attribute
+
+	//Check if pattern or such that is false
+	if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck) == -1) {
+		
+		return final;
+	}
+	if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
+		
+		return final;
+	}
+	//Check case select not equal to each attribute
 	string rs = result->getResult();
 	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
-		if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck)==-1) {
-			return final;
-		}
-		if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
-			return final;
-		}
-		if (getSymMean(rs) == "prog_line"||"stmt") {
-			//final.push_back(PKB::)
+		if (getSymMean(rs) == "prog_line" || "stmt") {
+			final = PKB::getProgLine()->getLinesOfType("prog_line");
 		}
 		if (getSymMean(rs) == "variable") {
 			final = PKB::getVarTable()->getTable();
@@ -470,44 +475,42 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (getSymMean(rs) == "if") {
 			final = PKB::getProgLine()->getLinesOfType("if");
 		}
+		//final.push_back("weeeeeeee");
 		return final;
 	}
 
-	//Return function
-	if (query->getPattern()->getSynonym() != "" && query->getSuchThat()->getSynonym() != "" && getPos(STCheck) != -1) {
+	//Return function normal case
+	if (getPos(STCheck) != -1) {
 		switch (getPos(STCheck)) {
 		case 0:
 			final = folVec;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(folVec, patVec);
-				break;
 			}
 			break;
 		case 1:
 			for (int i = 0; i < folTable.size(); i++) {
-				final.push_back(folTable[i].first);
+				if (rs == stFirst) {
+					final.push_back(folTable[i].first);
+				}
+				if (rs == stSecond) {
+					final.push_back(folTable[i].second);
+				}
 			}
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(patVec, folTable);
-				break;
 			}
 			break;
 		case 2:
 			final = mvarVec;
-			switch (getPos(PTCheck)) {
-			case 1:
+			if (getPos(PTCheck) == 1) {
 				final = intersection(mvarVec, pvarVec);
-				break;
 			}
 			break;
 		case 3:
 			final = modVec;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(modVec, patVec);
-				break;
 			}
 			break;
 		case 4:
@@ -521,80 +524,65 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					final.push_back(modTable[i].first);
 				}
 			}
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(patVec, modTable, true);
-				break;
-			case 1:
+			}
+			if (getPos(PTCheck) == 1) {
 				final = intersection(pvarVec, modTable, true);
-				break;
-			case 2:
+			}
+			if (getPos(PTCheck) == 2) {
 				final = intersection(pconVec, modTable, true);
-				break;
 			}
 			break;
 		case 5:
 			final = parVec;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(parVec, patVec);
-				break;
 			}
 			break;
 		case 6:
 			final = parTable;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(parVec, patVec);
-				break;
 			}
 			break;
 		case 7:
 			final = nestTable;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(nestTable, patVec);
-				break;
 			}
 			break;
 		case 8:
 			final = uvarVec;
-			switch (getPos(PTCheck)) {
-			case 1:
+			if (getPos(PTCheck) == 1) {
 				final = intersection(uvarVec, pvarVec);
-				break;
 			}
 			break;
 		case 9:
 			final = nestTable;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(nestTable, patVec);
-				break;
 			}
 			break;
 		case 10:
 			final = userTable;
-			switch (getPos(PTCheck)) {
-			case 0:
+			if (getPos(PTCheck) == 0) {
 				final = intersection(userTable, patVec);
-				break;
 			}
 			break;
 		case 11:
 			final = usedTable;
-			switch (getPos(PTCheck)) {
-			case 1:
+			if (getPos(PTCheck) == 1) {
 				final = intersection(usedTable, pvarVec);
-				break;
-			case 2:
+			}
+			if (getPos(PTCheck) == 2) {
 				final = intersection(usedTable, pconVec);
-				break;
 			}
 			break;
 		}
+		//return final;
 	}
-	if (query->getPattern()->getSynonym() != "" && query->getSuchThat()->getSynonym() == "" && getPos(PTCheck) != -1) {
+	if (getPos(PTCheck) != -1) {
 		switch (getPos(PTCheck)) {
 		case 0:
 			final = patVec;
@@ -606,6 +594,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			final = pconVec;
 			break;
 		}
+		//return final;
 	}
 	return final;
 }
@@ -771,11 +760,16 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	}
 	//Case 1st: 1, 2
 	else {
-		if (isInt(firstAtt)) {
+		if (isInt(firstAtt) && !isInt(secondAtt)) {
 			ans = folTab->getNext(firstAtt);
 		}
+		/*else {
+			if (folTab->isFollows(firstAtt, secondAtt)) {
+				ans = "true";
+			}
+		}*/
+		return ans;
 	}
-	return ans;
 }
 
 string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
