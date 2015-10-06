@@ -285,7 +285,7 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	ASTCurParent.pop_back();
 }
 
-
+/*
 void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
 											string rightSideText, int lineNumber){
 	vector<int> plusList;
@@ -355,9 +355,11 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 		curParent->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(curParent);
 	}
-}
+}*/
 
-/*void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
+
+//------------------------------------Progress---------------------------------------//
+void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
 											string rightSideText, int lineNumber) {
 	stack<TNode*> TNodeStack = stack<TNode*>();
 	int rightSideStrLen = rightSideText.length();
@@ -373,7 +375,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 			prevToken = i;
 		}
 		else if (curChar == ROUND_CLOSE_BRACKET) {
-			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* stackNode = TNodeStack.top();
 			TNodeStack.pop();
 
@@ -381,21 +383,21 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 			prevToken = i;
 		}
 		else if (curChar == TIMES) {
-			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* timesSignNode = new TNode(NO_VALUE, TIMES_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, timesSignNode, lineNumber, curProcSubAST);
 			prevToken = i;
 		}
 		else if (curChar == PLUS) {
-			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* plusSignNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, plusSignNode, lineNumber, curProcSubAST);
 			prevToken = i;
 		}
 		else if (curChar == MINUS) {
-			string factor = rightSideText.substr(prevToken, i - prevToken + 1);
+			string factor = rightSideText.substr(prevToken, i - prevToken);
 			TNode* minusSignNode = new TNode(NO_VALUE, MINUS_TEXT, lineNumber);
 
 			curProcSubAST = processFactor(factor, minusSignNode, lineNumber, curProcSubAST);
@@ -469,7 +471,8 @@ AST* DesignExtractor::processFactor(string factor, TNode* signNode,
 	curNodeRightSide = signNode;
 
 	return curProcSubAST;
-}*/
+}
+//--------------------------------------------------------------------------//
 
 //---------------------Create Call Table------------------//
 void DesignExtractor::processCallTable(AST* ast) {
