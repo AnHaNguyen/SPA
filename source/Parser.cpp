@@ -48,7 +48,7 @@ vector<string> Parser::processFile(string fName) {
 		error("File cannot open ");
 	}
 	stringList = trimmedList(stringList);
-	processedList = checkSyntax(stringList);
+	processedList = moveCloseCurlyBracket(checkSyntax(stringList));
 	return processedList;
 }
 
@@ -620,6 +620,19 @@ vector<string> Parser::trimmedList(vector <string> list) {
 		}
 	}
 	return trimmedList;
+}
+
+vector<string> Parser::moveCloseCurlyBracket(vector <string> list) {
+	vector<string> result;
+	for (int i = 0; i < list.size(); i++) {
+		if (list[i] == "}") {
+			result[result.size() - 1] += "}";
+		}
+		else {
+			result.push_back(list[i]);
+		}
+	}
+	return result;
 }
 
 bool Parser::checkNotEmptyLine(string line) {
