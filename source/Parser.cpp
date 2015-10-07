@@ -63,12 +63,14 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 
 	str = stringList[i++];
 	errorMsg = checkFirstLine(stringList);
-	error(errorMsg);
-
+	if (!errorMsg.empty()) {
+		error(errorMsg);
+	}
 
 	errorMsg = processStmtType(stringList);
-	//error(errorMsg);
-
+	if (!errorMsg.empty()) {
+		error(errorMsg);
+	}
 	return stringList;
 
 }
