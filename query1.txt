@@ -19,7 +19,7 @@ Select a1 such that Follows(a1, a2)
 1, 2, 13, 14
 5000
 5 - v, f(v,v)
-assign a1, a2
+assign a1, a2;
 Select a2 such that Follows(a1, a2)
 2, 3, 14, 15
 5000

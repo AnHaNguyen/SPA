@@ -485,17 +485,32 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		case 1:
 			for (int i = 0; i < folTable.size(); i++) {
 				if (rs == stFirst) {
-					final.push_back(folTable[i].first);
+					//Check if stSecond is in FolTable
+					if (folAss(stSecond, stFirst, folTable, i)) {
+						final.push_back(folTable[i].first);
+					}
+					else if (getSymMean(stSecond) != "assign") {
+						final.push_back(folTable[i].first);
+					}
 				}
+
 				if (rs == stSecond) {
-					final.push_back(folTable[i].second);
+					//Check if stFirst is in FolTable
+					if (stFirst != stFirst)
+						final.push_back(stFirst);
+					if (folAss(stFirst, stFirst, folTable, i)) {
+						final.push_back(folTable[i].second);
+					}
+					else if (getSymMean(stFirst) != "assign") {
+						final.push_back(folTable[i].second);
+					}
+				}
+				if (rs != stFirst && rs != stSecond && folTable.size() > 0) {
+					final.push_back("true");
 				}
 			}
 			if (getPos(PTCheck) == 0) {
 				final = intersection(patVec, folTable);
-			}
-			if (final.size() > 0 && selType == "assign") {
-				final = intersection(final, getAssignTable());
 			}
 			break;
 		case 2:
@@ -577,7 +592,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			break;
 		}
-		//return final;
 	}
 	if (getPos(PTCheck) != -1) {
 		switch (getPos(PTCheck)) {
@@ -591,7 +605,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			final = pconVec;
 			break;
 		}
-		//return final;
+	}
+	if (final.size() > 0 && selType == "assign") {
+		final = intersection(final, getAssignTable());
 	}
 	rmEString(final);
 	return final;
@@ -745,10 +761,11 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
 	string ans = "na";
-	//Case 1st: n/a
+	//Case 1st: a
+	//Case 1st: n/s
 	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
-		//Case 2nd: n/a
-		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+		//Case 2nd: n/s
+		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
 			ans = "all";
 		}
 		//Case 2nd: 1, 2...
@@ -756,6 +773,7 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 			if (folTab->getPrev(secondAtt) != "") {
 				ans = folTab->getPrev(secondAtt);
 			}
+			//ans = "na";
 		}
 	}
 	//Case 1st: 1, 2
@@ -783,7 +801,20 @@ string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 	}
 }
 
-
+//Check if getPrev(a) or getNext(a) has a = assign
+bool QueryHandler::folAss(string att, string firstAtt, vector<pair<string, string>> folTable, int i) {
+	if (getSymMean(att) == "assign" && att == firstAtt) {
+		if (contain(folTable[i].first, getAssignTable())) {
+			return true;
+		}
+	}
+	if (getSymMean(att) == "assign" && att != firstAtt) {
+		if (contain(folTable[i].second, getAssignTable())) {
+			return true;
+		}
+	}
+	return false;
+}
 bool QueryHandler::isInt(string &secondAtt)
 {
 	try {

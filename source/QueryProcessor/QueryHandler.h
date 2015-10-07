@@ -41,6 +41,7 @@ public:
 	int QueryHandler::getPos(vector<int> intVec);
 	bool QueryHandler::containSign(string str);
 	bool isInt(string &secondAtt);
+	bool QueryHandler::folAss(string att, string firstAtt, vector < pair<string, string>> folTable, int i);
 	string QueryHandler::getSymMean(string sym);
 	vector <vector<string>> symTable;
 	bool QueryHandler::contain(string str, vector<string> vec);
