@@ -20,7 +20,7 @@ Parser::~Parser() {
 
 void Parser::parseInput(string fName) {
 	vector<string> programLines = result(fName);
-	//DesignExtractor ext = DesignExtractor(result(fName));
+	DesignExtractor ext = DesignExtractor(result(fName));
 
 }
 
@@ -513,13 +513,13 @@ int Parser::isStmtLst(vector<string> stringList, int startLine) {
 	found1 = start.find_first_of("{");
 	found2 = end.find_last_of("}");
 
-	stmt = start.substr(found1, start.size() - found1) + end.substr(found2, end.size() - found2);
+	stmt = start.substr(found1+1, start.size() - found1) + end.substr(found2+1, end.size() - found2);
 
 	if (existAlphaNumeric(stmt)) {
 		return endLine;
 	}
 	startLine++;
-	while (startLine < endLine) {
+	while (startLine <= endLine) {
 		if (existAlphaNumeric(stringList[startLine])) {
 			return endLine;
 		}
