@@ -82,29 +82,37 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		//Handle follows*
 		if (syn == "Follows*") {
-			folVec.push_back(handleFollows(stFirst, stSecond));
-			queue<string> folQ;
-			folQ.push(folVec[0]);
-			if (folVec.size() > 0 && folVec.front() == "all") {
-				getFollowTable(folTable);
+			//Check if case Follows*(1, 2)
+			if (isInt(stFirst) && isInt(stSecond)) {
+				if (isFollowsS(stFirst, stSecond)) {
+					folVec.push_back("true");
+				}
 			}
 			else {
-				while (!folQ.empty()) {
-					string temp = folQ.front();
-					folQ.pop();
-					string nextFol;
-					if (isInt(stFirst)) {
-						nextFol = handleFollows(temp, stSecond);
-						if (nextFol != "na") {
-							folQ.push(nextFol);
-							folVec.push_back(nextFol);
+				folVec.push_back(handleFollows(stFirst, stSecond));
+				queue<string> folQ;
+				folQ.push(folVec[0]);
+				if (folVec.size() > 0 && folVec.front() == "all") {
+					getFollowTable(folTable);
+				}
+				else {
+					while (!folQ.empty()) {
+						string temp = folQ.front();
+						folQ.pop();
+						string nextFol;
+						if (isInt(stFirst)) {
+							nextFol = handleFollows(temp, stSecond);
+							if (nextFol != "na") {
+								folQ.push(nextFol);
+								folVec.push_back(nextFol);
+							}
 						}
-					}
-					else {
-						nextFol = handleFollows(stFirst, temp);
-						if (nextFol != "na") {
-							folQ.push(nextFol);
-							folVec.push_back(nextFol);
+						if (isInt(stSecond)) {
+							nextFol = handleFollows(stFirst, temp);
+							if (nextFol != "na") {
+								folQ.push(nextFol);
+								folVec.push_back(nextFol);
+							}
 						}
 					}
 				}
@@ -130,30 +138,41 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		//Handle parent*
 		if (syn == "Parent*") {
-			handleParent(stFirst, stSecond, parVec);
-			queue<string> parQ;
-			if (parVec.size() > 0 && parVec.front() == "all") {
-				getParentTable(result, stFirst, parTable, stSecond, nestTable);
+			//Check case Parent*(1, 2)
+			if (isInt(stFirst) && isInt(stSecond)) {
+				if (isParentS(stFirst, stSecond)) {
+					parVec.push_back("true");
+
+				}
 			}
 			else {
-				parQ.push(parVec.front());
-				while (!parQ.empty()) {
-					string temp = parQ.front();
-					int oldSize = parVec.size();
-					parQ.pop();
-					if (isInt(stFirst)) {
-						handleParent(temp, stSecond, parVec);
-						if (oldSize < parVec.size()) {
-							for (int i = oldSize; i < parVec.size(); i++) {
-								parQ.push(parVec[i]);
-							}
-						}
+				handleParent(stFirst, stSecond, parVec);
+				if (!parVec.empty()) {
+					queue<string> parQ;
+					if (parVec.size() > 0 && parVec.front() == "all") {
+						getParentTable(result, stFirst, parTable, stSecond, nestTable);
 					}
 					else {
-						handleParent(stFirst, temp, parVec);
-						if (oldSize < parVec.size()) {
-							for (int i = oldSize; i < parVec.size(); i++) {
-								parQ.push(parVec[i]);
+						parQ.push(parVec.front());
+						while (!parQ.empty()) {
+							string temp = parQ.front();
+							parQ.pop();
+							int oldSize = parVec.size();
+							if (isInt(stFirst)) {
+								handleParent(temp, stSecond, parVec);
+								if (oldSize < parVec.size()) {
+									for (int i = oldSize; i < parVec.size(); i++) {
+										parQ.push(parVec[i]);
+									}
+								}
+							}
+							if (isInt(stSecond)) {
+								handleParent(stFirst, temp, parVec);
+								if (oldSize < parVec.size()) {
+									for (int i = oldSize; i < parVec.size(); i++) {
+										parQ.push(parVec[i]);
+									}
+								}
 							}
 						}
 					}
@@ -439,34 +458,35 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		return final;
 	}
 	//Check case select not equal to each attribute
-	string rs = result->getResult();
+	string rs = result->getResult();	
 	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
-		if (getSymMean(rs) == "prog_line" || "stmt") {
+		if (selType == "prog_line" || selType == "stmt") {
 			final = PKB::getProgLine()->getLinesOfType("prog_line");
 		}
-		if (getSymMean(rs) == "variable") {
+		if (selType == "variable") {
 			final = PKB::getVarTable()->getTable();
 		}
-		if (getSymMean(rs) == "constant") {
+		
+		if (selType == "constant") {
 			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
 			for (int i = 0; i < constTable.size(); i++) {
 				for (int j = 0; j < constTable[i].constants.size(); j++) {
-					if (!contain(constTable[i].constants[j], final)) {
+					if (!contain(final, constTable[i].constants[j])) {
 						final.push_back(constTable[i].constants[j]);
 					}
 				}
 			}
 		}
-		if (getSymMean(rs) == "procedure") {
+		if (selType == "procedure") {
 			final = PKB::getProcTable()->getTable();
 		}
-		if (getSymMean(rs) == "assign") {
+		if (selType == "assign") {
 			final = PKB::getProgLine()->getLinesOfType("assign");
 		}
-		if (getSymMean(rs) == "while") {
+		if (selType == "while") {
 			final = PKB::getProgLine()->getLinesOfType("while");
 		}
-		if (getSymMean(rs) == "if") {
+		if (selType == "if") {
 			final = PKB::getProgLine()->getLinesOfType("if");
 		}
 		rmEString(final);
@@ -555,7 +575,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		case 6:
 			final = parTable;
 			if (getPos(PTCheck) == 0) {
-				final = intersection(parVec, patVec);
+				final = intersection(parTable, patVec);
 			}
 			break;
 		case 7:
@@ -609,6 +629,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	if (final.size() > 0 && selType == "assign") {
 		final = intersection(final, getAssignTable());
 	}
+	if (selType == "while") {
+		final = intersection(final, PKB::getProgLine()->getLinesOfType("while"));
+	}
+	if (selType == "if") {
+		final = intersection(final, PKB::getProgLine()->getLinesOfType("if"));
+	}
 	rmEString(final);
 	return final;
 }
@@ -620,18 +646,22 @@ void QueryHandler::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userT
 	usedTable = toConvention(useTab, 2);
 }
 
-bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable) {
+bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable,
+	string &secondAtt, vector<string> &nestTable) {
 	vector<ParentEntry_t> parTab;
 	ParentTable* ParentTable = PKB::getParentTable();
 	parTab = ParentTable->getTable();
+	if (parTab.empty()) {
+		return false;
+	}
 	if (result->getResult() == firstAtt) {
 		parTable = toConvention(parTab, 1);
 	}
-	else if (result->getResult() == secondAtt) {
+	if (result->getResult() == secondAtt) {
 		nestTable = toConvention(parTab, 2);
 	}
-	if (parTab.empty()) {
-		return false;
+	if (result->getResult() != firstAtt && result->getResult() != secondAtt) {
+		parTable = toConvention(parTab, 1);
 	}
 	return true;
 }
@@ -643,10 +673,7 @@ void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<str
 }
 
 void QueryHandler::getFollowTable(vector<pair<string, string>> &folTable) {
-	vector<FollowEntry_t> folTab;
-	FollowTable* FollowTable = PKB::getFollowTable();
-	folTab = FollowTable->getTable();
-	folTable = toConvention(folTab);
+	folTable = toConvention(PKB::getFollowTable()->getTable());
 }
 
 vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
@@ -722,20 +749,36 @@ void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<string
 void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec)
 {
 	ParentTable* parTab = PKB::getParentTable();
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt") {
+	//Case 1st: n/a/if/while
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt"
+		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if") {
+		//Case 2nd: n/a/if/while
+		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt"
+			|| getSymMean(secondAtt) == "while" || getSymMean(secondAtt) == "if") {
 			parVec.push_back("all");
 		}
+		//Case 2nd: 1,2
 		if (isInt(secondAtt)) {
 			string temp = parTab->getParent(secondAtt);
-			if (temp != "na") {
+			if (temp != "" && !contain(parVec, temp)) {
 				parVec.push_back(temp);
 			}
 		}
 	}
+	//Case 1st: 1/2
 	else {
-		if (isInt(firstAtt)) {
-			parVec = parTab->getChild(firstAtt);
+		if (isInt(firstAtt) && !isInt(secondAtt)) {
+			vector<string> temp = parTab->getChild(firstAtt);
+			for (int i = 0; i < temp.size(); i++) {
+				if (!contain(parVec, temp[i])) {
+					parVec.push_back(temp[i]);
+				}
+			}
+		}
+		else {
+			if (parTab->isParent(firstAtt, secondAtt)) {
+				parVec.push_back("true");
+			}
 		}
 	}
 }
@@ -761,7 +804,6 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
 	string ans = "na";
-	//Case 1st: a
 	//Case 1st: n/s
 	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/s
@@ -773,7 +815,6 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 			if (folTab->getPrev(secondAtt) != "") {
 				ans = folTab->getPrev(secondAtt);
 			}
-			//ans = "na";
 		}
 	}
 	//Case 1st: 1, 2
@@ -804,17 +845,46 @@ string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 //Check if getPrev(a) or getNext(a) has a = assign
 bool QueryHandler::folAss(string att, string firstAtt, vector<pair<string, string>> folTable, int i) {
 	if (getSymMean(att) == "assign" && att == firstAtt) {
-		if (contain(folTable[i].first, getAssignTable())) {
+		if (contain(getAssignTable(), folTable[i].first)) {
 			return true;
 		}
 	}
 	if (getSymMean(att) == "assign" && att != firstAtt) {
-		if (contain(folTable[i].second, getAssignTable())) {
+		if (contain(getAssignTable(), folTable[i].second)) {
 			return true;
 		}
 	}
 	return false;
 }
+
+bool QueryHandler::isFollowsS(string firstAtt, string secondAtt) {
+	string nextFol = PKB::getFollowTable()->getNext(firstAtt);
+	if (nextFol == "" || stoi(nextFol) > stoi(secondAtt)) {
+		return false;
+	}
+	while (nextFol != "" && stoi(nextFol) <= stoi(secondAtt)) {
+		if (stoi(nextFol) == stoi(secondAtt)) {
+			return true;
+		}
+		nextFol = PKB::getFollowTable()->getNext(nextFol);
+	}
+	return false;
+}
+
+bool QueryHandler::isParentS(string firstAtt, string secondAtt) {
+	string nextPar = PKB::getParentTable()->getParent(secondAtt);
+	if (nextPar == "" || stoi(nextPar) < stoi(firstAtt)) {
+		return false;
+	}
+	while (nextPar != "" && stoi(nextPar) >= stoi(firstAtt)) {
+		if (stoi(nextPar) == stoi(firstAtt)) {
+			return true;
+		}
+		nextPar = PKB::getParentTable()->getParent(nextPar);
+	}
+	return false;
+}
+
 bool QueryHandler::isInt(string &secondAtt)
 {
 	try {
@@ -826,13 +896,13 @@ bool QueryHandler::isInt(string &secondAtt)
 	}
 }
 
-bool QueryHandler::contain(string str, vector<string> vec) {
+bool QueryHandler::contain(vector<string> vec, string str) {
 	for (int i = 0; i < vec.size(); i++) {
 		if (find(begin(vec), end(vec), str) != end(vec)) {
 			return true;
 		}
-		else return false;
 	}
+	return false;
 }
 
 void QueryHandler::rmEString(vector<string> vec) {

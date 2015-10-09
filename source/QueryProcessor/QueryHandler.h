@@ -42,9 +42,11 @@ public:
 	bool QueryHandler::containSign(string str);
 	bool isInt(string &secondAtt);
 	bool QueryHandler::folAss(string att, string firstAtt, vector < pair<string, string>> folTable, int i);
+	bool QueryHandler::isFollowsS(string firstAtt, string secondAtt);
+	bool QueryHandler::isParentS(string firstAtt, string secondAtt);
 	string QueryHandler::getSymMean(string sym);
 	vector <vector<string>> symTable;
-	bool QueryHandler::contain(string str, vector<string> vec);
+	bool QueryHandler::contain(vector<string> vec, string str);
 	void QueryHandler::rmEString(vector<string> vec);
 
 	vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2);
