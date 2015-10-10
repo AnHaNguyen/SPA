@@ -54,6 +54,7 @@ public:
 	bool checkAllBrackets(vector<string> stringList);
 
 	vector<string> trimmedList(vector <string> list);
+	vector<string> moveCloseCurlyBracket(vector<string> list);
 	bool checkNotEmptyLine(string line);
 	string trim(string str);
 

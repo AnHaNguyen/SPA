@@ -19,7 +19,7 @@ Select a1 such that Follows(a1, a2)
 1, 2, 13, 14
 5000
 5 - v, f(v,v)
-assign a1, a2
+assign a1, a2;
 Select a2 such that Follows(a1, a2)
 2, 3, 14, 15
 5000
@@ -89,7 +89,7 @@ Select a such that Follows*(3, a)
 none
 5000
 19 - v, fs(v,v)
-stmt s1, s2
+stmt s1, s2;
 Select s1 such that Follows*(s1, s2)
 1, 2, 3, 5, 6, 7, 9, 10, 12, 13, 14, 16
 5000
@@ -149,7 +149,7 @@ Select s1 such that Parent*(3, s2)
 none
 5000
 31 - v, fs(c,v)
-assign a; stmt s;
+assign a, stmt s;
 Select s such that Follows*(3, a)
 none
 5000
@@ -163,5 +163,3 @@ assign a; constant c;
 Select c such that Parent*(5, a)
 1, 200, 0, 2
 5000
-
-
