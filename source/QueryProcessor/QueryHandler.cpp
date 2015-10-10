@@ -265,7 +265,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		atoPair(ptFirstX, ptFirst);
 		atoPair(ptSecondX, ptSecond);
 
-
 		//Case 1st att = _
 		if (ptFirstX.first == "") {
 			//Case 2nd att = _
@@ -321,6 +320,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
+
 		//Case 1st att = "x123"
 		if (getSymMean(ptFirstX.first) == "") {
 			//Case 2nd att = _
@@ -372,8 +372,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-		//Case 1st att = v
-		if (getSymMean(ptFirstX.first) == "variable") {
+		//Case 1st att = v 
+		if (getSymMean(ptFirst) == "variable") {
 			//Case 2nd att = _
 			if (ptSecondX.first == "_") {
 				if (selType == "variable") {
@@ -438,8 +438,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-		for (int i = 0; i < 10; i++) {
-			PTCheck[i] = 0;
+		for (int i = 0; i < 3; i++) {
+			PTCheck.push_back(0);
 		}
 		if (!patVec.empty() && patVec.front() != "na") {
 			PTCheck[0] = 1;
@@ -842,7 +842,14 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	else {
 		if (isInt(firstAtt) && !isInt(secondAtt)) {
 			if (folTab->getNext(firstAtt) != "") {
-				ans = folTab->getNext(firstAtt);
+				if (getSymMean(secondAtt) == "assign") {
+					if (contain(getAssignTable(), folTab->getNext(firstAtt))) {
+						ans = folTab->getNext(firstAtt);
+					}
+				}
+				else {
+					ans = folTab->getNext(firstAtt);
+				}
 			}
 		}
 		else if (folTab->isFollows(firstAtt, secondAtt)) {
@@ -935,7 +942,7 @@ void QueryHandler::rmEString(vector<string> vec) {
 }
 //Get synonym
 string QueryHandler::getSymMean(string sym) {
-	for (vector<string>::size_type i = 0; i != symTable.size(); i++) {
+	for (int i = 0; i < symTable.size(); i++) {
 		vector<string> current = symTable[i];
 		if (find(current.begin(), current.end(), sym) != current.end()) {
 			return current[0];

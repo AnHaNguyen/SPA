@@ -17,6 +17,7 @@ public:
 	QueryHandler();
 	~QueryHandler();
 	vector<string> queryRec(QueryTree* query);
+	vector <vector<string>> symTable;
 
 	void atoPair(pair<string, bool> &firstAttx, string &firstAtt);
 	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec);
@@ -45,7 +46,7 @@ public:
 	bool QueryHandler::isFollowsS(string firstAtt, string secondAtt);
 	bool QueryHandler::isParentS(string firstAtt, string secondAtt);
 	string QueryHandler::getSymMean(string sym);
-	vector <vector<string>> symTable;
+
 	bool QueryHandler::contain(vector<string> vec, string str);
 	void QueryHandler::rmEString(vector<string> vec);
 
