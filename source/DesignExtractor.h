@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 #include "TNode.h"
 #include "AST.h"
 #include "CFG.h"
@@ -45,6 +46,7 @@ const string NO_VALUE = "";
 const string OPEN_BRACKET = "{";
 const string CLOSE_BRACKET = "}";
 const string ROUND_OPEN_BRACKET = "(";
+const string FAKE_ROUND_BRACKET = "@";
 const string ROUND_CLOSE_BRACKET = ")";
 const string SEMICOLON = ";";
 const string EQUAL = "=";
@@ -59,13 +61,14 @@ const string TIMES_TEXT = "times";
 const string USE_VAR = "Use";
 const string MODIFY_VAR = "Modify";
 
-class DesignExtractor{
+class DesignExtractor {
 private:
-	string curProcName;
+	string curProcName, rightSideText;
 	TNode* curNodeInRightSideAss;
 	vector<string> input;
 	vector<AST*> ast;
 	vector<CFG*> cfg;
+	queue<TNode*> seperateNodeBracket;
 
 	CallTable* callTable;
 	FollowTable* followTable;
@@ -90,10 +93,10 @@ private:
 	void processProcedure(string theRestOfLine);
 	void processWhile(string theRestOfLine, int lineNumber);
 	// Process assignment
-	void processAssign(string leftSide, string rightSide, int lineNumber);
-	void processRightSideAssign(AST* ast, TNode* curParent, string rightSide, int lineNumber);
-	AST* processFactor(string factor, TNode* signNode, int lineNumber, AST* curProcSubAST);
-	AST* processFactorWCloseBracket(string factor, int lineNumber, AST* curProcSubAST, TNode* stackNode);
+	void processAssign(string leftSide, int lineNumber);
+	void processRightSideAssign(AST* curProcAst, TNode* curPar, int lineNumber);
+	TNode* processInsideBracket(AST* curProcAst, string subStr, int lineNumber);
+	void addToVarConstTable(string var, int lineNum);
 
 	void processIfThen(string controlVar, int lineNumber);
 	void processElse();
@@ -122,7 +125,7 @@ public:
 	DesignExtractor();
 	DesignExtractor(vector<string> input);
 	~DesignExtractor();
-	
+
 	vector<AST*> buildAST(vector<string> input);
 	CallTable* getCallTable();
 	FollowTable* getFollowTable();
@@ -135,6 +138,8 @@ public:
 	ProgLine* getProgLine();
 	vector<AST*> getASTList();
 	AST* buildSubtree(string pattern);
+
+	string getRightSideText();
 };
 
 #endif

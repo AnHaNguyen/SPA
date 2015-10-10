@@ -48,6 +48,7 @@ void DesignExtractor::initialize() {
 	lineNumber = 0;
 	stmtLstNumber = 0;
 	procedureNumber = -1;
+	rightSideText = "";
 }
 
 void DesignExtractor::storeToPKB() {
@@ -95,11 +96,12 @@ void DesignExtractor::processAST(vector<string> input){
 			size_t posSemicolon = curLine.find(SEMICOLON);
 
 			string leftSide = curLine.substr(0, posEqualSign);
-			string rightSide = curLine.substr(posEqualSign + 1, posSemicolon - posEqualSign - 1);
+			// no =, ;, } in rightSideText
+			rightSideText = curLine.substr(posEqualSign + 1, posSemicolon - posEqualSign - 1);
 			lineNumber++;
 
 			progLine->addToList(lineNumber, ASSIGN, curProcName);
-			processAssign(leftSide, rightSide, lineNumber);
+			processAssign(leftSide, lineNumber);
 		}
 		else if (curLine.find(IF) != string::npos && curLine.find(THEN) != string::npos){
 			size_t posThen = curLine.find(THEN);
@@ -263,7 +265,7 @@ void DesignExtractor::processWhile(string theRestOfLine, int lineNumber){
 }
 
 /*-------------No ;} in right side-------------*/
-void DesignExtractor::processAssign(string leftSide, string rightSide, int lineNumber){
+void DesignExtractor::processAssign(string leftSide, int lineNumber){
 	// Put assign node into tree
 	TNode* curParent = ASTCurParent.at(ASTCurParent.size() - 1);
 	TNode* assignNode = new TNode(NO_VALUE, ASSIGN, lineNumber);
@@ -281,10 +283,11 @@ void DesignExtractor::processAssign(string leftSide, string rightSide, int lineN
 	assignNode->setChild(leftVar);
 	leftVar->setParent(assignNode);
 
-	processRightSideAssign(ast.at(procedureNumber), assignNode, rightSide, lineNumber);
+	processRightSideAssign(ast.at(procedureNumber), assignNode, lineNumber);
 	ASTCurParent.pop_back();
 }
 
+/*
 void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
 											string rightSideText, int lineNumber){
 	vector<int> plusList;
@@ -354,150 +357,204 @@ void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParen
 		curParent->setChild(leftSubTreeNode);
 		leftSubTreeNode->setParent(curParent);
 	}
-}
+}*/
 
-/*
-//--------------------Assignment with +, -, *, (, )-------------------//
-void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent,
-	string rightSideText, int lineNumber) {
-	rightSideText += SEMICOLON;
+void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int lineNumber) {
+	stack<int> bracketStack = stack<int>();
+	seperateNodeBracket = queue<TNode*>();
+	queue<TNode*> finalQueue = queue<TNode*>();
+	int len = rightSideText.length();
+	TNode* finalStickNode = new TNode();
 
-	stack<TNode*> TNodeStack = stack<TNode*>();
-	int rightSideStrLen = rightSideText.length();
-	unsigned prevToken = 0;
-	curNodeInRightSideAss = new TNode();
-
-	for (unsigned i = 0; i < rightSideStrLen; i++) {
+	// process for bracket
+	for (int i = 0; i < len; i++) {
 		string curChar = rightSideText.substr(i, 1);
 
 		if (curChar == ROUND_OPEN_BRACKET) {
-			if (curNodeInRightSideAss != new TNode()) {
-				TNodeStack.push(curNodeInRightSideAss);
-			}
-
-			curNodeInRightSideAss = new TNode();
-			prevToken = i + 1;
+			bracketStack.push(i);
 		}
 		else if (curChar == ROUND_CLOSE_BRACKET) {
-			string factor = rightSideText.substr(prevToken, i - prevToken);
-			TNode* stackNode = TNodeStack.top();
-			TNodeStack.pop();
+			int openBracket = bracketStack.top();
+			bracketStack.pop();
 
-			curProcSubAST = processFactorWCloseBracket(factor, lineNumber, curProcSubAST, stackNode);
-			prevToken = i + 1;
+			string subStr = rightSideText.substr(openBracket + 1, i - openBracket - 1);
+			TNode* curNode = processInsideBracket(curProcAst, subStr, lineNumber);
+			seperateNodeBracket.push(curNode);
+
+			// use for sticking to parent
+			finalStickNode = curNode;
+
+			// (...) -> @...@
+			for (int j = openBracket; j <= i; j++) {
+				rightSideText.replace(j, 1, FAKE_ROUND_BRACKET);
+			}
+			
+			if (bracketStack.empty()) {
+				TNode* finalNode = seperateNodeBracket.front();
+				seperateNodeBracket.pop();
+				seperateNodeBracket = queue<TNode*>();
+
+				finalQueue.push(finalNode);
+			}
 		}
-		else if (curChar == TIMES) {
-			string factor = rightSideText.substr(prevToken, i - prevToken);
-			TNode* timesSignNode = new TNode(NO_VALUE, TIMES_TEXT, lineNumber);
+	}
 
-			curProcSubAST = processFactor(factor, timesSignNode, lineNumber, curProcSubAST);
-			prevToken = i + 1;
-		}
-		else if (curChar == PLUS) {
-			string factor = rightSideText.substr(prevToken, i - prevToken);
-			TNode* plusSignNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
+	if (rightSideText.find_first_not_of(FAKE_ROUND_BRACKET) != string::npos) {
+		seperateNodeBracket = finalQueue;
+		finalStickNode = processInsideBracket(curProcAst, rightSideText, lineNumber);
+	}
 
-			curProcSubAST = processFactor(factor, plusSignNode, lineNumber, curProcSubAST);
-			prevToken = i + 1;
+	curPar->setChild(finalStickNode);
+	finalStickNode->setParent(curPar);
+}
+
+// no ( & ) bracket
+TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, int lineNumber) {
+	// first: type, second, position
+	vector<pair<string, int>> signList = vector<pair<string, int>>();
+
+	for (int i = 0; i < subString.length(); i++) {
+		string curChar = subString.substr(i, 1);
+		if (curChar == PLUS) {
+			signList.push_back(make_pair(PLUS_TEXT, i));
 		}
 		else if (curChar == MINUS) {
-			string factor = rightSideText.substr(prevToken, i - prevToken);
-			TNode* minusSignNode = new TNode(NO_VALUE, MINUS_TEXT, lineNumber);
-
-			curProcSubAST = processFactor(factor, minusSignNode, lineNumber, curProcSubAST);
-			prevToken = i + 1;
+			signList.push_back(make_pair(MINUS_TEXT, i));
 		}
-		else if (curChar == SEMICOLON) {
-			string factor = rightSideText.substr(prevToken, i - prevToken);
-			if (factor != "") {
-				string type = exprType(factor);
-				if (type == VARIABLE) {
-					varTable->addVar(factor);
-				}
-				else if (type == CONSTANT) {
-					constTable->addToTable(convertNumToStr(lineNumber), factor);
-				}
-
-				TNode* lastNode = new TNode(factor, type, lineNumber);
-
-				curProcSubAST->addToTree(lastNode);
-				curNodeInRightSideAss->setChild(lastNode);
-				lastNode->setParent(curNodeInRightSideAss);
-			}
-
-			return;
+		else if (curChar == TIMES) {
+			signList.push_back(make_pair(TIMES_TEXT, i));
 		}
 	}
-}
 
-AST* DesignExtractor::processFactorWCloseBracket(string factor, int lineNumber, 
-												AST* curProcSubAST, TNode* stackNode) {
-	if (factor != "") {
-		string typeOfFactor = exprType(factor);
+	TNode* curNode = new TNode();
+	TNode* curPlusMinusNode = new TNode();
+	int size = signList.size();
 
-		if (typeOfFactor == VARIABLE) {
-			varTable->addVar(factor);
-		}
-		else if (typeOfFactor == CONSTANT) {
-			constTable->addToTable(convertNumToStr(lineNumber), factor);
-		}
-
-		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
-		curProcSubAST->addToTree(factorNode);
-
-		factorNode->setParent(curNodeInRightSideAss);
-		curNodeInRightSideAss->setChild(factorNode);
+	// only 1 variable in right side
+	if (size < 1) {
+		addToVarConstTable(subString, lineNumber);
+		return new TNode(subString, exprType(subString), lineNumber);
 	}
 
-	stackNode->setChild(curNodeInRightSideAss);
-	curNodeInRightSideAss->setParent(stackNode);
+	// first para
+	string varLeft = subString.substr(0, signList.at(0).second);
+	TNode* leftNode;
+	if (varLeft.find(FAKE_ROUND_BRACKET) == string::npos) {
+		string type = exprType(varLeft);
+		leftNode = new TNode(varLeft, type, lineNumber);
+		curProcAst->addToTree(leftNode);
 
-	curNodeInRightSideAss = stackNode;
-
-	return curProcSubAST;
-}
-
-AST* DesignExtractor::processFactor(string factor, TNode* signNode,
-									int lineNumber, AST* curProcSubAST) {
-	curProcSubAST->addToTree(signNode);
-
-	if (factor == "") {
-		if (curNodeInRightSideAss != new TNode()) {
-			curNodeInRightSideAss->setParent(signNode);
-			signNode->setChild(curNodeInRightSideAss);
-		}
+		addToVarConstTable(varLeft, lineNumber);
 	}
 	else {
-		string typeOfFactor = exprType(factor);
+		leftNode = seperateNodeBracket.front();
+		seperateNodeBracket.pop();
+	}
 
-		if (typeOfFactor == VARIABLE) {
-			varTable->addVar(factor);
-		}
-		else if (typeOfFactor == CONSTANT) {
-			constTable->addToTable(convertNumToStr(lineNumber), factor);
-		}
+	TNode* signNode = new TNode(NO_VALUE, signList.at(0).first, lineNumber);
+	signNode->setChild(leftNode);
+	leftNode->setParent(signNode);
+	curProcAst->addToTree(signNode);
+	curNode = signNode;
+	curPlusMinusNode = curNode;
 
-		TNode* factorNode = new TNode(factor, typeOfFactor, lineNumber);
-		curProcSubAST->addToTree(factorNode);
+	for (int i = 1; i < size; i++) {
+		string signType1 = signList.at(i - 1).first;
+		int posOfSign1 = signList.at(i - 1).second;
+		string signType2 = signList.at(i).first;
+		int posOfSign2 = signList.at(i).second;
 
-		if (curNodeInRightSideAss == new TNode()) {
-			signNode->setChild(factorNode);
-			factorNode->setParent(signNode);
+		varLeft = subString.substr(posOfSign1 + 1,
+			posOfSign2 - posOfSign1 - 1);
+		if (varLeft.find(FAKE_ROUND_BRACKET) == string::npos) {
+			string type = exprType(varLeft);
+			leftNode = new TNode(varLeft, type, lineNumber);
+			curProcAst->addToTree(leftNode);
+
+			addToVarConstTable(varLeft, lineNumber);
 		}
 		else {
-			curNodeInRightSideAss->setChild(factorNode);
-			factorNode->setParent(curNodeInRightSideAss);
+			leftNode = seperateNodeBracket.front();
+			seperateNodeBracket.pop();
+		}
 
-			curNodeInRightSideAss->setParent(signNode);
-			signNode->setChild(curNodeInRightSideAss);
+		TNode* signNode = new TNode(NO_VALUE, signType2, lineNumber);
+		curProcAst->addToTree(signNode);
+
+		if ((signType1 == TIMES_TEXT && signType2 == TIMES_TEXT) ||
+			((signType1 == PLUS_TEXT || signType1 == MINUS_TEXT) 
+			&& (signType2 == PLUS_TEXT || signType2 == MINUS_TEXT))) {
+
+			curNode->setChild(leftNode);
+			leftNode->setParent(curNode);
+
+			signNode->setChild(curNode);
+			curNode->setParent(signNode);
+
+			curNode = signNode;
+			if (signType1 == PLUS_TEXT || signType1 == MINUS_TEXT) {
+				curPlusMinusNode = curNode;
+			}
+		}
+		// start of times
+		else if ((signType1 == PLUS_TEXT || signType1 == MINUS_TEXT) && signType2 == TIMES_TEXT) {
+			signNode->setChild(leftNode);
+			leftNode->setParent(signNode);
+
+			curPlusMinusNode = curNode;
+			curNode = signNode;
+		}
+		else if (signType1 == TIMES_TEXT && (signType2 == PLUS_TEXT || signType2 == MINUS_TEXT)) {
+			curNode->setChild(leftNode);
+			leftNode->setParent(curNode);
+
+			curPlusMinusNode->setChild(curNode);
+			curNode->setParent(curPlusMinusNode);
+			curNode = curPlusMinusNode;
+
+			signNode->setChild(curNode);
+			curNode->setParent(signNode);
+			curNode = signNode;
 		}
 	}
 
-	curNodeInRightSideAss = signNode;
+	string lastVarRight = subString.substr(signList.at(size - 1).second + 1);
+	TNode* lastRightNode;
 
-	return curProcSubAST;
+	if (lastVarRight.find(FAKE_ROUND_BRACKET) == string::npos) {
+		string type = exprType(lastVarRight);
+		lastRightNode = new TNode(lastVarRight, type, lineNumber);
+		curProcAst->addToTree(lastRightNode);
+
+		addToVarConstTable(lastVarRight, lineNumber);
+	}
+	else {
+		lastRightNode = seperateNodeBracket.front();
+		seperateNodeBracket.pop();
+	}
+	
+	curNode->setChild(lastRightNode);
+	lastRightNode->setParent(curNode);
+
+	if ((curPlusMinusNode != curNode && curPlusMinusNode != new TNode())) {
+		curPlusMinusNode->setChild(curNode);
+		curNode->setParent(curPlusMinusNode);
+		curNode = curPlusMinusNode;
+	}
+
+	return curNode;
 }
-*/
+
+void DesignExtractor::addToVarConstTable(string var, int lineNumber) {
+	string type = exprType(var);
+
+	if (type == VARIABLE) {
+		varTable->addVar(var);
+	}
+	else if (type == CONSTANT) {
+		constTable->addToTable(convertNumToStr(lineNumber), var);
+	}
+}
 
 //---------------------Create Call Table------------------//
 void DesignExtractor::processCallTable(AST* ast) {
@@ -855,9 +912,14 @@ vector<AST*> DesignExtractor::getASTList() {
 
 AST* DesignExtractor::buildSubtree(string pattern) {
 	AST* subAST = new AST();
-	processRightSideAssign(subAST, new TNode(), pattern, 0);
+	rightSideText = pattern;
+	processRightSideAssign(subAST, new TNode(), 0);
 
 	return subAST;
+}
+
+string DesignExtractor::getRightSideText() {
+	return rightSideText;
 }
 
 // Smaller modules
