@@ -11,7 +11,7 @@ namespace UnitTesting
 	{
 	public:
 
-		TEST_METHOD(TestExtCallTable) 
+		TEST_METHOD(DECallTable) 
 		{
 			vector<string>code2 = { "procedureFirst{", "callSecond;", "callThird;","callFourth;}",
 			"procedureSecond{", "y=y+3+x;", "callThird;}",
@@ -33,7 +33,7 @@ namespace UnitTesting
 			Assert::AreEqual(callTable->getCallers("Second").at(0), (string) "First");
 		}
 
-		TEST_METHOD(TestExtModUseTable)
+		TEST_METHOD(DEModUseTable)
 		{
 			vector <string> code = { "procedureFirst{","iftthen{", "k=2+u;}", "else{", "c=2+o;}}",
 				"procedureSecond{", "x=0;", "whilei{" ,"y=x+2;", "x=3+m;", "callFirst;}" ,"x=y+z;}",
@@ -126,7 +126,7 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
 		}
 
-		TEST_METHOD(TestExtProcTable)
+		TEST_METHOD(DEProcTable)
 		{
 			vector <string> code = { "procedureFirst{", "x=2;}",
 				"procedureSecond{", "y=2;}",
@@ -140,7 +140,7 @@ namespace UnitTesting
 			Assert::AreEqual(procTable->indexOf("Third"), 2);
 		}
 
-		TEST_METHOD(TestExtVarTable) {
+		TEST_METHOD(DEVarTable) {
 			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
 				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
@@ -158,7 +158,7 @@ namespace UnitTesting
 			Assert::AreEqual(varTable->indexOf("qwqewe") != -1, true);
 		}
 
-		TEST_METHOD(TestExtConstTable) {
+		TEST_METHOD(DEConstTable) {
 			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
 				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
@@ -423,7 +423,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(4)->getChildList().at(1)->getType(), CONSTANT);
 		}*/
 
-		TEST_METHOD(TestExtParentTable) {
+		TEST_METHOD(DEParentTable) {
 			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
 				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
@@ -438,7 +438,7 @@ namespace UnitTesting
 			Assert::AreEqual(childrenOfWhile.at(1), (string) "7");
 		}
 
-		TEST_METHOD(TestExtFollowTable) {
+		TEST_METHOD(DEFollowTable) {
 			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
 				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
 				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
@@ -471,7 +471,7 @@ namespace UnitTesting
 			Assert::AreEqual(followTable->getNext("11"), (string) "12");
 		}
 
-		TEST_METHOD(TestProgLine) {
+		TEST_METHOD(DEProgLine) {
 			vector <string> code = { "procedureFirst{", "x=2;}",
 				"procedureSecond{", "ifxthen{", "i=5;}", "else{", "x=4;}" , "whilei{" ,"x=x+2+y;}" ,"z=z+x+i;}",
 				"procedureThird{", "z=5;}" };
@@ -490,7 +490,7 @@ namespace UnitTesting
 			Assert::AreEqual(progLine->getProcedure((string)"8"), (string) "Third");
 		}
 
-		TEST_METHOD(TestExtBuildAstNewAlgo) {
+		TEST_METHOD(DEBuildAstNewAlgo) {
 			vector<string> code = { "procedureFirst{", "x=t+i*o*u+r;}" };
 
 			DesignExtractor ext = DesignExtractor(code);
@@ -513,7 +513,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(11)->getType(), PLUS_TEXT);
 		}
 
-		TEST_METHOD(TestExtASTNewAlgo2) {
+		TEST_METHOD(DE_ASTNewAlgo2) {
 			vector<string> code = { "procedureFirst{",
 			"x=b+(a+c*d*e)+h*g;}" };
 
@@ -546,7 +546,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(16)->getValue(), (string) "g");
 		}
 
-		TEST_METHOD(TestExtASTMoreComplcated) {
+		TEST_METHOD(DE_ASTMoreComplcated) {
 			vector<string> code = { "procedureFirst{",
 			"x=(b+c*d*e+h*g)+(((a+b*c)-(10*e))+9)-(d+h*g);}" };
 
