@@ -77,25 +77,32 @@ namespace TestProcessor {
 		}
 
 		TEST_METHOD(Processor_Pattern) {
-			vector <string> code = {
+			vector<string> code = {
 				"procedureFirst{",
-				"x=3;",
-				"y=2",
-				"z=1;",
-				"b=x*y+x*y+z;",
-				"a=y+x*y*y;"
-				"a=y+x*y;}"
-
+				"x=2;",
+				"z=3;}",
+				"procedureSecond{",
+				"x=0;",
+				"i=5;",
+				"whilei{",
+				"x=x+2+y;",
+				"i=i+1;}",
+				"z=y+z+i;",
+				"y=z+y;",
+				"x=x+y+z;}",
+				"procedureThird{",
+				"z=5;",
+				"v=z;}"
 			};
 
 			DesignExtractor ext = DesignExtractor(code);
 			QueryPreprocessor qpp;
-			QueryTree* tree = qpp.startProcess("assign a;", "Select a pattern a(_, _\"y + x * y\"_)");
+			QueryTree* tree = qpp.startProcess("assign a;", "Select a pattern a(_, _\"y + z\"_);");
 
 			QueryHandler handler0;
 			vector<string> results = handler0.queryRec(tree);
 
-			Assert::AreEqual(string("6"), results[0]);
+			Assert::AreEqual(string("10"), results[0]);
 		}
 
 		
