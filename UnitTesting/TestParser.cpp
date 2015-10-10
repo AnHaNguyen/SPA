@@ -21,7 +21,7 @@ namespace TestPreprocessor
 
 		TEST_METHOD(Test_checkSyntax)
 		{
-			Parser p;
+			/*Parser p;
 			vector<string> input, expected, actual;
 			bool result;
 
@@ -30,9 +30,10 @@ namespace TestPreprocessor
 			actual = p.checkSyntax(input);
 			result = p.isEqualVector(expected, actual);
 
-			Assert::AreEqual(true, result);
+			Assert::AreEqual(true, result);*/
 
-
+			// intentional fail
+			Assert::AreEqual(1, 2);
 
 		}
 
