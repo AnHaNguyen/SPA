@@ -122,6 +122,10 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		//Handle modifies
 		vector<ModifyEntry_t> modTab;
 		if (syn == "Modifies") {
+			/*if (PKB::getModifyTable()->isModified("1", "i")) {
+				final.push_back("weeeee");
+				return final;
+			}*/
 			handleModifies(stFirst, stSecond, modVec, mvarVec);
 			if (modVec.size() > 0 && modVec.front() == "all") {
 				getModifyTable(modTab, modTable);
@@ -227,7 +231,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!parTable.empty()) {
 			STCheck[6] = 1;
 		}
-		if (!parTable.empty()) {
+		if (!nestTable.empty()) {
 			STCheck[7] = 1;
 		}
 		if (!uvarVec.empty()) {
@@ -458,7 +462,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		return final;
 	}
 	//Check case select not equal to each attribute
-	string rs = result->getResult();	
+	string rs = result->getResult();
 	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
 		if (selType == "prog_line" || selType == "stmt") {
 			final = PKB::getProgLine()->getLinesOfType("prog_line");
@@ -466,7 +470,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (selType == "variable") {
 			final = PKB::getVarTable()->getTable();
 		}
-		
+
 		if (selType == "constant") {
 			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
 			for (int i = 0; i < constTable.size(); i++) {
@@ -591,9 +595,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 			break;
 		case 9:
-			final = nestTable;
+			final = useVec;
 			if (getPos(PTCheck) == 0) {
-				final = intersection(nestTable, patVec);
+				final = intersection(useVec, patVec);
 			}
 			break;
 		case 10:
@@ -629,11 +633,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	if (final.size() > 0 && selType == "assign") {
 		final = intersection(final, getAssignTable());
 	}
+	if (selType == "prog_line" || selType == "stmt") {
+		final = intersection(final, PKB::getProgLine()->getLinesOfType("prog_line"));
+	}
 	if (selType == "while") {
 		final = intersection(final, PKB::getProgLine()->getLinesOfType("while"));
 	}
 	if (selType == "if") {
 		final = intersection(final, PKB::getProgLine()->getLinesOfType("if"));
+	}
+	if (selType == "procedure") {
+		final = intersection(final, PKB::getProgLine()->getLinesOfType("procedure"));
 	}
 	rmEString(final);
 	return final;
@@ -731,8 +741,11 @@ void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
 
 void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec) {
 	UseTable* useTab = PKB::getUseTable();
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
-		if (getSymMean(secondAtt) == "variable") {
+	//Case 
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign"
+		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if" || getSymMean(firstAtt) == "procedure"
+		|| getSymMean(firstAtt) == "call") {
+		if (getSymMean(secondAtt) == "variable" || getSymMean(secondAtt) == "_") {
 			useVec.push_back("all");
 		}
 		else {
@@ -740,8 +753,11 @@ void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<string
 		}
 	}
 	else {
-		if (isInt(firstAtt)) {
+		if (isInt(firstAtt) && getSymMean(secondAtt) != "") {
 			uvarVec = useTab->getUsed(firstAtt);
+		}
+		else if (useTab->isUsed(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
+			useVec.push_back("true");
 		}
 	}
 }
@@ -775,10 +791,8 @@ void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<stri
 				}
 			}
 		}
-		else {
-			if (parTab->isParent(firstAtt, secondAtt)) {
-				parVec.push_back("true");
-			}
+		else if (parTab->isParent(firstAtt, secondAtt)) {
+			parVec.push_back("true");
 		}
 	}
 }
@@ -786,7 +800,10 @@ void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<stri
 void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec)
 {
 	ModifyTable* modTab = PKB::getModifyTable();
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt") {
+	//Case 1st: all possible syms
+	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign"
+		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if" || getSymMean(firstAtt) == "procedure"
+		|| getSymMean(firstAtt) == "call") {
 		if (getSymMean(secondAtt) == "variable" || secondAtt == "_") {
 			modVec.push_back("all");
 		}
@@ -794,9 +811,13 @@ void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<st
 			modVec = modTab->getModifier(secondAtt.substr(1, secondAtt.size() - 2));
 		}
 	}
+	//Case 1st: 1, 2
 	else {
-		if (isInt(firstAtt)) {
+		if (isInt(firstAtt) && getSymMean(secondAtt) != "") {
 			mvarVec = modTab->getModified(firstAtt);
+		}
+		else if (modTab->isModified(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
+			modVec.push_back("true");
 		}
 	}
 }
@@ -824,10 +845,8 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 				ans = folTab->getNext(firstAtt);
 			}
 		}
-		else {
-			if (folTab->isFollows(firstAtt, secondAtt)) {
-				ans = "true";
-			}
+		else if (folTab->isFollows(firstAtt, secondAtt)) {
+			ans = "true";
 		}
 	}
 	return ans;
