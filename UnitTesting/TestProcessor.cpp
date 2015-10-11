@@ -9,14 +9,77 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 
 namespace TestProcessor {
-
 	TEST_CLASS(TestProcessor) {
 		public: 
 		void initializeEnvironment() {
 			
 		}
 
+		TEST_METHOD(Processor_Parent_New) {
+		
+			// QueryTree for "stmt s1,s2;", "Select s1 such that Parent(s1, s2);"
+			QueryTree* tree = new QueryTree();
+
+			vector<string> declarations;
+			declarations.push_back("stmt s1,s2");
+			tree->setSymbolTable(declarations);
+
+			vector<string> relations;
+			relations.push_back("Parent(s1, s2)");
+			tree->setSuchThat(relations);
+
+			vector<string> empty;
+			tree->setPattern(empty);
+			tree->setResult(empty);
+			
+			vector <string> code = {
+				"procedureFirst{",
+				"x=2;",
+				"z=3;}",
+				"procedureSecond{",
+				"x=0;",
+				"i=5;",
+				"whilei{",
+				"x=x+2+y;",
+				"i=i+1;}",
+				"z=z+x+i;",
+				"y=z+2;",
+				"x=x+y+z;}",
+				"procedureThird{",
+				"z=5;",
+				"v=z;}"
+			};
+
+			DesignExtractor ext = DesignExtractor(code);
+			// PKB::getParentTable();
+
+			QueryHandler handler0;
+			vector<string> results = handler0.queryRec(tree);
+
+			Assert::AreEqual(string("5"), results[0]);
+
+			Assert::AreEqual(1, 2);
+
+		}
+
 		TEST_METHOD(Processor_Parent) {
+
+			// QueryTree for "stmt s1,s2;", "Select s1 such that Parent(s1, s2);"
+			QueryTree* tree = new QueryTree();
+
+			vector<string> declarations;
+			declarations.push_back("stmt s1,s2");
+			tree->setSymbolTable(declarations);
+
+			vector<string> relations;
+			relations.push_back("Parent(s1, s2)");
+			tree->setSuchThat(relations);
+
+			vector<string> empty;
+			tree->setPattern(empty);
+			tree->setResult(empty);
+
+
 			vector <string> code = { 
 				"procedureFirst{", 
 				"x=2;", 
@@ -36,9 +99,7 @@ namespace TestProcessor {
 			};
 
 			DesignExtractor ext = DesignExtractor(code);
-			QueryPreprocessor qpp;
-			QueryTree* tree = qpp.startProcess("stmt s1,s2;", "Select s1 such that Parent(s1, s2);");
-
+			
 			QueryHandler handler0;
 			vector<string> results = handler0.queryRec(tree);
 
