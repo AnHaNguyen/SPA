@@ -48,35 +48,46 @@ void QueryTree::setResult(vector<string> terms){
     str = trim(str);
 	if (!isValidSynonym(symbolTable, str)) {
 		isValid = false; 
-		//cout << "wrong select TREE" << endl;
+		cout << "wrong select TREE" << endl;
 		return;
 	}
     result->setResult(str);
 }
 
-void QueryTree::setSuchThat(vector<string> terms){
-    if(terms.size()==0) return; 
-    string str = terms[0];
-    str = removeSpace(str); 
+void QueryTree::setSuchThat(vector<string> table){
+	//printTable(table);
+    if(table.size()==0) return; 
 
-    vector<string> words = stringToVector(str, "(");
-    string syn = trim(words[0]);
+	PreSuchThatNode* suchThatPtr = suchThat;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
 
-    vector<string> attributes = stringToVector(words[1], ",");
-    string first = trim(attributes[0]);
+		vector<string> words = stringToVector(str, "(");
+		string syn = trim(words[0]);
 
-    vector<string> remain = stringToVector(attributes[1], ")");
-    string second = trim(remain[0]);
+		vector<string> attributes = stringToVector(words[1], ",");
+		string first = trim(attributes[0]);
 
-	if (isValidSuchThatAttribute(syn, first, second)) {
-		suchThat->setSynonym(syn);
-		suchThat->setFirstAttr(first);
-		suchThat->setSecondAttr(second);
+		vector<string> remain = stringToVector(attributes[1], ")");
+		string second = trim(remain[0]);
+
+		if (isValidSuchThatAttribute(syn, first, second)) {
+			suchThatPtr->setSynonym(syn);
+			suchThatPtr->setFirstAttr(first);
+			suchThatPtr->setSecondAttr(second);
+		}
+		else {
+			cout << "wrong such that TREE"  << endl;
+			isValid = false;
+		}
+
+		PreSuchThatNode* nextNode = new PreSuchThatNode();
+		suchThatPtr->setNext(nextNode);
+		suchThatPtr = suchThatPtr->getNext();
 	}
-	else {
-		//cout << "wrong such that TREE"  << endl;
-		isValid = false;
-	}
+
+
 }
 
 void QueryTree::setPattern(vector<string> terms){
@@ -99,7 +110,7 @@ void QueryTree::setPattern(vector<string> terms){
 		pattern->setSecondAttr(second);
 	}
 	else {
-		//cout << "wrong pattern TREE"  << endl;
+		cout << "wrong pattern TREE"  << endl;
 		isValid = false;
 	}
 }
@@ -164,6 +175,7 @@ void QueryTree::setSymbolTable(vector<string> terms){
 		for (int j = 1; j < symbolTable[i].size(); j++) {
 			if (!isValidIdent(symbolTable[i][j])) {
 				//cout << "wrong symbol table"  << endl;
+				//cout << symbolTable[i][j] << endl;
 				isValid = false;
 			}
 		}
@@ -302,6 +314,7 @@ bool QueryTree::isValidIdent(string str) {
 
 	for (int i = 0; i<str.size(); i++) {
 		if (!(isalnum(str.at(i)) || str.at(i) == '#')) {
+			cout << "line 305" << endl;
 			return false;
 		}
 	}
@@ -510,4 +523,5 @@ void QueryTree::printDoubleTable(vector< vector<string> > table) {
 			cout << table[i][j] << endl;
 	}
 }
+
 
