@@ -457,5 +457,16 @@ namespace TestPreprocessor
 			QueryTree* tree35 = pro35.startProcess(declare35, input35);
 			Assert::AreEqual(false, tree35->getValidity());
 		}
+
+		TEST_METHOD(such_that_table)
+		{
+			QueryPreprocessor pro36;
+			string input = "Select w such that Modifies(a1,v1) and Follows(1,1) such that Modifies(1,v1) pattern a2(_,\"x\") such that Uses(s1,v1)";
+			pro36.setSuchThatTable(input);
+			Assert::AreEqual((string)"Modifies(a1,v1)", pro36.getSuchThatTable()[0]);
+			Assert::AreEqual((string)"Follows(1,1)", pro36.getSuchThatTable()[1]);
+			Assert::AreEqual((string)"Modifies(1,v1)", pro36.getSuchThatTable()[2]);
+			Assert::AreEqual((string)"Uses(s1,v1)", pro36.getSuchThatTable()[3]);
+		}
 	};
 }
