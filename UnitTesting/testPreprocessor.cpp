@@ -468,5 +468,20 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"Modifies(1,v1)", pro36.getSuchThatTable()[2]);
 			Assert::AreEqual((string)"Uses(s1,v1)", pro36.getSuchThatTable()[3]);
 		}
+
+		TEST_METHOD(such_that_nodes)
+		{
+			QueryPreprocessor pro37;
+			string declare37 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
+			string input37 = "Select w such that Modifies(a1,v1) and Follows(s1,s2) such that Modifies(1,v1) pattern a2(_,\"x\") such that Uses(s1,v1)";
+			QueryTree* tree37 = pro37.startProcess(declare37, input37);
+
+			PreSuchThatNode* suchThatPtr = tree37->getSuchThat();
+			tree37->setSuchThat(pro37.getSuchThatTable());
+			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"Follows", tree37->getSuchThat()->getNext()->getSynonym());
+			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getNext()->getNext()->getSynonym());
+			Assert::AreEqual((string)"Uses", tree37->getSuchThat()->getNext()->getNext()->getNext()->getSynonym());
+		}
 	};
 }
