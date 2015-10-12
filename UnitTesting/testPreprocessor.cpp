@@ -494,5 +494,20 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"a3(_,\"x\")", pro38.getPatternTable()[2]);
 			Assert::AreEqual((string)"a4(\"a\", \"b\")", pro38.getPatternTable()[3]);
 		}
+
+		TEST_METHOD(pattern_nodes)
+		{
+			QueryPreprocessor pro39;
+			string declare39 = "assign a1, a2, a3, a4; while w; stmt s1, s2;variable v1;";
+			string input39 = "Select w pattern a1(\"x\", \"y\") and a2(_,\"y\") such that Modifies(1,v1) pattern a3(_,\"x\") pattern a4(\"a\", _\"b\"_)";
+			QueryTree* tree39 = pro39.startProcess(declare39, input39);
+
+			PrePatternNode* patterPtr = tree39->getPattern();
+			tree39->setPattern(pro39.getPatternTable());
+			Assert::AreEqual((string)"a1", tree39->getPattern()->getSynonym());
+			Assert::AreEqual((string)"a2", tree39->getPattern()->getNext()->getSynonym());
+			Assert::AreEqual((string)"a3", tree39->getPattern()->getNext()->getNext()->getSynonym());
+			Assert::AreEqual((string)"a4", tree39->getPattern()->getNext()->getNext()->getNext()->getSynonym());
+		}
 	};
 }
