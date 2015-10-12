@@ -38,7 +38,7 @@ public:
     bool containWord(string str, string arr[], int size);
 	vector<string> extractContent(string str, string clause);
 	int identifyKeyword(string str);
-	vector<vector<string>>seperateClause(string str, string clause);
+	vector<vector<string>> seperateClause(string str, string clause);
 	vector<string> setClauseTable(vector< vector<string> > table);
 
 	vector<string> stringToVector(string original, string delimiter);
