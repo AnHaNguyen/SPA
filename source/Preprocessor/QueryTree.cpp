@@ -86,32 +86,39 @@ void QueryTree::setSuchThat(vector<string> table){
 		suchThatPtr->setNext(nextNode);
 		suchThatPtr = suchThatPtr->getNext();
 	}
-
-
 }
 
-void QueryTree::setPattern(vector<string> terms){
-    if(terms.size()==0) return;
+void QueryTree::setPattern(vector<string> table){
 
-    string str = terms[0];
-    str = removeSpace(str);
+	if (table.size()==0) return;
 
-    vector<string> words = stringToVector(str, "(");
-    string syn = trim(words[0]);
+	PrePatternNode* patternPtr = pattern;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
 
-    vector<string> attributes = stringToVector(words[1], ",");
-    string first = trim(attributes[0]);
+		vector<string> words = stringToVector(str, "(");
+		string syn = trim(words[0]);
 
-    vector<string> remain = stringToVector(attributes[1], ")");
-    string second = trim(remain[0]);
-	if (isValidPatternAttribute(syn, first, second)) {
-		pattern->setSynonym(syn);
-		pattern->setFirstAttr(first);
-		pattern->setSecondAttr(second);
-	}
-	else {
-		cout << "wrong pattern TREE"  << endl;
-		isValid = false;
+		vector<string> attributes = stringToVector(words[1], ",");
+		string first = trim(attributes[0]);
+
+		vector<string> remain = stringToVector(attributes[1], ")");
+		string second = trim(remain[0]);
+
+		if (isValidPatternAttribute(syn, first, second)) {
+			patternPtr->setSynonym(syn);
+			patternPtr->setFirstAttr(first);
+			patternPtr->setSecondAttr(second);
+		}
+		else {
+			cout << "wrong pattern TREE" << endl;
+			isValid = false;
+		}
+
+		PrePatternNode* nextNode = new PrePatternNode();
+		patternPtr->setNext(nextNode);
+		patternPtr = patternPtr->getNext();
 	}
 }
 
