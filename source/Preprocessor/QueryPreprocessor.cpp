@@ -271,11 +271,8 @@ void QueryPreprocessor::setPatternTable(string input){
 
 	vector <string> extractPattern = extractContent(str, "pattern");
 
-	string content = extractPattern[1];
-	if (content != "") {
-		content = trim(content);
-		patterns.push_back(content);
-	}
+	vector< vector<string> > patternClauses = seperateClause(str, "pattern");
+	patterns = setClauseTable(patternClauses);
 }
 
 void QueryPreprocessor::setResultTable(string input){
