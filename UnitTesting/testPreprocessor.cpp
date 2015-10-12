@@ -483,5 +483,16 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getNext()->getNext()->getSynonym());
 			Assert::AreEqual((string)"Uses", tree37->getSuchThat()->getNext()->getNext()->getNext()->getSynonym());
 		}
+
+		TEST_METHOD(pattern_table)
+		{
+			QueryPreprocessor pro38;
+			string input38 = "Select w pattern a1(\"x\", \"y\") and a2(_,\"y\") such that Modifies(1,v1) pattern a3(_,\"x\") pattern a4(\"a\", \"b\")";
+			pro38.setPatternTable(input38);
+			Assert::AreEqual((string)"a1(\"x\", \"y\")", pro38.getPatternTable()[0]);
+			Assert::AreEqual((string)"a2(_,\"y\")", pro38.getPatternTable()[1]);
+			Assert::AreEqual((string)"a3(_,\"x\")", pro38.getPatternTable()[2]);
+			Assert::AreEqual((string)"a4(\"a\", \"b\")", pro38.getPatternTable()[3]);
+		}
 	};
 }
