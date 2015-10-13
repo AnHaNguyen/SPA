@@ -491,7 +491,7 @@ namespace UnitTesting
 		}
 
 		TEST_METHOD(DEBuildAstNewAlgo) {
-			/*vector<string> code = { "procedureFirst{", "x=t+i*o*u+r;}" };
+		/*	vector<string> code = { "procedureFirst{", "x=t+i*o*u+r;}" };
 
 			DesignExtractor ext = DesignExtractor(code);
 			vector<AST*> astList = ext.getASTList();
@@ -513,7 +513,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(11)->getType(), PLUS_TEXT);*/
 
 			// intentional fail
-			Assert::AreEqual(1, 2);
+			//Assert::AreEqual(1, 2);
 		}
 
 		TEST_METHOD(DE_ASTNewAlgo2) {
@@ -651,6 +651,18 @@ namespace UnitTesting
 
 			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(0)->getValue(), (string) "x");
 			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(1)->getType(), MINUS_TEXT);*/
+		}
+		TEST_METHOD(TestExtBuildNextTable) {
+			vector<string>code2 = { "procedureFirst{", "callSecond;", "callThird;","callFourth;}",
+				"procedureSecond{", "y=y+3+x;", "callThird;}",
+				"procedureThird{", "callFourth;}",
+				"procedureFourth{", "y=1;}" };
+			DesignExtractor ext = DesignExtractor(code2);
+			NextTable* table = ext.getNextTable();
+			Assert::AreEqual(table->size(), 3);
+			Assert::AreEqual(table->getTable().at(0).lineNo, (string)"1");
+			Assert::AreEqual(table->getTable().at(1).lineNo, (string) "2");
+			Assert::AreEqual(table->getTable().at(2).lineNo, (string) "4");
 		}
 	};
 }
