@@ -46,7 +46,11 @@ void QueryTree::setResult(vector<string> terms){
     string str = terms[0];
 
     str = trim(str);
-	if (!isValidSynonym(symbolTable, str)) {
+	if (str == "BOOLEAN") {
+		isValid = true;
+	}
+
+	else if (!isValidSynonym(symbolTable, str)) {
 		isValid = false; 
 		cout << "wrong select TREE" << endl;
 		return;

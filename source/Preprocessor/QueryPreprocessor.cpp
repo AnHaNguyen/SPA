@@ -279,9 +279,9 @@ void QueryPreprocessor::setResultTable(string input){
 
 	string str = removeMultipleSpace(input);
 
-	vector <string> extractSuchThat = extractContent(str, "Select");
+	vector <string> extractResult = extractContent(str, "Select");
 
-	string content = extractSuchThat[1];
+	string content = extractResult[1];
 	content = trim(content);
 	selections.push_back(content);
 }
