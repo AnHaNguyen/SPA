@@ -68,7 +68,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> usedTable;
 
 	vector<string> nextVec;
-	vector<pair<string, string>>  nextTable;
+	vector<pair<string, vector<string>>>  nextTable;
 
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
@@ -205,7 +205,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		ansVec = getAffectS(firstAtt, secondAtt);
 		}
 		}*/
-		/*if (ST == "next") {
+	/*	if (ST == "next") {
 			nextVec = handleNext(stFirst, stSecond);
 			if (nextVec.size() > 0 && nextVec.front() == "all") {
 				getNextTable(nextTable);
@@ -312,8 +312,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				if (selType == "constant") {
 					vector<string> temp1 = getAssignTable();
 					vector<pair<string, vector<string>>> temp2 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp1, temp2);
-					for (int i = 0; i < temp3.size(); i++) {
+					vector < pair<string, vector<string>>> ansVec = intersection(temp1, temp2);
+					for (int i = 0; i < ansVec.size(); i++) {
 						pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
 					}
 				}
@@ -687,27 +687,41 @@ bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vect
 }
 
 void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable) {
-	ModifyTable* ModifyTable = PKB::getModifyTable();
-	modTab = ModifyTable->getTable();
-	modTable = toConvention(modTab);
+	modTab = PKB::getModifyTable()->getTable();
+	for (int i = 0; i < modTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = modTab[i].modifier;
+		temp.second = modTab[i].modifiedVar;
+		modTable.push_back(temp);
+	}
 }
 
 void QueryHandler::getFollowTable(vector<pair<string, string>> &folTable) {
-	folTable = toConvention(PKB::getFollowTable()->getTable());
+	vector<FollowEntry_t> folTab = PKB::getFollowTable()->getTable();
+	for (int i = 0; i < folTab.size(); i++) {
+		pair<string, string> temp;
+		temp.first = folTab[i].prev;
+		temp.second = folTab[i].next;
+		folTable.push_back(temp);
+	}
 }
+
+//void QueryHandler::getNextTable(vector<string> nextTable) {
+//	NextTable* nextTab = PKB::getNextTable();
+//	nextTable =
+//}
 
 vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
 	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
-	vector<pair<string, vector<string>>> temp3;
+	vector<pair<string, vector<string>>> ansVec;
 	for (int i = 0; i < temp1.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = temp1[i].line;
 		temp.second = temp1[i].constants;
-		temp3.push_back(temp);
+		ansVec.push_back(temp);
 	}
-	return temp3;
+	return ansVec;
 }
-
 
 vector<string> QueryHandler::getAssignTable() {
 	vector<string> ansVec;
@@ -869,42 +883,40 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	return ans;
 }
 
-//vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt) {
-//	NextTable* nextTab = PKB::getNextTable();
-//	string ans = "na";
-//	//Case 1st: n/s
-//	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
-//		//Case 2nd: n/s
-//		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
-//			ans = "all";
-//		}
-//		//Case 2nd: 1, 2...
-//		if (isInt(secondAtt)) {
-//			if (nextTab->getPrev(secondAtt) != "") {
-//				ans = nextTab->getPrev(secondAtt);
-//			}
-//		}
-//	}
-//	//Case 1st: 1, 2
-//	else {
-//		if (isInt(firstAtt) && !isInt(secondAtt)) {
-//			if (nextTab->getNext(firstAtt) != "") {
-//				if (getSymMean(secondAtt) == "assign") {
-//					if (contain(getAssignTable(), nextTab->getNext(firstAtt))) {
-//						ans = nextTab->getNext(firstAtt);
-//					}
-//				}
-//				else {
-//					ans = nextTab->getNext(firstAtt);
-//				}
-//			}
-//		}
-//		else if (nextTab->isNext(firstAtt, secondAtt)) {
-//			ans = "true";
-//		}
-//	}
-//	return ans;
-//}
+vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt) {
+	NextTable* nextTab = PKB::getNextTable();
+	vector<string> ans;
+	//Case 1st: n/s
+	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+		//Case 2nd: n/s
+		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
+			ans.push_back("all");
+		}
+		//Case 2nd: 1, 2...
+		if (isInt(secondAtt)) {
+			if (nextTab->getPrev(secondAtt).size()>0) {
+				ans = nextTab->getPrev(secondAtt);
+			}
+		}
+	}
+	//Case 1st: 1, 2
+	else {
+		if (isInt(firstAtt) && !isInt(secondAtt)) {
+			if (nextTab->getNext(firstAtt).size()) {
+				if (getSymMean(secondAtt) == "assign") {
+						ans = intersection(nextTab->getNext(firstAtt), getAssignTable());
+				}
+				else {
+					ans = nextTab->getNext(firstAtt);
+				}
+			}
+		}
+		else if (nextTab->isNext(firstAtt, secondAtt)) {
+			ans.push_back("true");
+		}
+	}
+	return ans;
+}
 
 string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 {
@@ -1007,26 +1019,6 @@ int QueryHandler::getPos(vector<int> intVec) {
 	return -1;
 }
 //To convetion
-vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table) {
-	vector<pair<string, string>> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		pair<string, string> temp;
-		temp.first = table[i].prev;
-		temp.second = table[i].next;
-		ansVec.push_back(temp);
-	}
-	return ansVec;
-}
-vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table) {
-	vector<pair<string, vector<string>>> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		pair<string, vector<string>> temp;
-		temp.first = table[i].modifier;
-		temp.second = table[i].modifiedVar;
-		ansVec.push_back(temp);
-	}
-	return ansVec;
-}
 vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x) {
 	vector<string> ansVec;
 	if (x == 1) {

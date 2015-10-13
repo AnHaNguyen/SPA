@@ -28,8 +28,6 @@ public:
 
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 
-	vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);
-	vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table);
 	vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, bool x);
 	vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x);
