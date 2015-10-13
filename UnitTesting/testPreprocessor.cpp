@@ -566,5 +566,16 @@ namespace TestPreprocessor
 			QueryTree* tree45 = pro45.startProcess(declare45, input45);
 			Assert::AreEqual(false, tree45->getValidity());
 		}
+
+		TEST_METHOD(such_that_next) {
+			QueryPreprocessor pro46;
+			string declare46 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input46 = "Select w such that Next(s1,a1)";
+			QueryTree* tree46 = pro46.startProcess(declare46, input46);
+			Assert::AreEqual(true, tree46->getValidity());
+			Assert::AreEqual((string)"Next", tree46->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"s1", tree46->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"a1", tree46->getSuchThat()->getSecondAttr());
+		}
 	};
 }
