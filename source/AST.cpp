@@ -113,7 +113,7 @@ vector<int> AST::getAssign() {
 vector<string> AST::findSubtree(AST* subtree, bool contains_) {
 	vector<string> returnList;
 	vector<TNode*> assignList = getType("assign");
-	TNode* subtreeRoot = subtree->getTree().at(0);
+	TNode* subtreeRoot = subtree->getTree().at(0)->getChildList().at(0);
 	
 	vector<TNode*> operList;
 

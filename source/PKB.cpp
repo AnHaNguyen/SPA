@@ -126,6 +126,9 @@ vector<string> PKB::checkAssign(string pattern, bool contains_) {
 	vector<string> returnList;
 	DesignExtractor ext = DesignExtractor();
 	AST* subtree = ext.buildSubtree(pattern);
+	/*for (unsigned i = 0; i < subtree->getTree().size(); i++) {
+		returnList.push_back(subtree->getTree().at(i)->getType());
+	}*/
 	for (unsigned i = 0; i < astList.size(); i++) {
 		vector<string> temp = astList.at(i)->findSubtree(subtree, contains_);
 		returnList.insert(returnList.end(), temp.begin(), temp.end());

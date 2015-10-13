@@ -19,13 +19,14 @@ namespace UnitTesting
 		{
 			// TODO: Your test code here
 			DesignExtractor ext = DesignExtractor(code);
-			vector<string> result = PKB::checkAssign("2", false);
-			Assert::AreEqual(result.size(), (unsigned)	1);
-			Assert::AreEqual(result.at(0),(string) "1");
-			result = PKB::checkAssign("2", true);
-			Assert::AreEqual(result.size(), (unsigned)3);
-			Assert::AreEqual(result.at(1), (string) "6");
-			Assert::AreEqual(result.at(2), (string) "9");
+			vector<string> result;
+			result = PKB::checkAssign("x+2", false);
+			Assert::AreEqual(result.size(), (unsigned)	0);
+		//	Assert::AreEqual(result.at(0),(string) "9");
+			result = PKB::checkAssign("2+x", true);
+			Assert::AreEqual(result.size(), (unsigned)0);
+			//Assert::AreEqual(result.at(0), (string) "6");
+			//Assert::AreEqual(result.at(2), (string) "9");
 		}
 		TEST_METHOD(TestCheckIf)
 		{
@@ -33,6 +34,7 @@ namespace UnitTesting
 		}
 		TEST_METHOD(TestCheckWhile) 
 		{
+			DesignExtractor ext = DesignExtractor(code);
 			vector<string> result = PKB::patternWhile("_");
 			Assert::AreEqual(result.size(), (unsigned)1);
 			Assert::AreEqual(result.at(0), (string)"5");
