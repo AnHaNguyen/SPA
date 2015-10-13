@@ -25,7 +25,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	}
 
 	processProcTable();
-	processModUseTable();
+	//processModUseTable();
 	processNextTable();
 	storeToPKB();
 }
@@ -924,7 +924,10 @@ NextTable* DesignExtractor::getNextTable() {
 AST* DesignExtractor::buildSubtree(string pattern) {
 	AST* subAST = new AST();
 	rightSideText = pattern;
-	processRightSideAssign(subAST, new TNode(), 0);
+
+	TNode* curParent = new TNode();
+	subAST->addToTree(curParent);
+	processRightSideAssign(subAST, curParent, 0);
 
 	return subAST;
 }
