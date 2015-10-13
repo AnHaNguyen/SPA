@@ -434,8 +434,11 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 
 	// only 1 variable in right side
 	if (size < 1) {
+		TNode* singleNode = new TNode(subString, exprType(subString), lineNumber);
+		curProcAst->addToTree(singleNode);
 		addToVarConstTable(subString, lineNumber);
-		return new TNode(subString, exprType(subString), lineNumber);
+
+		return singleNode;
 	}
 
 	// first para
@@ -457,6 +460,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	signNode->setChild(leftNode);
 	leftNode->setParent(signNode);
 	curProcAst->addToTree(signNode);
+
 	curNode = signNode;
 	curPlusMinusNode = curNode;
 
@@ -517,6 +521,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			signNode->setChild(curNode);
 			curNode->setParent(signNode);
 			curNode = signNode;
+			curPlusMinusNode = curNode;
 		}
 	}
 
