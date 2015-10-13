@@ -462,12 +462,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-		/*if (PT == "if") {
-			patVec = PKB::patternIf();
+		if (PT == "if") {
+			patVec = PKB::patternIf(ptFirstQ.first, ptFirstQ.second);
 		}
 		if (PT == "while") {
-			patVec = PKB::patternWhile();
-		}*/
+			patVec = PKB::patternWhile(ptFirstQ.first, ptFirstQ.second);
+		}
 		for (int i = 0; i < 3; i++) {
 			PTCheck.push_back(0);
 		}
