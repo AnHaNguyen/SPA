@@ -26,7 +26,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 
 	processProcTable();
 	processModUseTable();
-
+	processNextTable();
 	storeToPKB();
 }
 
@@ -44,6 +44,7 @@ void DesignExtractor::initialize() {
 	progLine = new ProgLine();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
+	nextTable = new NextTable();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -61,6 +62,7 @@ void DesignExtractor::storeToPKB() {
 	PKB::setParentTable(parentTable);
 	PKB::setFollowTable(followTable);
 	PKB::setProgLine(progLine);
+	PKB::setNextTable(nextTable);
 }
 
 //-------------------------AST-------------------------//
@@ -432,8 +434,11 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 
 	// only 1 variable in right side
 	if (size < 1) {
+		TNode* singleNode = new TNode(subString, exprType(subString), lineNumber);
+		curProcAst->addToTree(singleNode);
 		addToVarConstTable(subString, lineNumber);
-		return new TNode(subString, exprType(subString), lineNumber);
+
+		return singleNode;
 	}
 
 	// first para
@@ -455,6 +460,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	signNode->setChild(leftNode);
 	leftNode->setParent(signNode);
 	curProcAst->addToTree(signNode);
+
 	curNode = signNode;
 	curPlusMinusNode = curNode;
 
@@ -515,6 +521,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			signNode->setChild(curNode);
 			curNode->setParent(signNode);
 			curNode = signNode;
+			curPlusMinusNode = curNode;
 		}
 	}
 
@@ -910,6 +917,10 @@ vector<AST*> DesignExtractor::getASTList() {
 	return ast;
 }
 
+NextTable* DesignExtractor::getNextTable() {
+	return nextTable;
+}
+
 AST* DesignExtractor::buildSubtree(string pattern) {
 	AST* subAST = new AST();
 	rightSideText = pattern;
@@ -951,4 +962,101 @@ int DesignExtractor::getRealLineNumber(int lineNumber, string line) {
 	}
 
 	return lineNumber;
+}
+
+bool DesignExtractor::processNextTable() {
+	for (unsigned i = 1; i <= progLine->numOfLines(); i++) {
+		string type = progLine->getType(to_string(i));
+		if (type == "assign" || type == "call") {
+			string next = followTable->getNext(to_string(i));
+			if (next != "") {
+				nextTable->addToTable(to_string(i), next);
+			}
+		}
+		else if (type == "while") {
+			vector<string> childList = parentTable->getChild(to_string(i));
+			vector<int> cvtChildList;
+			for (unsigned j = 0; j < childList.size(); j++) {
+				cvtChildList.push_back(atoi(childList.at(j).c_str()));
+			}
+			int firstChild = cvtChildList.at(0);
+			int lastChild = cvtChildList.at(0);
+			for (unsigned j = 1; j < cvtChildList.size(); j++) {
+				if (cvtChildList.at(j) < firstChild) {
+					firstChild = cvtChildList.at(j);
+				}
+				if (cvtChildList.at(j) > lastChild) {
+					lastChild = cvtChildList.at(j);
+				}
+			}
+			nextTable->addToTable(to_string(i), to_string(firstChild));
+			if (progLine->getType(to_string(lastChild)) != "if") {
+				nextTable->addToTable(to_string(lastChild), to_string(i));
+			}
+			string next = followTable->getNext(to_string(i));
+			if (next != "") {
+				nextTable->addToTable(to_string(i), next);
+			}
+		}
+		else if (type == "if") {
+			vector<string> childList = parentTable->getChild(to_string(i));
+			vector<string> firstChilds;
+			for (unsigned j = 0; j < childList.size(); j++) {
+				if (followTable->getPrev(childList.at(j)) == "") {
+					firstChilds.push_back(childList.at(j));
+				}
+			}
+			if (firstChilds.size() != 2) {	//check that only 2 childs that are then and else
+				return false;
+			}
+			string thenChild;
+			string elseChild;
+			if (atoi(firstChilds.at(0).c_str()) < atoi(firstChilds.at(1).c_str())) {
+				thenChild = firstChilds.at(0);
+				elseChild = firstChilds.at(1);
+			}
+			else {
+				thenChild = firstChilds.at(1);
+				elseChild = firstChilds.at(0);
+			}
+			nextTable->addToTable(to_string(i), thenChild);
+			nextTable->addToTable(to_string(i), elseChild);
+			string lastThen = findLast(thenChild);
+			string lastElse = findLast(elseChild);
+			string next = nearestNext(to_string(i));
+			if (next != "") {
+				if (lastThen != "") {
+					nextTable->addToTable(lastThen, next);
+				}
+				if (lastElse != "") {
+					nextTable->addToTable(lastElse, next);
+				}
+			}
+		}
+	}
+	return true;
+}
+
+string DesignExtractor::findLast(string line) {
+	while (followTable->getNext(line) != "") {
+		line = followTable->getNext(line);
+	}
+	if (progLine->getType(line) == "assign" || progLine->getType(line) == "call"
+		|| progLine->getType(line) == "while") {
+		return line;
+	}
+	return "";
+}
+
+string DesignExtractor::nearestNext(string line) {
+	if (followTable->getNext(line) != "") {
+		return followTable->getNext(line);
+	}
+	else if (progLine->getType(line) == "while") {
+		return line;
+	}
+	else if (parentTable->getParent(line) == "") {
+		return "";
+	}
+	else return nearestNext(parentTable->getParent(line));
 }

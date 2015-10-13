@@ -490,8 +490,35 @@ namespace UnitTesting
 			Assert::AreEqual(progLine->getProcedure((string)"8"), (string) "Third");
 		}
 
-		TEST_METHOD(DEBuildAstNewAlgo) {
-			/*vector<string> code = { "procedureFirst{", "x=t+i*o*u+r;}" };
+		TEST_METHOD(DE_AST_SimplestTestCase) {
+			vector<string> code = { "procedureFirst{", "x=2;}" };
+
+			DesignExtractor ext = DesignExtractor(code);
+			vector<AST*> astList = ext.getASTList();
+
+			AST* ast = astList.at(0);
+
+			Assert::AreEqual(ast->getTree().at(3)->getValue(), (string) "x");
+			Assert::AreEqual(ast->getTree().at(4)->getValue(), (string) "2");
+			Assert::AreEqual(ast->getTree().at(4)->getType(), CONSTANT);
+			Assert::AreEqual(ast->getTree().at(4)->getParent()->getType(), ASSIGN);
+
+			//-------------------------------------------------------------------//
+			vector<string> code1 = { "procedureFirst{", "x=t;}" };
+
+			ext = DesignExtractor(code1);
+			astList = ext.getASTList();
+
+			ast = astList.at(0);
+
+			Assert::AreEqual(ast->getTree().at(3)->getValue(), (string) "x");
+			Assert::AreEqual(ast->getTree().at(4)->getValue(), (string) "t");
+			Assert::AreEqual(ast->getTree().at(4)->getType(), VARIABLE);
+			Assert::AreEqual(ast->getTree().at(4)->getParent()->getType(), ASSIGN);
+		}
+
+		TEST_METHOD(DE_AST_Test1) {
+			vector<string> code = { "procedureFirst{", "x=t+i*o*u+r;}" };
 
 			DesignExtractor ext = DesignExtractor(code);
 			vector<AST*> astList = ext.getASTList();
@@ -510,13 +537,10 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(9)->getChildList().at(0)->getType(), TIMES_TEXT);
 			Assert::AreEqual(ast->getTree().at(9)->getChildList().at(1)->getValue(), (string) "u");
 
-			Assert::AreEqual(ast->getTree().at(11)->getType(), PLUS_TEXT);*/
-
-			// intentional fail
-			Assert::AreEqual(1, 2);
+			Assert::AreEqual(ast->getTree().at(11)->getType(), PLUS_TEXT);
 		}
 
-		TEST_METHOD(DE_ASTNewAlgo2) {
+		TEST_METHOD(DE_AST_Test2) {
 			vector<string> code = { "procedureFirst{",
 			"x=b+(a+c*d*e)+h*g;}" };
 
@@ -549,8 +573,8 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(16)->getValue(), (string) "g");
 		}
 
-		TEST_METHOD(DE_ASTMoreComplcated) {
-			/*vector<string> code = { "procedureFirst{",
+		TEST_METHOD(DE_AST_MoreComplicated) {
+			vector<string> code = { "procedureFirst{",
 			"x=(b+c*d*e+h*g)+(((a+b*c)-(10*e))+9)-(d+h*g);}" };
 
 			DesignExtractor ext = DesignExtractor(code);
@@ -586,7 +610,6 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(13)->getChildList().at(1)->getValue(), (string) "g");
 
 			Assert::AreEqual(ast->getTree().at(14)->getValue(), (string) "g");
-			
 			
 			Assert::AreEqual(ast->getTree().at(15)->getType(), VARIABLE);
 			Assert::AreEqual(ast->getTree().at(15)->getValue(), (string) "a");
@@ -650,7 +673,19 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(32)->getChildList().at(1)->getChildList().at(1)->getType(), TIMES_TEXT);
 
 			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(0)->getValue(), (string) "x");
-			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(1)->getType(), MINUS_TEXT);*/
+			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(1)->getType(), MINUS_TEXT);
+		}
+		TEST_METHOD(TestExtBuildNextTable) {
+			vector<string>code2 = { "procedureFirst{", "callSecond;", "callThird;","callFourth;}",
+				"procedureSecond{", "y=y+3+x;", "callThird;}",
+				"procedureThird{", "callFourth;}",
+				"procedureFourth{", "y=1;}" };
+			DesignExtractor ext = DesignExtractor(code2);
+			NextTable* table = ext.getNextTable();
+			Assert::AreEqual(table->size(), 3);
+			Assert::AreEqual(table->getTable().at(0).lineNo, (string)"1");
+			Assert::AreEqual(table->getTable().at(1).lineNo, (string) "2");
+			Assert::AreEqual(table->getTable().at(2).lineNo, (string) "4");
 		}
 	};
 }
