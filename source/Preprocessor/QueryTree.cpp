@@ -2,7 +2,7 @@
 #include<algorithm>
 #include<iostream>
 
-string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses" };
+string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses","Calls","Calls*","Next","Next*","Affects","Affects*" };
 
 QueryTree::QueryTree(){
 
@@ -284,7 +284,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 	string firstType = getSynType(symbolTable, first);
 	string secondType = getSynType(symbolTable, second);
 
-	if (!containWord(syn, relations, 6)) {
+	if (!containWord(syn, relations, 14)) {
 		return false;
 	}
 
@@ -321,39 +321,64 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (second != "_" && second.find("\"")==string::npos){
-			if (secondType != "variable")
+			if (secondType != "variable") {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	if (syn == "Parent" || syn == "Parent*") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
 			return false;
+		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "if" && firstType != "while" && firstType != "prog_line" && firstType != "stmt")
+			if (firstType != "if" && firstType != "while" && firstType != "prog_line" && firstType != "stmt") {
 				return false;
+			}
 		}		
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	if (syn == "Follows" || syn == "Follows*") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
-			return false;		
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
+			return false;
+		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line")
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line") {
 				return false;
+			}
 		}
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
 				return false;
+			}
 		}
 		return true;
 	}	
+
+	if (syn == "Next" || syn == "Next*") {
+		if (!isValidLineRef(symbolTable, first) || !isValidLineRef(symbolTable, second)) {
+			return false;
+		}
+		if (first != "_" && !isInteger(first)) {
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line") {
+				return false;
+			}
+		}
+		if (second != "_" && !isInteger(second)) {
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
 
 bool QueryTree::isValidPatternAttribute(string syn, string first, string second, string third) {
@@ -448,6 +473,15 @@ bool QueryTree::isValidName(string str) {
 }
 
 bool QueryTree::isValidStmtRef(vector< vector<string> > table, string str) {
+	str = trim(str);
+	if (str == "_" || isValidSynonym(table, str) || isInteger(str)) {
+		return true;
+	}
+
+	return false;
+}
+
+bool QueryTree::isValidLineRef(vector< vector<string> > table, string str) {
 	str = trim(str);
 	if (str == "_" || isValidSynonym(table, str) || isInteger(str)) {
 		return true;

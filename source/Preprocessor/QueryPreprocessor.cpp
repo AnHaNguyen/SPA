@@ -7,7 +7,7 @@
 
 using namespace std;
 
-string designEntity[] = {"assign","stmt","while","variable","constant","prog_line","if"};
+string designEntity[] = {"assign","stmt","while","variable","constant","prog_line","if","procedure","call","program","stmtLst","plus","minus","times"};
 string keywords[] = { "such that", "pattern" };
 
 QueryPreprocessor::QueryPreprocessor(){
@@ -103,7 +103,7 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 		firstWord = trim(firstWord);
 		string remainWord = removeFirstToken(temp[i]);
 		remainWord = trim(remainWord);
-		if (!containWord(firstWord, designEntity, 7)) {
+		if (!containWord(firstWord, designEntity, 14)) {
 			return false;
 		}
 		if (remainWord.find(",") != string::npos) {

@@ -40,6 +40,7 @@ public:
 	bool isValidName(string str);
 	bool isValidStmtRef(vector< vector<string> > table, string str);
 	bool isValidEntRef(vector< vector<string> > table, string str);
+	bool isValidLineRef(vector< vector<string> > table, string str);
 	bool isValidExpressionSpec(string str);
 	bool isAssign(string str);
 	bool isVariable(string str);
