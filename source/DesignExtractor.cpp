@@ -967,7 +967,7 @@ int DesignExtractor::getRealLineNumber(int lineNumber, string line) {
 bool DesignExtractor::processNextTable() {
 	for (unsigned i = 1; i <= progLine->numOfLines(); i++) {
 		string type = progLine->getType(to_string(i));
-		if (type == "assign") {
+		if (type == "assign" || type == "call") {
 			string next = followTable->getNext(to_string(i));
 			if (next != "") {
 				nextTable->addToTable(to_string(i), next);
@@ -1041,7 +1041,7 @@ string DesignExtractor::findLast(string line) {
 	while (followTable->getNext(line) != "") {
 		line = followTable->getNext(line);
 	}
-	if (progLine->getType(line) == "assign"
+	if (progLine->getType(line) == "assign" || progLine->getType(line) == "call"
 		|| progLine->getType(line) == "while") {
 		return line;
 	}
