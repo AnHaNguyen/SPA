@@ -91,3 +91,7 @@ void CFG::buildNextTable(NextTable* nextTable) {
 		}
 	}
 }
+
+vector<GNode*> CFG::getTable() {
+	return cfg;
+}
