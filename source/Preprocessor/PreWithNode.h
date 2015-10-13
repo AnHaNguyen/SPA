@@ -9,6 +9,7 @@ private:
     PreWithNode* next;
 	AttrRef leftAttrRef;
 	AttrRef rightAttrRef;
+	string leftType;
 	string rightType;
 
 
@@ -19,12 +20,15 @@ public:
     PreWithNode* getNext();
 	AttrRef getLeftAttrRef();
 	AttrRef getRightAttrRef();
+	string getLeftType();
 	string getRightType();
 
     void setNext(PreWithNode* node);
 	void setLeftAttrRef(AttrRef ar);
 	void setRightAttrRef(AttrRef ar);
+	void setLeftType(string str);
 	void setRightType(string str);
+
 
 };
 

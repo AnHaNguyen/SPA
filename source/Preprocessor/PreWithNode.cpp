@@ -5,6 +5,7 @@ PreWithNode::PreWithNode(){
     next=NULL;
 	leftAttrRef;
 	rightAttrRef;
+	leftType = "";
 	rightType = "";
 }
 
@@ -26,6 +27,10 @@ AttrRef PreWithNode::getRightAttrRef() {
 	return rightAttrRef;
 }
 
+string PreWithNode::getLeftType() {
+	return leftType;
+}
+
 string PreWithNode::getRightType() {
 	return rightType;
 }
@@ -41,6 +46,10 @@ void PreWithNode::setLeftAttrRef(AttrRef ar) {
 
 void PreWithNode::setRightAttrRef(AttrRef ar) {
 	rightAttrRef = ar;
+}
+
+void PreWithNode::setLeftType(string str) {
+	leftType = str;
 }
 
 void PreWithNode::setRightType(string str) {
