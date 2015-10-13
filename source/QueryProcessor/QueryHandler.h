@@ -24,6 +24,8 @@ public:
 	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
 	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &varVec);
 	string handleFollows(string &firstAtt, string &secondAtt);
+	vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt);
+
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 
 	vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table);

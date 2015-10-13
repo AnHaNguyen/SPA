@@ -28,6 +28,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	string stSecond;
 	string ptFirst;
 	string ptSecond;
+	string ST;
+	string PT;
 
 	//Return check
 	vector<int> PTCheck;
@@ -65,15 +67,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> userTable;
 	vector<string> usedTable;
 
+	vector<string> nextVec;
+	vector<pair<string, string>>  nextTable;
 
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
-		string syn = suchThat->getSynonym();
+		ST = suchThat->getSynonym();
 		stFirst = suchThat->getFirstAttr();
 		stSecond = suchThat->getSecondAttr();
 
 		//Handle follows
-		if (syn == "Follows") {
+		if (ST == "Follows") {
 			folVec.push_back(handleFollows(stFirst, stSecond));
 			if (folVec.size() > 0 && folVec.front() == "all") {
 				getFollowTable(folTable);
@@ -81,7 +85,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Handle follows*
-		if (syn == "Follows*") {
+		if (ST == "Follows*") {
 			//Check if case Follows*(1, 2)
 			if (isInt(stFirst) && isInt(stSecond)) {
 				if (isFollowsS(stFirst, stSecond)) {
@@ -121,11 +125,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		//Handle modifies
 		vector<ModifyEntry_t> modTab;
-		if (syn == "Modifies") {
-			/*if (PKB::getModifyTable()->isModified("1", "i")) {
-				final.push_back("weeeee");
-				return final;
-			}*/
+		if (ST == "Modifies") {
 			handleModifies(stFirst, stSecond, modVec, mvarVec);
 			if (modVec.size() > 0 && modVec.front() == "all") {
 				getModifyTable(modTab, modTable);
@@ -133,7 +133,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Handle parent
-		if (syn == "Parent") {
+		if (ST == "Parent") {
 			handleParent(stFirst, stSecond, parVec);
 			if (parVec.size() > 0 && parVec.front() == "all") {
 				getParentTable(result, stFirst, parTable, stSecond, nestTable);
@@ -141,12 +141,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Handle parent*
-		if (syn == "Parent*") {
+		if (ST == "Parent*") {
 			//Check case Parent*(1, 2)
 			if (isInt(stFirst) && isInt(stSecond)) {
 				if (isParentS(stFirst, stSecond)) {
 					parVec.push_back("true");
-
 				}
 			}
 			else {
@@ -157,19 +156,24 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						getParentTable(result, stFirst, parTable, stSecond, nestTable);
 					}
 					else {
-						parQ.push(parVec.front());
+						for (int i = 0; i < parVec.size(); i++) {
+							parQ.push(parVec[i]);
+						}
 						while (!parQ.empty()) {
 							string temp = parQ.front();
 							parQ.pop();
 							int oldSize = parVec.size();
+							//Case Parent*(1, s)
 							if (isInt(stFirst)) {
 								handleParent(temp, stSecond, parVec);
 								if (oldSize < parVec.size()) {
 									for (int i = oldSize; i < parVec.size(); i++) {
 										parQ.push(parVec[i]);
+										final.push_back(parVec[i]);
 									}
 								}
 							}
+							//Case Parent*(s, 1)
 							if (isInt(stSecond)) {
 								handleParent(stFirst, temp, parVec);
 								if (oldSize < parVec.size()) {
@@ -186,7 +190,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		//Handle uses
 		vector<UseEntry_t> useTab;
-		if (syn == "Uses") {
+		if (ST == "Uses") {
 			handleUses(stFirst, stSecond, useVec, uvarVec);
 			if (useVec.size() > 0 && useVec.front() == "all") {
 				getUseTable(useTab, userTable, usedTable);
@@ -194,17 +198,18 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		/*Handle affecs - next (next iteration)
-		if (syn == "affects") {
+		if (ST == "affects") {
 		ansVec = getAffect(firstAtt, secondAtt);
 		}
-		if (syn == "affects*") {
+		if (ST == "affects*") {
 		ansVec = getAffectS(firstAtt, secondAtt);
 		}
-		if (syn == "next") {
-		ansVec = getNext(firstAtt, secondAtt);
-		}
-		if (syn == "next") {
-		ansVec = getNextS(firstAtt, secondAtt);
+		}*/
+		/*if (ST == "next") {
+			nextVec = handleNext(stFirst, stSecond);
+			if (nextVec.size() > 0 && nextVec.front() == "all") {
+				getNextTable(nextTable);
+			}
 		}*/
 
 		for (int i = 0; i < 12; i++) {
@@ -255,8 +260,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 	if (query->getPattern()->getSynonym() != "") {
 		pattern = query->getPattern();
-		string syn = pattern->getSynonym();
-		string pType = getSymMean(syn);
+		PT = pattern->getSynonym();
+		string pType = getSymMean(PT);
 		ptFirst = pattern->getFirstAttr();
 		ptSecond = pattern->getSecondAttr();
 
@@ -266,17 +271,17 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		atoPair(ptSecondX, ptSecond);
 
 		//Case 1st att = _
-		if (ptFirstX.first == "") {
+		if (ptFirstX.first == "_") {
 			//Case 2nd att = _
 			if (ptSecondX.first == "_") {
 				patVec = getAssignTable();
 			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
-				patVec = PKB::getUseTable()->getUser(ptSecondX.first);
+			//Case 2nd att = "x123" or _"x+y+123"_
+			if (getSymMean(ptSecond) == "" && ptSecondX.first != "_") {
+				patVec = PKB::checkAssign(ptSecondX.first, ptSecondX.second);
 			}
 			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
+			if (getSymMean(ptSecond) == "variable") {
 				//Select type = variable
 				if (selType == "variable") {
 					vector<string> tempVec;
@@ -294,23 +299,22 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 					tempVec = getAssignTable();
 					for (int i = 0; i < tempVec.size(); i++) {
 						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-						for (int j = 0; j < current.size(); j++) {
-							if (current.size() > 0) {
-								patVec.push_back(tempVec[i]);
-							}
+						if (current.size() > 0) {
+							patVec.push_back("true");
+							break;
 						}
 					}
 				}
 			}
 			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
+			if (getSymMean(ptSecond) == "constant") {
 				//Seltype = constant
 				if (selType == "constant") {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
+					vector<string> temp1 = getAssignTable();
+					vector<pair<string, vector<string>>> temp2 = getConstTable();
+					vector < pair<string, vector<string>>> temp3 = intersection(temp1, temp2);
 					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+						pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
 					}
 				}
 				else {
@@ -322,19 +326,25 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 
 		//Case 1st att = "x123"
-		if (getSymMean(ptFirstX.first) == "") {
+		if (getSymMean(ptFirst) == "" &&ptFirst != "_") {
 			//Case 2nd att = _
 			if (ptSecondX.first == "_") {
 				patVec = PKB::getModifyTable()->getModifier(ptFirstX.first);
 			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
+			//Case 2nd att = "x123" or _"x+123"_
+			if (getSymMean(ptSecond) == "" && ptSecondX.first != "_") {
 				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-				vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-				patVec = intersection(temp1, temp2);
+				vector<string> temp2 = PKB::checkAssign(ptSecondX.first, ptSecondX.second);
+				return intersection(temp1, temp2);
+				if (intersection(temp1, temp2).size() > 0) {
+					patVec = intersection(temp1, temp2);
+				}
+				/*final.insert(final.end(), patVec.begin(), patVec.end());
+				final.push_back(ptFirstX.first + " " + ptSecondX.first + " " + "bool" + to_string(ptSecondX.second));
+				return final;*/
 			}
 			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
+			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "variable") {
 				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
 				vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
 				vector<string> temp2 = toConvention(useTable, true);
@@ -355,7 +365,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
+			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "constant") {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
@@ -387,7 +397,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
+			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "") {
 				if (selType == "variable") {
 					vector<string> temp1 = getAssignTable();
 					vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
@@ -403,7 +413,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
+			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "variable") {
 				if (selType == "variable") {
 					vector<string> temp1 = getAssignTable();
 					if (result->getResult() == ptFirst) {
@@ -421,7 +431,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
+			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "constant") {
 				//Seltype = constant
 				if (selType == "constant") {
 					vector<string> temp2 = getAssignTable();
@@ -463,7 +473,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	}
 	//Check case select not equal to each attribute
 	string rs = result->getResult();
-	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
+	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond && rs != PT) {
 		if (selType == "prog_line" || selType == "stmt") {
 			final = PKB::getProgLine()->getLinesOfType("prog_line");
 		}
@@ -617,7 +627,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			break;
 		}
 	}
-	if (getPos(PTCheck) != -1) {
+	else if (getPos(PTCheck) != -1) {
 		switch (getPos(PTCheck)) {
 		case 0:
 			final = patVec;
@@ -716,7 +726,7 @@ void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
 
 	//Case _"x+y"_ or _
 	if (Att.substr(0, 1) == "_") {
-		if (Att.size() > 1) {
+		if (Att.size() > 4) {
 			Attx.first = Att.substr(2, Att.size() - 4);
 			Attx.second = true;
 		}
@@ -858,6 +868,43 @@ string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
 	}
 	return ans;
 }
+
+//vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt) {
+//	NextTable* nextTab = PKB::getNextTable();
+//	string ans = "na";
+//	//Case 1st: n/s
+//	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+//		//Case 2nd: n/s
+//		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
+//			ans = "all";
+//		}
+//		//Case 2nd: 1, 2...
+//		if (isInt(secondAtt)) {
+//			if (nextTab->getPrev(secondAtt) != "") {
+//				ans = nextTab->getPrev(secondAtt);
+//			}
+//		}
+//	}
+//	//Case 1st: 1, 2
+//	else {
+//		if (isInt(firstAtt) && !isInt(secondAtt)) {
+//			if (nextTab->getNext(firstAtt) != "") {
+//				if (getSymMean(secondAtt) == "assign") {
+//					if (contain(getAssignTable(), nextTab->getNext(firstAtt))) {
+//						ans = nextTab->getNext(firstAtt);
+//					}
+//				}
+//				else {
+//					ans = nextTab->getNext(firstAtt);
+//				}
+//			}
+//		}
+//		else if (nextTab->isNext(firstAtt, secondAtt)) {
+//			ans = "true";
+//		}
+//	}
+//	return ans;
+//}
 
 string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
 {
