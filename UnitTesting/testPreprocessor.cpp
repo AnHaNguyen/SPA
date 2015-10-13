@@ -509,5 +509,15 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"a3", tree39->getPattern()->getNext()->getNext()->getSynonym());
 			Assert::AreEqual((string)"a4", tree39->getPattern()->getNext()->getNext()->getNext()->getSynonym());
 		}
+
+		TEST_METHOD(select_Boolean)
+		{
+			QueryPreprocessor pro40;
+			string declare40 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;";
+			string input40 = "Select BOOLEAN such that Modifies(a1,v1) pattern a2(_,_\"x\"_)";
+			QueryTree* tree40 = pro40.startProcess(declare40, input40);
+			Assert::AreEqual(true, tree40->getValidity());
+			Assert::AreEqual((string)"BOOLEAN", tree40->getResult()->getResult());
+		}
 	};
 }
