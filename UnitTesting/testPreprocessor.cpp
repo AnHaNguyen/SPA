@@ -519,5 +519,52 @@ namespace TestPreprocessor
 			Assert::AreEqual(true, tree40->getValidity());
 			Assert::AreEqual((string)"BOOLEAN", tree40->getResult()->getResult());
 		}
+
+		TEST_METHOD(pattern_if) {
+			QueryPreprocessor pro41;
+			string declare41 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input41 = "Select w pattern ifstat(\"x\",_,_)";
+			QueryTree* tree41 = pro41.startProcess(declare41, input41);
+			Assert::AreEqual(true, tree41->getValidity());
+			Assert::AreEqual((string)"ifstat", tree41->getPattern()->getSynonym());
+			Assert::AreEqual((string)"\"x\"", tree41->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"_", tree41->getPattern()->getSecondAttr());
+			Assert::AreEqual((string)"_", tree41->getPattern()->getThirdAttr());
+		}
+
+		TEST_METHOD(pattern_while) {
+			QueryPreprocessor pro42;
+			string declare42 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input42 = "Select w pattern w(v1,_)";
+			QueryTree* tree42 = pro42.startProcess(declare42, input42);
+			Assert::AreEqual(true, tree42->getValidity());
+			Assert::AreEqual((string)"w", tree42->getPattern()->getSynonym());
+			Assert::AreEqual((string)"v1", tree42->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"_", tree42->getPattern()->getSecondAttr());
+		}
+
+		TEST_METHOD(pattern_not_variable) {
+			QueryPreprocessor pro43;
+			string declare43 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input43 = "Select w pattern w(a1,_)";
+			QueryTree* tree43 = pro43.startProcess(declare43, input43);
+			Assert::AreEqual(false, tree43->getValidity());
+		}
+
+		TEST_METHOD(pattern_while_wrong_num_attr) {
+			QueryPreprocessor pro44;
+			string declare44 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input44 = "Select w pattern w(v1,_,_)";
+			QueryTree* tree44 = pro44.startProcess(declare44, input44);
+			Assert::AreEqual(false, tree44->getValidity());
+		}
+
+		TEST_METHOD(pattern_if_wrong_num_attr) {
+			QueryPreprocessor pro45;
+			string declare45 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input45 = "Select w pattern ifstat(v1,_)";
+			QueryTree* tree45 = pro45.startProcess(declare45, input45);
+			Assert::AreEqual(false, tree45->getValidity());
+		}
 	};
 }
