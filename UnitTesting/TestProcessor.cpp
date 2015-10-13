@@ -13,7 +13,7 @@ namespace TestProcessor {
 		public:
 		TEST_METHOD(Processor_Parent) {
 			vector<string> code = {
-				"procedureFirst{",
+				"procedure First{",
 				"x=1;",			// 1
 				"z=3;",			// 2
 				"while x{",		// 3  parent
@@ -26,7 +26,7 @@ namespace TestProcessor {
 				"y=1+1;",		// 10
 				"while x{",		// 11 p
 				"x=2;}}}}}}",	// 12
-				"procedureSecond{",
+				"procedure Second{",
 				"a=1;",			// 13
 				"while a{",		// 14 p
 				"b=1+a;",		// 15
@@ -53,13 +53,13 @@ namespace TestProcessor {
 			declarations1.push_back("stmt s1,s2");
 			tree1->setSymbolTable(declarations1);
 
-			vector<string> relations1;
-			relations1.push_back("Parent(s1, s2)");
-			tree1->setSuchThat(relations1);
-
 			vector<string> selections1;
 			selections1.push_back("s1");
 			tree1->setResult(selections1);
+
+			vector<string> relations1;
+			relations1.push_back("Parent(s1, s2)");
+			tree1->setSuchThat(relations1);
 
 			tree1->setPattern(emptyVector);
 
@@ -87,13 +87,13 @@ namespace TestProcessor {
 			declarations2.push_back("stmt s1");
 			tree2->setSymbolTable(declarations2);
 
-			vector<string> relations2;
-			relations2.push_back("Parent(8, s1)");
-			tree2->setSuchThat(relations2);
-
 			vector<string> selections2;
 			selections2.push_back("s1");
 			tree1->setResult(selections2);
+
+			vector<string> relations2;
+			relations2.push_back("Parent(8, s1)");
+			tree2->setSuchThat(relations2);
 
 			tree2->setPattern(emptyVector);
 
@@ -103,22 +103,22 @@ namespace TestProcessor {
 
 
 			/**
-			*	stmt s1;
-			*	Select s1 such that Parent(7, s1);
-			*/
+			 *	stmt s1;
+			 *	Select s1 such that Parent(7, s1);
+			 */
 			QueryTree* tree3 = new QueryTree();
 
 			vector<string> declarations3;
 			declarations3.push_back("stmt s1");
 			tree3->setSymbolTable(declarations3);
 
-			vector<string> relations3;
-			relations3.push_back("Parent(7, s1)");
-			tree3->setSuchThat(relations3);
-
 			vector<string> selections3;
 			selections3.push_back("s1");
 			tree1->setResult(selections3);
+
+			vector<string> relations3;
+			relations3.push_back("Parent(7, s1)");
+			tree3->setSuchThat(relations3);
 
 			tree3->setPattern(emptyVector);
 
@@ -130,22 +130,22 @@ namespace TestProcessor {
 
 
 			/**
-			*	stmt s1;
-			*	Select s1 such that Parent(s1, 8);
-			*/
+		 	 *	stmt s1;
+			 *	Select s1 such that Parent(s1, 8);
+			 */
 			QueryTree* tree4 = new QueryTree();
 
 			vector<string> declarations4;
 			declarations4.push_back("stmt s1");
 			tree4->setSymbolTable(declarations4);
 
-			vector<string> relations4;
-			relations4.push_back("Parent(s1, 8)");
-			tree4->setSuchThat(relations4);
-
 			vector<string> selections4;
 			selections4.push_back("s1");
 			tree1->setResult(selections4);
+
+			vector<string> relations4;
+			relations4.push_back("Parent(s1, 8)");
+			tree4->setSuchThat(relations4);
 
 			tree4->setPattern(emptyVector);
 
@@ -156,7 +156,7 @@ namespace TestProcessor {
 
 		TEST_METHOD(Processor_ParentStar) {
 			vector<string> code = {
-				"procedureFirst{",
+				"procedure First{",
 				"x=1;",			// 1
 				"z=3;",			// 2
 				"while x{",		// 3  parent
@@ -169,7 +169,7 @@ namespace TestProcessor {
 				"y=1+1;",		// 10
 				"while x{",		// 11 p
 				"x=2;}}}}}}",	// 12
-				"procedureSecond{",
+				"procedure Second{",
 				"a=1;",			// 13
 				"while a{",		// 14 p
 				"b=1+a;",		// 15
@@ -195,13 +195,13 @@ namespace TestProcessor {
 			declarations1.push_back("stmt s1,s2");
 			tree1->setSymbolTable(declarations1);
 
-			vector<string> relations1;
-			relations1.push_back("Parent*(s1, s2)");
-			tree1->setSuchThat(relations1);
-
 			vector<string> selections1;
 			selections1.push_back("s1");
 			tree1->setResult(selections1);
+
+			vector<string> relations1;
+			relations1.push_back("Parent*(s1, s2)");
+			tree1->setSuchThat(relations1);
 
 			tree1->setPattern(emptyVector);
 
@@ -227,13 +227,13 @@ namespace TestProcessor {
 			declarations2.push_back("stmt s1");
 			tree2->setSymbolTable(declarations2);
 
-			vector<string> relations2;
-			relations2.push_back("Parent*(s1, 8)");
-			tree2->setSuchThat(relations2);
-
 			vector<string> selections2;
 			selections2.push_back("s1");
 			tree2->setResult(selections2);
+
+			vector<string> relations2;
+			relations2.push_back("Parent*(s1, 8)");
+			tree2->setSuchThat(relations2);
 
 			tree2->setPattern(emptyVector);
 
@@ -258,13 +258,13 @@ namespace TestProcessor {
 			declarations3.push_back("stmt s1");
 			tree3->setSymbolTable(declarations3);
 
-			vector<string> relations3;
-			relations3.push_back("Parent*(8, s1)");
-			tree3->setSuchThat(relations3);
-
 			vector<string> selections3;
 			selections3.push_back("s1");
 			tree3->setResult(selections3);
+
+			vector<string> relations3;
+			relations3.push_back("Parent*(8, s1)");
+			tree3->setSuchThat(relations3);
 
 			tree3->setPattern(emptyVector);
 
@@ -284,13 +284,13 @@ namespace TestProcessor {
 			declarations4.push_back("stmt s1");
 			tree4->setSymbolTable(declarations4);
 
-			vector<string> relations4;
-			relations4.push_back("Parent*(7, s1)");
-			tree4->setSuchThat(relations4);
-
 			vector<string> selections4;
 			selections4.push_back("s1");
 			tree4->setResult(selections4);
+
+			vector<string> relations4;
+			relations4.push_back("Parent*(7, s1)");
+			tree4->setSuchThat(relations4);
 
 			tree4->setPattern(emptyVector);
 
@@ -305,25 +305,83 @@ namespace TestProcessor {
 		}
 
 		TEST_METHOD(Processor_Pattern) {
-			vector <string> code = {
-				"procedureFirst{",
-				"x=3;",
-				"y=2",
-				"z=1;",
-				"b=x*y+x*y+z;",
-				"a=y+x*y*y;"
-				"a=y+x*y;}"
-
+			vector<string> code = {
+				"procedure First{",
+				"x=3;",				// 1
+				"y=2;",				// 2
+				"z=1;",				// 3
+				"a=x;",				// 4
+				"a=x*y;",			// 5
+				"b=x*y;",			// 6
+				"b=a+x*y;",			// 7
+				"b=x*y+a;",			// 8
+				"b=a+x*y+a;",		// 9
+				"c=x*y+x*y;",		// 10
 			};
 
 			DesignExtractor ext = DesignExtractor(code);
-			QueryPreprocessor qpp;
-			QueryTree* tree = qpp.startProcess("assign a;", "Select a pattern a(_, _\"y + x * y\"_)");
+			
+			// Variables that will be reused in different queries
+			QueryHandler handler;
+			vector<string> results;
+			vector<string> emptyVector;
 
-			QueryHandler handler0;
-			vector<string> results = handler0.queryRec(tree);
 
-			Assert::AreEqual(string("6"), results[0]);
+			
+			/**
+			 *	assign a;
+			 *	Select a pattern a("b", _);
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a("b", "x*y");
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a("b", _"x*y");
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a("b", "x*y"_);;
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a("b", _"x*y"_);;
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern ;
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern ;
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a(_, "x*y");
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a(_, _"x*y");
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a(_, "x*y"_);
+			 */
+
+			/**
+			 *	assign a;
+			 *	Select a pattern a(_, _"x*y"_);
+			 */
 		}
 
 
