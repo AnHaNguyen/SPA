@@ -19,7 +19,8 @@ public:
 	vector<string> queryRec(QueryTree* query);
 	vector <vector<string>> symTable;
 
-	void atoPair(pair<string, bool> &firstAttx, string &firstAtt);
+	void checkUnderscore(pair<string, bool> &firstAttU, string &firstAtt);
+	void QueryHandler::checkQuotation(pair<string, bool> &AttQ, string &Att);
 	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec);
 	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
 	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &varVec);
@@ -37,6 +38,7 @@ public:
 	bool getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable);
 	void getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable);
 	void getFollowTable(vector<pair<string, string>> &folTable);
+	void QueryHandler::getNextTable(vector<pair<string, vector<string>>> &nextTable);
 	vector<string> QueryHandler::getAssignTable();
 	
 	int QueryHandler::getPos(vector<int> intVec);

@@ -205,14 +205,19 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		ansVec = getAffectS(firstAtt, secondAtt);
 		}
 		}*/
-	/*	if (ST == "next") {
+		//Handle Next
+		final.push_back(stFirst + " " + stSecond);
+		return final;
+		if (ST == "Next") {
 			nextVec = handleNext(stFirst, stSecond);
+			final.push_back(stFirst + " " + stSecond);
+			return final;
 			if (nextVec.size() > 0 && nextVec.front() == "all") {
 				getNextTable(nextTable);
 			}
-		}*/
+		}
 
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < 14; i++) {
 			STCheck.push_back(0);
 		}
 		if (!folVec.empty() && folVec.front() != "na" && folVec.front() != "all") {
@@ -224,7 +229,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!mvarVec.empty()) {
 			STCheck[2] = 1;
 		}
-		if (!modVec.empty() && modVec.front() != "na") {
+		if (!modVec.empty() && modVec.front() != "na" && modVec.front() != "all") {
 			STCheck[3] = 1;
 		}
 		if (!modTable.empty()) {
@@ -251,6 +256,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!usedTable.empty()) {
 			STCheck[11] = 1;
 		}
+		if (!nextVec.empty() && nextVec.front() != "na" && nextVec.front() != "all") {
+			STCheck[12] = 1;
+		}
+		if (!nextTable.empty()) {
+			STCheck[13] = 1;
+		}
 	}
 	//Handle pattern (this iteration only assign pattern)
 	vector<string> patVec;
@@ -265,189 +276,198 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		ptFirst = pattern->getFirstAttr();
 		ptSecond = pattern->getSecondAttr();
 
-		pair<string, bool> ptFirstX;
-		pair<string, bool> ptSecondX;
-		atoPair(ptFirstX, ptFirst);
-		atoPair(ptSecondX, ptSecond);
+		pair<string, bool> ptFirstU;
+		pair<string, bool> ptSecondU;
+		checkUnderscore(ptFirstU, ptFirst);
+		checkUnderscore(ptSecondU, ptSecond);
 
-		//Case 1st att = _
-		if (ptFirstX.first == "_") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				patVec = getAssignTable();
-			}
-			//Case 2nd att = "x123" or _"x+y+123"_
-			if (getSymMean(ptSecond) == "" && ptSecondX.first != "_") {
-				patVec = PKB::checkAssign(ptSecondX.first, ptSecondX.second);
-			}
-			//Case 2nd att = v
-			if (getSymMean(ptSecond) == "variable") {
-				//Select type = variable
-				if (selType == "variable") {
-					vector<string> tempVec;
-					tempVec = getAssignTable();
-					for (int i = 0; i < tempVec.size(); i++) {
-						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-						for (int j = 0; j < current.size(); j++) {
-							pvarVec.push_back(current[j]);
+		pair<string, bool> ptFirstQ;
+		pair<string, bool> ptSecondQ;
+		checkQuotation(ptFirstQ, ptFirst);
+		checkQuotation(ptSecondQ, ptSecond);
+
+		if (PT == "assign") {
+			//Case 1st att = _
+			if (ptFirstU.first == "_") {
+				//Case 2nd att = _
+				if (ptSecondU.first == "_") {
+					patVec = getAssignTable();
+				}
+				//Case 2nd att = "x123" or _"x+y+123"_
+				if (getSymMean(ptSecond) == "" && ptSecondU.first != "_") {
+					patVec = PKB::checkAssign(ptSecondU.first, ptSecondU.second);
+				}
+				//Case 2nd att = v
+				if (getSymMean(ptSecond) == "variable") {
+					//Select type = variable
+					if (selType == "variable") {
+						vector<string> tempVec;
+						tempVec = getAssignTable();
+						for (int i = 0; i < tempVec.size(); i++) {
+							vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
+							for (int j = 0; j < current.size(); j++) {
+								pvarVec.push_back(current[j]);
+							}
 						}
 					}
-				}
-				//Select type = assign or not found
-				else {
-					vector<string> tempVec;
-					tempVec = getAssignTable();
-					for (int i = 0; i < tempVec.size(); i++) {
-						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-						if (current.size() > 0) {
-							patVec.push_back("true");
-							break;
-						}
-					}
-				}
-			}
-			//Case 2nd att = c
-			if (getSymMean(ptSecond) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp1 = getAssignTable();
-					vector<pair<string, vector<string>>> temp2 = getConstTable();
-					vector < pair<string, vector<string>>> ansVec = intersection(temp1, temp2);
-					for (int i = 0; i < ansVec.size(); i++) {
-						pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
-					}
-				}
-				else {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
-				}
-			}
-		}
-
-		//Case 1st att = "x123"
-		if (getSymMean(ptFirst) == "" &&ptFirst != "_") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				patVec = PKB::getModifyTable()->getModifier(ptFirstX.first);
-			}
-			//Case 2nd att = "x123" or _"x+123"_
-			if (getSymMean(ptSecond) == "" && ptSecondX.first != "_") {
-				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-				vector<string> temp2 = PKB::checkAssign(ptSecondX.first, ptSecondX.second);
-				return intersection(temp1, temp2);
-				if (intersection(temp1, temp2).size() > 0) {
-					patVec = intersection(temp1, temp2);
-				}
-				/*final.insert(final.end(), patVec.begin(), patVec.end());
-				final.push_back(ptFirstX.first + " " + ptSecondX.first + " " + "bool" + to_string(ptSecondX.second));
-				return final;*/
-			}
-			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "variable") {
-				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-				vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
-				vector<string> temp2 = toConvention(useTable, true);
-				if (selType == "variable") {
-					vector<string> temp3 = intersection(temp1, temp2);
-					for (int i = 0; i < temp3.size(); i++) {
-						for (int j = 0; j < useTable.size(); j++) {
-							if (temp3[i] == useTable[j].userLine) {
-								for (int k = 0; k < useTable[j].usedVar.size(); k++) {
-									pvarVec.push_back(useTable[j].usedVar[k]);
-								}
+					//Select type = assign or not found
+					else {
+						vector<string> tempVec;
+						tempVec = getAssignTable();
+						for (int i = 0; i < tempVec.size(); i++) {
+							vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
+							if (current.size() > 0) {
+								patVec.push_back("true");
+								break;
 							}
 						}
 					}
 				}
-				else {
-					patVec = intersection(temp1, temp2);
-				}
-			}
-			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
-					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+				//Case 2nd att = c
+				if (getSymMean(ptSecond) == "constant") {
+					//Seltype = constant
+					if (selType == "constant") {
+						vector<string> temp1 = getAssignTable();
+						vector<pair<string, vector<string>>> temp2 = getConstTable();
+						vector<pair<string, vector<string>>> ansVec = intersection(temp1, temp2);
+						for (int i = 0; i < ansVec.size(); i++) {
+							pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
+						}
+					}
+					else {
+						vector<string> temp2 = getAssignTable();
+						vector<pair<string, vector<string>>> temp1 = getConstTable();
+						patVec = intersection(temp2, temp1, true);
 					}
 				}
-				else {
-					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
-				}
 			}
-		}
-		//Case 1st att = v 
-		if (getSymMean(ptFirst) == "variable") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					for (int i = 0; i < temp1.size(); i++) {
-						pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
+
+			//Case 1st att = "x123"
+			if (getSymMean(ptFirst) == "" &&ptFirst != "_") {
+				//Case 2nd att = _
+				if (ptSecondU.first == "_") {
+					patVec = PKB::getModifyTable()->getModifier(ptFirstU.first);
+				}
+				//Case 2nd att = "x123" or _"x+123"_
+				if (getSymMean(ptSecond) == "" && ptSecondU.first != "_") {
+					vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+					vector<string> temp2 = PKB::checkAssign(ptSecondU.first, ptSecondU.second);
+					if (intersection(temp1, temp2).size() > 0) {
+						patVec = intersection(temp1, temp2);
 					}
 				}
-				else {
-					patVec = getAssignTable();
-				}
-			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-					vector<string> temp3 = intersection(temp1, temp2);
-					for (int i = 0; i < temp3.size(); i++) {
-						pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
+				//Case 2nd att = v
+				if (containSign(ptSecondU.first) == false && getSymMean(ptSecond) == "variable") {
+					vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+					vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
+					vector<string> temp2 = toConvention(useTable, true);
+					if (selType == "variable") {
+						vector<string> temp3 = intersection(temp1, temp2);
+						for (int i = 0; i < temp3.size(); i++) {
+							for (int j = 0; j < useTable.size(); j++) {
+								if (temp3[i] == useTable[j].userLine) {
+									for (int k = 0; k < useTable[j].usedVar.size(); k++) {
+										pvarVec.push_back(useTable[j].usedVar[k]);
+									}
+								}
+							}
+						}
+					}
+					else {
+						patVec = intersection(temp1, temp2);
 					}
 				}
-				else {
-					vector<string> temp1 = getAssignTable();
-					vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-					patVec = intersection(temp1, temp2);
+				//Case 2nd att = c
+				if (containSign(ptSecondU.first) == false && getSymMean(ptSecond) == "constant") {
+					//Seltype = constant
+					if (selType == "constant") {
+						vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+						vector<pair<string, vector<string>>> temp1 = getConstTable();
+						vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
+						for (int i = 0; i < temp3.size(); i++) {
+							pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+						}
+					}
+					else {
+						vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+						vector<pair<string, vector<string>>> temp1 = getConstTable();
+						patVec = intersection(temp2, temp1, true);
+					}
 				}
 			}
-			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "variable") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					if (result->getResult() == ptFirst) {
+			//Case 1st att = v 
+			if (getSymMean(ptFirst) == "variable") {
+				//Case 2nd att = _
+				if (ptSecondU.first == "_") {
+					if (selType == "variable") {
+						vector<string> temp1 = getAssignTable();
 						for (int i = 0; i < temp1.size(); i++) {
 							pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
 						}
 					}
 					else {
-						for (int i = 0; i < temp1.size(); i++) {
-							for (int j = 0; j < PKB::getUseTable()->getUsed(temp1[i]).size(); j++) {
-								pvarVec.push_back(PKB::getUseTable()->getUsed(temp1[i])[j]);
+						patVec = getAssignTable();
+					}
+				}
+				//Case 2nd att = "x123"
+				if (containSign(ptSecondU.first) == false && getSymMean(ptSecond) == "") {
+					if (selType == "variable") {
+						vector<string> temp1 = getAssignTable();
+						vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
+						vector<string> temp3 = intersection(temp1, temp2);
+						for (int i = 0; i < temp3.size(); i++) {
+							pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
+						}
+					}
+					else {
+						vector<string> temp1 = getAssignTable();
+						vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
+						patVec = intersection(temp1, temp2);
+					}
+				}
+				//Case 2nd att = v
+				if (containSign(ptSecondU.first) == false && getSymMean(ptSecond) == "variable") {
+					if (selType == "variable") {
+						vector<string> temp1 = getAssignTable();
+						if (result->getResult() == ptFirst) {
+							for (int i = 0; i < temp1.size(); i++) {
+								pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
+							}
+						}
+						else {
+							for (int i = 0; i < temp1.size(); i++) {
+								for (int j = 0; j < PKB::getUseTable()->getUsed(temp1[i]).size(); j++) {
+									pvarVec.push_back(PKB::getUseTable()->getUsed(temp1[i])[j]);
+								}
 							}
 						}
 					}
 				}
-			}
-			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecond) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
-					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+				//Case 2nd att = c
+				if (containSign(ptSecondU.first) == false && getSymMean(ptSecond) == "constant") {
+					//Seltype = constant
+					if (selType == "constant") {
+						vector<string> temp2 = getAssignTable();
+						vector<pair<string, vector<string>>> temp1 = getConstTable();
+						vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
+						for (int i = 0; i < temp3.size(); i++) {
+							pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+						}
 					}
-				}
-				else {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
+					else {
+						vector<string> temp2 = getAssignTable();
+						vector<pair<string, vector<string>>> temp1 = getConstTable();
+						patVec = intersection(temp2, temp1, true);
+					}
 				}
 			}
 		}
+		/*if (PT == "if") {
+			patVec = PKB::patternIf();
+		}
+		if (PT == "while") {
+			patVec = PKB::patternWhile();
+		}*/
 		for (int i = 0; i < 3; i++) {
 			PTCheck.push_back(0);
 		}
@@ -706,10 +726,15 @@ void QueryHandler::getFollowTable(vector<pair<string, string>> &folTable) {
 	}
 }
 
-//void QueryHandler::getNextTable(vector<string> nextTable) {
-//	NextTable* nextTab = PKB::getNextTable();
-//	nextTable =
-//}
+void QueryHandler::getNextTable(vector<pair<string, vector<string>>> &nextTable) {
+	vector<NextEntry_t> nextTab = PKB::getNextTable()->getTable();
+	for (int i = 0; i < nextTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = nextTab[i].lineNo;
+		temp.second = nextTab[i].nextStmts;
+		nextTable.push_back(temp);
+	}
+}
 
 vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
 	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
@@ -736,29 +761,42 @@ bool QueryHandler::containSign(string str) {
 	}
 	return false;
 }
-void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
-
+void QueryHandler::checkUnderscore(pair<string, bool> &AttU, string &Att) {
 	//Case _"x+y"_ or _
 	if (Att.substr(0, 1) == "_") {
 		if (Att.size() > 4) {
-			Attx.first = Att.substr(2, Att.size() - 4);
-			Attx.second = true;
+			AttU.first = Att.substr(2, Att.size() - 4);
+			AttU.second = true;
 		}
 		else {
-			Attx.first = Att;
-			Attx.second = false;
+			AttU.first = Att;
+			AttU.second = false;
 		}
 	}
 	//Case "x+y", "x" or v, c
 	else {
 		if (Att.substr(0, 1) == "\"") {
-			Attx.first = Att.substr(1, Att.size() - 2);
-			Attx.second = false;
+			AttU.first = Att.substr(1, Att.size() - 2);
+			AttU.second = false;
 		}
 		else {
-			Attx.first = Att;
-			Attx.second = false;
+			AttU.first = Att;
+			AttU.second = false;
 		}
+	}
+}
+
+void QueryHandler::checkQuotation(pair<string, bool> &AttQ, string &Att) {
+
+	//Case "x"
+	if (Att.substr(0, 1) == "\"") {
+		AttQ.first = Att.substr(1, Att.size() - 2);
+		AttQ.second = true;
+	}
+	//Case v or _
+	else {
+		AttQ.first = Att;
+		AttQ.second = false;
 	}
 }
 
@@ -887,14 +925,16 @@ vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt) {
 	NextTable* nextTab = PKB::getNextTable();
 	vector<string> ans;
 	//Case 1st: n/s
-	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
+	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign"
+		|| getSymMean(firstAtt) == "if" || getSymMean(firstAtt) == "while") {
 		//Case 2nd: n/s
-		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
+		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign"
+			|| getSymMean(secondAtt) == "if" || getSymMean(secondAtt) == "while") {
 			ans.push_back("all");
 		}
 		//Case 2nd: 1, 2...
 		if (isInt(secondAtt)) {
-			if (nextTab->getPrev(secondAtt).size()>0) {
+			if (nextTab->getPrev(secondAtt).size() > 0) {
 				ans = nextTab->getPrev(secondAtt);
 			}
 		}
@@ -904,9 +944,15 @@ vector<string> QueryHandler::handleNext(string &firstAtt, string &secondAtt) {
 		if (isInt(firstAtt) && !isInt(secondAtt)) {
 			if (nextTab->getNext(firstAtt).size()) {
 				if (getSymMean(secondAtt) == "assign") {
-						ans = intersection(nextTab->getNext(firstAtt), getAssignTable());
+					ans = intersection(nextTab->getNext(firstAtt), getAssignTable());
 				}
-				else {
+				if (getSymMean(secondAtt) == "if") {
+					ans = intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("if"));
+				}
+				if (getSymMean(secondAtt) == "while") {
+					ans = intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("while"));
+				}
+				if (getSymMean(secondAtt) != "assign" && getSymMean(secondAtt) != "if" && getSymMean(secondAtt) != "while") {
 					ans = nextTab->getNext(firstAtt);
 				}
 			}
