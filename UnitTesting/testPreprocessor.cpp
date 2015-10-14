@@ -577,5 +577,27 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"s1", tree46->getSuchThat()->getFirstAttr());
 			Assert::AreEqual((string)"a1", tree46->getSuchThat()->getSecondAttr());
 		}
+
+		TEST_METHOD(such_that_Calls_p1) {
+			QueryPreprocessor pro47;
+			string declare47 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;procedure p1,p2;";
+			string input47 = "Select w such that Calls(p1,p2)";
+			QueryTree* tree47 = pro47.startProcess(declare47, input47);
+			Assert::AreEqual(true, tree47->getValidity());
+			Assert::AreEqual((string)"Calls", tree47->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"p1", tree47->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"p2", tree47->getSuchThat()->getSecondAttr());
+		}
+
+		TEST_METHOD(such_that_Calls_proName_underscore) {
+			QueryPreprocessor pro48;
+			string declare48 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;procedure p1,p2;";
+			string input48 = "Select w such that Calls(\"third\",_)";
+			QueryTree* tree48 = pro48.startProcess(declare48, input48);
+			Assert::AreEqual(true, tree48->getValidity());
+			Assert::AreEqual((string)"Calls", tree48->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"\"third\"", tree48->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"_", tree48->getSuchThat()->getSecondAttr());
+		}
 	};
 }
