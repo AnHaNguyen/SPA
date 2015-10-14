@@ -293,7 +293,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line" && firstType != "procedure") {
 				return false;
 			}
 		}
@@ -313,7 +313,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line" &&  firstType != "procedure") {
 				return false;
 			}
 		}
