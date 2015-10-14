@@ -409,6 +409,10 @@ bool QueryTree::isValidPatternAttribute(string syn, string first, string second,
 		if (second != "_") {
 			return false;
 		}
+
+		if (third != "_") {
+			return false;
+		}
 		return true;
 	}
 
