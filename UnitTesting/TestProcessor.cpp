@@ -126,7 +126,7 @@ namespace TestProcessor {
 
 			vector<string> selections3;
 			selections3.push_back("s1");
-			tree1->setResult(selections3);
+			tree3->setResult(selections3);
 
 			vector<string> relations3;
 			relations3.push_back("Follows(9, s1)");
@@ -151,7 +151,7 @@ namespace TestProcessor {
 
 			vector<string> selections4;
 			selections4.push_back("s1");
-			tree1->setResult(selections4);
+			tree4->setResult(selections4);
 
 			vector<string> relations4;
 			relations4.push_back("Follows(16, s1)");
@@ -179,7 +179,7 @@ namespace TestProcessor {
 
 			vector<string> selections5;
 			selections5.push_back("s1");
-			tree1->setResult(selections5);
+			tree5->setResult(selections5);
 
 			vector<string> relations5;
 			relations5.push_back("Follows(s1, 8)");
@@ -204,7 +204,7 @@ namespace TestProcessor {
 
 			vector<string> selections6;
 			selections6.push_back("s1");
-			tree1->setResult(selections6);
+			tree6->setResult(selections6);
 
 			vector<string> relations6;
 			relations6.push_back("Follows(s1, 13)");
@@ -573,6 +573,8 @@ namespace TestProcessor {
 			Assert::AreEqual(string("7"), results[0]);
 		}
 
+
+
 		TEST_METHOD(Processor_ParentStar) {
 			vector<string> code = {
 				"procedure First{",
@@ -722,6 +724,126 @@ namespace TestProcessor {
 			Assert::AreEqual(string("11"), results[3]);
 			Assert::AreEqual(string("12"), results[4]);
 		}
+
+
+
+		TEST_METHOD(Processor_Modifies) {
+			vector<string> code = {
+				"procedure First{",
+				"x=3;",				// 1
+				"y=2;",				// 2
+				"z=1;",				// 3
+				"a=x+y;",			// 4
+				"b=x+y+z+a+b;",		// 5
+				"c=a+b;",			// 6
+				"call Second;",		// 7
+				"while y{",			// 8
+				"y=y-1;",			// 9
+				"z=y+x;",			// 10
+				"b=y+z;}",			// 11
+				"while x{",			// 12
+				"x=x-1;}}", };		// 13
+			//	"procedure Second{",
+			//	"x=4+x;",			// 14
+			//	"y=1+y;",			// 15
+			//	"z=z-1;",			// 16
+			//	"while x{",			// 17
+			//	"x=x-1;"			// 18
+			//	"call Third;}}",	// 19
+			//	"procedure Third{",
+			//	"z=1+1;",			// 20
+			//	"i=x+y;",			// 21
+			//	"while i{",			// 22
+			//	"while x{"			// 23
+			//	"i=i-1;"			// 24
+			//	"j=1+1;}}}"			// 25
+			//};
+
+			DesignExtractor ext = DesignExtractor(code);
+
+			// Variables that will be reused in different queries
+			QueryHandler handler;
+			vector<string> results;
+			vector<string> emptyVector;
+
+
+			/**	
+			 *	assign a1;
+			 *	Select a1 such that Modifies(a1, "x");
+			 */
+			QueryTree* tree1 = new QueryTree();
+
+			vector<string> declarations1;
+			declarations1.push_back("assign a1");
+			tree1->setSymbolTable(declarations1);
+
+			vector<string> selections1;
+			selections1.push_back("a1");
+			tree1->setResult(selections1);
+
+			vector<string> relations1;
+			relations1.push_back("Modifies(a1, \"x\")");
+			tree1->setSuchThat(relations1);
+
+			tree1->setPattern(emptyVector);
+
+			results = handler.queryRec(tree1);
+			Assert::AreEqual(6, int(results.size()));
+			Assert::AreEqual(string("7"), results[0]);
+
+
+
+			/**
+			 *	variable v1;
+			 *	Select v1 such that Modifies(5, v1);
+			 */
+
+			/**
+			 *	stmt s1;
+			 *	Select s1 such that Modifies(s1, "z");
+			 */
+
+			/**
+			 *	while w1;
+			 *	Select w1 such that Modifies(w1, "x");
+			 */
+
+			/**
+			 *	stmt s1, while w1, variable v1;
+			 *	Select v1 such that Modifies(5, v1);
+			 */
+
+			/**
+			 *	variable v1;
+			 *	Select v1 such that Modifies(8, v1);
+			 *	
+			 *	stmt# 8 is a while statement
+			 */
+
+			/**
+			 *	assign a1, variable v1;
+			 *	Select v1 such that Modifies(22, v1);
+			 *	
+			 *	stmt# 22 is a nested-while statement
+			 */
+
+			/**
+			 *	stmt s1, variable v1;
+			 *	Select s1 such that Modifies(s1, "i");
+			 *
+			 *	"i" is a variable in nested-procedure calls
+			 */
+
+			/**
+			 *	stmt s1, variable v1;
+			 *	Select v1 such that Modifies(7, v1);
+			 *
+			 *	stmt# 7 is the procedure call
+			 */	
+
+		}
+
+
 
 		TEST_METHOD(Processor_Pattern) {
 			vector<string> code = {
