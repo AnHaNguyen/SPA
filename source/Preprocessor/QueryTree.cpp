@@ -379,6 +379,28 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
+	if (syn == "Calls" || syn == "Calls*") {
+		if (!isValidEntRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+			return false;
+		}
+
+		if (isInteger(first) || isInteger(second)) {
+			return false;
+		}
+
+		if (first != "_" && first.find("\"") == string::npos) {
+			if (firstType != "procedure" ) {
+				return false;
+			}
+		}
+		if (second != "_" && second.find("\"") == string::npos) {
+			if (secondType != "procedure") {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
 
 bool QueryTree::isValidPatternAttribute(string syn, string first, string second, string third) {
