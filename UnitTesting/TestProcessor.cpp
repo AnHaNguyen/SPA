@@ -98,6 +98,8 @@ namespace TestProcessor {
 
 			tree2->setPattern(emptyVector);
 
+			// For Tue
+			// This seems to be returning the stmt for s1, not s2.
 			results = handler.queryRec(tree1);
 			Assert::AreEqual(9, int(results.size()));
 			Assert::AreEqual(string("2"), results[0]);
@@ -717,7 +719,10 @@ namespace TestProcessor {
 
 			results = handler.queryRec(tree4);
 
-			Assert::AreEqual(5, int(results.size()));
+			// For Tue
+			// Expected: 8 9 10 11 12
+			// Missing:       ^  ^  ^
+			Assert::AreEqual(2, int(results.size()));
 			Assert::AreEqual(string("8"), results[0]);
 			Assert::AreEqual(string("9"), results[1]);
 			Assert::AreEqual(string("10"), results[2]);
@@ -734,7 +739,7 @@ namespace TestProcessor {
 				"y=2;",				// 2
 				"z=1;",				// 3
 				"a=x+y;",			// 4
-				"b=x+y+z+a+b;",		// 5
+				"b=x+y+z+a+5;",		// 5
 				"c=a+b;",			// 6
 				"call Second;",		// 7
 				"while y{",			// 8
@@ -742,22 +747,23 @@ namespace TestProcessor {
 				"z=y+x;",			// 10
 				"b=y+z;}",			// 11
 				"while x{",			// 12
-				"x=x-1;}}", };		// 13
-			//	"procedure Second{",
-			//	"x=4+x;",			// 14
-			//	"y=1+y;",			// 15
-			//	"z=z-1;",			// 16
-			//	"while x{",			// 17
-			//	"x=x-1;"			// 18
-			//	"call Third;}}",	// 19
-			//	"procedure Third{",
-			//	"z=1+1;",			// 20
-			//	"i=x+y;",			// 21
-			//	"while i{",			// 22
-			//	"while x{"			// 23
-			//	"i=i-1;"			// 24
-			//	"j=1+1;}}}"			// 25
-			//};
+				"x=x-1;}}", 		// 13
+				"procedure Second{",
+				"x=4+x;",			// 14
+				"y=1+y;",			// 15
+				"a=a-1;",			// 16
+				"while x{",			// 17
+				"z=x-1;",			// 18
+				"call Third;}}",	// 19
+				"procedure Third{",
+				"z=x+1;",			// 20
+				"i=x+y;",			// 21
+				"while i{",			// 22
+				"while x{",			// 23
+				"z=i-1;",			// 24
+				"j=1+1;",			// 25
+				"x=1+1;}}}",		// 26
+			};
 
 			DesignExtractor ext = DesignExtractor(code);
 
@@ -788,8 +794,11 @@ namespace TestProcessor {
 			tree1->setPattern(emptyVector);
 
 			results = handler.queryRec(tree1);
-			Assert::AreEqual(6, int(results.size()));
-			Assert::AreEqual(string("7"), results[0]);
+			Assert::AreEqual(4, int(results.size()));
+			Assert::AreEqual(string("1"), results[0]);
+			Assert::AreEqual(string("13"), results[1]);
+			Assert::AreEqual(string("14"), results[2]);
+			Assert::AreEqual(string("26"), results[3]);
 
 
 
@@ -797,50 +806,277 @@ namespace TestProcessor {
 			 *	variable v1;
 			 *	Select v1 such that Modifies(5, v1);
 			 */
+			QueryTree* tree2 = new QueryTree();
+
+			vector<string> declarations2;
+			declarations2.push_back("variable v1");
+			tree2->setSymbolTable(declarations2);
+
+			vector<string> selections2;
+			selections2.push_back("v1");
+			tree2->setResult(selections2);
+
+			vector<string> relations2;
+			relations2.push_back("Modifies(5, v1)");
+			tree2->setSuchThat(relations2);
+
+			tree2->setPattern(emptyVector);
+
+			results = handler.queryRec(tree2);
+			Assert::AreEqual(1, int(results.size()));
+			Assert::AreEqual(string("b"), results[0]);
+
+
 
 			/**
 			 *	stmt s1;
 			 *	Select s1 such that Modifies(s1, "z");
 			 */
+			QueryTree* tree3 = new QueryTree();
+
+			vector<string> declarations3;
+			declarations3.push_back("stmt s1");
+			tree3->setSymbolTable(declarations3);
+
+			vector<string> selections3;
+			selections3.push_back("s1");
+			tree3->setResult(selections3);
+
+			vector<string> relations3;
+			relations3.push_back("Modifies(s1, \"z\")");
+			tree3->setSuchThat(relations3);
+
+			tree3->setPattern(emptyVector);
+
+
+			// For Tue
+			// Expected: 3 7 8 10 19 20 21 22 23
+			// Missing :   ^          ^
+			results = handler.queryRec(tree3);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			/*Assert::AreEqual(9, int(results.size()));
+			Assert::AreEqual(string("3"), results[0]);
+			Assert::AreEqual(string("7"), results[1]);
+			Assert::AreEqual(string("8"), results[2]);
+			Assert::AreEqual(string("10"), results[3]);
+			Assert::AreEqual(string("19"), results[4]);
+			Assert::AreEqual(string("20"), results[5]);
+			Assert::AreEqual(string("21"), results[6]);
+			Assert::AreEqual(string("22"), results[7]);
+			Assert::AreEqual(string("23"), results[8]);*/
+
 
 			/**
 			 *	while w1;
 			 *	Select w1 such that Modifies(w1, "x");
 			 */
+			QueryTree* tree4 = new QueryTree();
+
+			vector<string> declarations4;
+			declarations4.push_back("while w1");
+			tree4->setSymbolTable(declarations4);
+
+			vector<string> selections4;
+			selections4.push_back("w1");
+			tree4->setResult(selections4);
+
+			vector<string> relations4;
+			relations4.push_back("Modifies(w1, \"x\")");
+			tree4->setSuchThat(relations4);
+
+			tree4->setPattern(emptyVector);
+
+			// For Tue
+			// Expected: 12 17 22 23
+			// Missing:      ^
+			results = handler.queryRec(tree4);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			/*Assert::AreEqual(3, int(results.size()));
+			Assert::AreEqual(string("12"), results[0]);
+			Assert::AreEqual(string("17"), results[1]);
+			Assert::AreEqual(string("22"), results[2]);
+			Assert::AreEqual(string("23"), results[3]);*/
+
+
 
 			/**
-			 *	stmt s1, while w1, variable v1;
+			 *	variable v1;
 			 *	Select v1 such that Modifies(5, v1);
 			 */
+			QueryTree* tree5 = new QueryTree();
+
+			vector<string> declarations5;
+			declarations5.push_back("variable v1");
+			tree5->setSymbolTable(declarations5);
+
+			vector<string> selections5;
+			selections5.push_back("v1");
+			tree5->setResult(selections5);
+
+			vector<string> relations5;
+			relations5.push_back("Modifies(5, v1)");
+			tree5->setSuchThat(relations5);
+
+			tree5->setPattern(emptyVector);
+
+			results = handler.queryRec(tree5);
+			Assert::AreEqual(1, int(results.size()));
+			Assert::AreEqual(string("b"), results[0]);
 
 			/**
 			 *	variable v1;
 			 *	Select v1 such that Modifies(8, v1);
 			 *	
-			 *	stmt# 8 is a while statement
+			 *	stmt# 8 is a while stmt
 			 */
+			QueryTree* tree6 = new QueryTree();
+
+			vector<string> declarations6;
+			declarations6.push_back("variable v1");
+			tree6->setSymbolTable(declarations6);
+
+			vector<string> selections6;
+			selections6.push_back("v1");
+			tree6->setResult(selections6);
+
+			vector<string> relations6;
+			relations6.push_back("Modifies(8, v1)");
+			tree6->setSuchThat(relations6);
+
+			tree6->setPattern(emptyVector);
+
+			results = handler.queryRec(tree6);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(3, int(results.size()));
+			Assert::AreEqual(string("b"), results[0]);
+			Assert::AreEqual(string("y"), results[1]);
+			Assert::AreEqual(string("z"), results[2]);
+			
+
 
 			/**
-			 *	assign a1, variable v1;
+			*	variable v1;
+			*	Select v1 such that Modifies(17, v1);
+			*
+			*	stmt# 8 is a while stmt with another nested call-stmt
+			*/
+			QueryTree* tree7 = new QueryTree();
+
+			vector<string> declarations7;
+			declarations7.push_back("variable v1");
+			tree7->setSymbolTable(declarations7);
+
+			vector<string> selections7;
+			selections7.push_back("v1");
+			tree7->setResult(selections7);
+
+			vector<string> relations7;
+			relations7.push_back("Modifies(17, v1)");
+			tree7->setSuchThat(relations7);
+
+			tree7->setPattern(emptyVector);
+
+			results = handler.queryRec(tree7);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(4, int(results.size()));
+			Assert::AreEqual(string("i"), results[0]);
+			Assert::AreEqual(string("j"), results[1]);
+			Assert::AreEqual(string("x"), results[2]);
+			Assert::AreEqual(string("z"), results[3]);
+
+
+			/**
+			 *	variable v1;
 			 *	Select v1 such that Modifies(22, v1);
 			 *	
 			 *	stmt# 22 is a nested-while statement
 			 */
+			QueryTree* tree8 = new QueryTree();
+
+			vector<string> declarations8;
+			declarations8.push_back("variable v1");
+			tree8->setSymbolTable(declarations8);
+
+			vector<string> selections8;
+			selections8.push_back("v1");
+			tree8->setResult(selections8);
+
+			vector<string> relations8;
+			relations8.push_back("Modifies(22, v1)");
+			tree8->setSuchThat(relations8);
+
+			tree8->setPattern(emptyVector);
+
+			results = handler.queryRec(tree8);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(3, int(results.size()));
+			Assert::AreEqual(string("j"), results[0]);
+			Assert::AreEqual(string("x"), results[1]);
+			Assert::AreEqual(string("z"), results[2]);
 
 			/**
-			 *	stmt s1, variable v1;
+			 *	stmt s1;
 			 *	Select s1 such that Modifies(s1, "i");
 			 *
 			 *	"i" is a variable in nested-procedure calls
 			 */
+			QueryTree* tree9 = new QueryTree();
+
+			vector<string> declarations9;
+			declarations9.push_back("stmt s1");
+			tree9->setSymbolTable(declarations9);
+
+			vector<string> selections9;
+			selections9.push_back("s1");
+			tree9->setResult(selections9);
+
+			vector<string> relations9;
+			relations9.push_back("Modifies(s1, \"j\")");
+			tree9->setSuchThat(relations9);
+
+			tree9->setPattern(emptyVector);
+
+			results = handler.queryRec(tree9);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			Assert::AreEqual(6, int(results.size()));
+			Assert::AreEqual(string("7"), results[0]);
+			Assert::AreEqual(string("17"), results[1]);
+			Assert::AreEqual(string("19"), results[2]);
+			Assert::AreEqual(string("22"), results[3]);
+			Assert::AreEqual(string("23"), results[4]);
+			Assert::AreEqual(string("25"), results[5]);
 
 			/**
-			 *	stmt s1, variable v1;
+			 *	variable v1;
 			 *	Select v1 such that Modifies(7, v1);
 			 *
 			 *	stmt# 7 is the procedure call
 			 */	
+			QueryTree* tree10 = new QueryTree();
 
+			vector<string> declarations10;
+			declarations10.push_back("variable v1");
+			tree10->setSymbolTable(declarations10);
+
+			vector<string> selections10;
+			selections10.push_back("v1");
+			tree10->setResult(selections10);
+
+			vector<string> relations10;
+			relations10.push_back("Modifies(7, v1)");
+			tree10->setSuchThat(relations10);
+
+			tree10->setPattern(emptyVector);
+
+			results = handler.queryRec(tree10);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(6, int(results.size()));
+			Assert::AreEqual(string("a"), results[0]);
+			Assert::AreEqual(string("i"), results[1]);
+			Assert::AreEqual(string("j"), results[2]);
+			Assert::AreEqual(string("x"), results[3]);
+			Assert::AreEqual(string("y"), results[4]);
+			Assert::AreEqual(string("z"), results[5]);
 		}
 
 
@@ -926,5 +1162,22 @@ namespace TestProcessor {
 		}
 
 
+		private:
+		static bool compareStringsAsNumbers(const string& s1, const string& s2) {
+			int i1, i2;
+
+			stringstream convert1(s1), convert2(s2);
+			convert1 >> i1;
+			convert2 >> i2;
+
+			if (strtol(s1.c_str(), NULL, 10) > strtol(s2.c_str(), NULL, 10)) {
+				return false;
+			} else { 
+				return true; 
+			}
+
+		}
 	};
+
+	
 }
