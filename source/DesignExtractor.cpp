@@ -25,7 +25,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	}
 
 	processProcTable();
-	//processModUseTable();
+	processModUseTable();
 	processNextTable();
 	storeToPKB();
 }

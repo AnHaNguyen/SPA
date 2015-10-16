@@ -169,7 +169,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 								if (oldSize < parVec.size()) {
 									for (int i = oldSize; i < parVec.size(); i++) {
 										parQ.push(parVec[i]);
-										final.push_back(parVec[i]);
 									}
 								}
 							}
@@ -187,7 +186,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-
 		//Handle uses
 		vector<UseEntry_t> useTab;
 		if (ST == "Uses") {
@@ -206,8 +204,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		}
 		}*/
 		//Handle Next
-		final.push_back(stFirst + " " + stSecond);
-		return final;
 		if (ST == "Next") {
 			nextVec = handleNext(stFirst, stSecond);
 			final.push_back(stFirst + " " + stSecond);
