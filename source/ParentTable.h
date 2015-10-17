@@ -25,6 +25,7 @@ public:	ParentTable();
 		bool isContained(string lineNo);
 		bool isParent(string lineNo, string child);
 		vector<ParentEntry_t> getTable();
+		void generateParentSTable();
 };
 
 #endif

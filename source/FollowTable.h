@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <queue>
+#include "FollowSTable.h"
 using namespace std;
 typedef struct FollowEntry_t {		//follow(prev,next)
 	string prev;
@@ -24,5 +26,6 @@ public: FollowTable();
 		bool isContained(string prev);		//check if table contains a prev stmt
 		vector<FollowEntry_t> getTable();		//return table
 		bool isFollows(string prev, string next);	//check if next follows prev
+		void generateFollowSTable();
 };
 #endif
