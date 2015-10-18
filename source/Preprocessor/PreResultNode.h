@@ -1,18 +1,22 @@
 #ifndef PreResultNode_H
 #define PreResultNode_H
-
+#include "AttrRef.h"
 #include <string>
 using namespace std;
 
 class PreResultNode{
 private:
-    string result;
+    AttrRef result;
+	PreResultNode* next;
 public:
     PreResultNode();
     ~PreResultNode();
 
-    string getResult();
-    void setResult(string str);
+    AttrRef getResult();
+	PreResultNode* getNext();
+
+    void setResult(AttrRef ar);
+	void setNext(PreResultNode* node);
 };
 
 #endif

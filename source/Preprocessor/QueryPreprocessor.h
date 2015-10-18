@@ -50,6 +50,7 @@ public:
 	string toLowerCase(string str);
 	string trim(string str);
 	string removeMultipleSpace(string str);
+	string removeSpace(string str);
 	string getFirstToken(string str);
 	string removeFirstToken(string str);
 

@@ -93,7 +93,7 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 	}
 
 	vector<string> temp = stringToVector(str, ";");
-	for (int i = 0; i<temp.size() - 1; i++) {
+	for (int i = 0; i<temp.size()-1; i++) {
 		temp[i] = trim(temp[i]);
 		int numWords = countWords(temp[i], " ");
 		if (numWords<2) {
@@ -129,16 +129,30 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 
 bool QueryPreprocessor::isValidSelection(string input){
 	vector<string> extractSelect = extractContent(input, "Select");
-	extractSelect[1] = trim(extractSelect[1]);
+	string str = trim(extractSelect[1]);
+	str = removeSpace(str);
 
-	if (extractSelect[1] == "") {
+	if (str == "") {
 		return false;
 	}
 
-	if (countWords(extractSelect[1], " ") > 1) {
+	if (str.find("<") != string::npos && str.find(">") == string::npos) {
 		return false;
 	}
 
+	if (str.find("<") == string::npos && str.find(">") != string::npos) {
+		return false;
+	}
+
+	if (str.find("<") == 0 && str.find(">") == str.size()-1) {
+		str = str.substr(1, str.length() - 2);
+		vector<string> words = stringToVector(str, ",");
+		for (int i = 0; i < words.size(); i++) {
+			if (words[i] == "") {
+				return false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -295,12 +309,22 @@ void QueryPreprocessor::setWithTable(string input) {
 void QueryPreprocessor::setResultTable(string input){
 
 	string str = removeMultipleSpace(input);
-
 	vector <string> extractResult = extractContent(str, "Select");
-
 	string content = extractResult[1];
 	content = trim(content);
-	selections.push_back(content);
+	content = removeSpace(content);
+
+	if (content.find("<") == string::npos && content.find(">") == string::npos) {
+		selections.push_back(content);
+	}
+
+	if (content.find("<") == 0 && content.find(">") == content.size() - 1) {
+		content = content.substr(1, content.length() - 2);
+		vector<string> results = stringToVector(content, ",");
+		for (int i = 0; i < results.size(); i++) {
+			selections.push_back(results[i]);
+		}
+	}
 }
 
 vector<string> QueryPreprocessor::stringToVector(string original, string delimiter){
@@ -359,6 +383,16 @@ string QueryPreprocessor::removeMultipleSpace(string str){
 		result = result + str.at(str.size() - 1);
 	}
     return result;
+}
+
+string QueryPreprocessor::removeSpace(string str) {
+	string result = "";
+	for (int i = 0; i<str.size(); i++) {
+		if (str.at(i) != ' ') {
+			result = result + str.at(i);
+		}
+	}
+	return result;
 }
 
 string QueryPreprocessor::getFirstToken(string str){

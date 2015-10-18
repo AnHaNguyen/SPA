@@ -41,6 +41,7 @@ public:
 	bool isValidSuchThatAttribute(string syn, string first, string second);
 	bool isValidPatternAttribute(string syn, string first, string second, string third);
 	bool isValidWithAttribute(string left, string right);
+	bool isValidResultAttribute(vector<string> table, string synonym, string attr);
 	bool isValidRef(string str);
 	bool isValidAttrRef(string str);
 	bool isValidIdent(string str);

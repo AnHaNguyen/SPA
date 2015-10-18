@@ -48,23 +48,41 @@ void QueryTree::setValidity(bool boolean){
     isValid = boolean;
 }
 
-void QueryTree::setResult(vector<string> terms){
+void QueryTree::setResult(vector<string> table){
 
-    if(terms.size()==0) return;
+    if(table.size()==0) return;
+	
+	PreResultNode* resultPtr = result;
+	for (int i = 0; i < table.size(); i++) {
+		string str = table[i];
+		string synonym, attr;
+		if (str.find(".") == string::npos) {
+			synonym = str;
+		}
+		else {
+			vector<string> words = stringToVector(str, ".");
+			synonym = words[0];
+			attr = words[1];
+			if (attr == "") {
+				isValid = false;
+				return;
+			}
+		}
 
-    string str = terms[0];
+		if (isValidResultAttribute(table, synonym, attr)) {
+			AttrRef ar(synonym, attr);
+			resultPtr->setResult(ar);
+		}
 
-    str = trim(str);
-	if (str == "BOOLEAN") {
-		isValid = true;
+		else {
+			cout << "wrong result TREE" << endl;
+			isValid = false;
+			return;
+		}
+		PreResultNode* nextNode = new PreResultNode();
+		resultPtr->setNext(nextNode);
+		resultPtr = resultPtr->getNext();
 	}
-
-	else if (!isValidSynonym(symbolTable, str)) {
-		isValid = false; 
-		cout << "wrong select TREE" << endl;
-		return;
-	}
-    result->setResult(str);
 }
 
 void QueryTree::setSuchThat(vector<string> table){
@@ -336,6 +354,22 @@ bool QueryTree::isInSymbolTable(vector< vector<string> > table, string str) {
 	return false;
 }
 
+bool QueryTree::isValidResultAttribute(vector<string> table, string synonym, string attr) {
+	if (table.size() == 1 && synonym == "BOOLEAN") {
+		return true;
+	}
+	if (isInSymbolTable(symbolTable, synonym)) {
+		if (attr!="") {
+			string str = synonym + "." + attr;
+			if (!isValidAttrRef(str)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second) {
 	string firstType = getSynType(symbolTable, first);
 	string secondType = getSynType(symbolTable, second);
@@ -520,7 +554,6 @@ bool QueryTree::isValidWithAttribute(string left, string right) {
 		firstType = getRefType(left);
 		secondType = getRefType(right);
 		if (firstType != secondType) {
-			cout << "523" << endl;
 			return false;
 		}
 		return true;
@@ -553,7 +586,6 @@ bool QueryTree::isValidRef(string str) {
 		getSynType(symbolTable, str) == "assign" || getSynType(symbolTable, str) == "stmt") {
 		return true;
 	}
-	cout << "546" << endl;
 	return false;
 }
 
