@@ -464,9 +464,9 @@ namespace TestPreprocessor
 			QueryPreprocessor pro36;
 			string input36 = "Select w such that Modifies(a1,v1) and Follows(1,1) such that Modifies(1,v1) pattern a2(_,\"x\") such that Uses(s1,v1)";
 			pro36.setSuchThatTable(input36);
-			Assert::AreEqual((string)"Modifies(a1,v1)", pro36.getSuchThatTable()[0]);
-			Assert::AreEqual((string)"Follows(1,1)", pro36.getSuchThatTable()[1]);
-			Assert::AreEqual((string)"Modifies(1,v1)", pro36.getSuchThatTable()[2]);
+			Assert::AreEqual((string)"Modifies(1,v1)", pro36.getSuchThatTable()[0]);
+			Assert::AreEqual((string)"Modifies(a1,v1)", pro36.getSuchThatTable()[1]);
+			Assert::AreEqual((string)"Follows(1,1)", pro36.getSuchThatTable()[2]);
 			Assert::AreEqual((string)"Uses(s1,v1)", pro36.getSuchThatTable()[3]);
 		}
 
@@ -478,8 +478,8 @@ namespace TestPreprocessor
 			QueryTree* tree37 = pro37.startProcess(declare37, input37);
 
 			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getSynonym());
-			Assert::AreEqual((string)"Follows", tree37->getSuchThat()->getNext()->getSynonym());
-			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getNext()->getNext()->getSynonym());
+			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getNext()->getSynonym());
+			Assert::AreEqual((string)"Follows", tree37->getSuchThat()->getNext()->getNext()->getSynonym());
 			Assert::AreEqual((string)"Uses", tree37->getSuchThat()->getNext()->getNext()->getNext()->getSynonym());
 		}
 
@@ -744,6 +744,22 @@ namespace TestPreprocessor
 			string input60 = "Select <w, v1.varName,  , c1.value> such that Modifies(a1,v1)";
 			QueryTree* tree60 = pro60.startProcess(declare60, input60);
 			Assert::AreEqual(false, tree60->getValidity());
+		}
+
+		TEST_METHOD(such_that_sorting)
+		{
+			QueryPreprocessor pro61;
+			string declare61 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;prog_line n1,n2;procedure p1;constant c1;";
+			string input61 = "Select w such that Next(20,a1) and Next(1,2) and Modifies(a1,v1) and Parent(s1,s2) and Parent*(1,2) and Parent(4,5) and Parent(2,s1)";
+			QueryTree* tree61 = pro61.startProcess(declare61, input61);
+			Assert::AreEqual(true, tree61->getValidity());
+			Assert::AreEqual((string)"Modifies(a1,v1)", pro61.getSuchThatTable()[0]);
+			Assert::AreEqual((string)"Parent(4,5)", pro61.getSuchThatTable()[1]);
+			Assert::AreEqual((string)"Parent(2,s1)", pro61.getSuchThatTable()[2]);
+			Assert::AreEqual((string)"Parent(s1,s2)", pro61.getSuchThatTable()[3]);
+			Assert::AreEqual((string)"Parent*(1,2)", pro61.getSuchThatTable()[4]);
+			Assert::AreEqual((string)"Next(1,2)", pro61.getSuchThatTable()[5]);
+			Assert::AreEqual((string)"Next(20,a1)", pro61.getSuchThatTable()[6]);
 		}
 	};
 }
