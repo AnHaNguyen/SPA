@@ -24,6 +24,8 @@ public:
     void setPatternTable(string str);
 	void setWithTable(string str);
 	void setResultTable(string str);
+	vector<string> sortAttribute(vector<string> table);
+	vector<string> sortRelation(vector<string> table);
 
 	vector<string> getDeclarationTable();
 	vector<string> getSuchThatTable();
@@ -44,6 +46,7 @@ public:
 	int identifyKeyword(string str);
 	vector<vector<string>> seperateClause(string str, string clause);
 	vector<string> setClauseTable(vector< vector<string> > table);
+	vector<string> setClauseTableForSuchThat(vector< vector<string> > table);
 
 	vector<string> stringToVector(string original, string delimiter);
 	int countWords(string str, string delimiter);
@@ -53,6 +56,7 @@ public:
 	string removeSpace(string str);
 	string getFirstToken(string str);
 	string removeFirstToken(string str);
+	bool isInteger(string str);
 
 	void printTable(vector<string> table);
 };

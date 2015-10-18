@@ -272,6 +272,22 @@ vector<string> QueryPreprocessor::setClauseTable(vector< vector<string> > table)
 	return newTable;
 }
 
+vector<string> QueryPreprocessor::setClauseTableForSuchThat(vector< vector<string> > table) {
+	vector<string> newTable;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i][1];
+		vector<string> seperateAnd = stringToVector(str, "and");
+		for (int j = 0; j<seperateAnd.size(); j++) {
+			string content = trim(seperateAnd[j]);
+			newTable.push_back(content);
+		}
+	}
+
+	newTable = sortAttribute(newTable);
+	newTable = sortRelation(newTable);
+	return newTable;
+}
+
 void QueryPreprocessor::setDeclarationTable(string declare){
 
     string str = removeMultipleSpace(declare);
@@ -289,7 +305,160 @@ void QueryPreprocessor::setSuchThatTable(string input){
 
     string str = removeMultipleSpace(input);
 	vector< vector<string> > suchThatClauses = seperateClause(str, "such that");
-	relations = setClauseTable(suchThatClauses);	
+	relations = setClauseTableForSuchThat(suchThatClauses);	
+}
+
+vector<string> QueryPreprocessor::sortAttribute(vector<string> table) {
+	vector<string> twoInteger;
+	vector<string> oneInteger;
+	vector<string> noInteger;
+	vector<string> invalid;
+	vector<string> sorted;
+	for (int i = 0; i < table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
+
+		if (str.find("(") != string::npos && str.find(")") != string::npos && str.find(",") != string::npos) {
+			vector<string> words = stringToVector(str, "(");
+			vector<string> attributes = stringToVector(words[1], ",");
+			string first = trim(attributes[0]);
+			vector<string> remain = stringToVector(attributes[1], ")");
+			string second = trim(remain[0]);
+
+			if (isInteger(first) && isInteger(second)) {
+				twoInteger.push_back(str);
+			}
+			else if (isInteger(first) || isInteger(second)) {
+				oneInteger.push_back(str);
+			}
+			else {
+				noInteger.push_back(str);
+			}
+		}
+		else {
+			invalid.push_back(str);
+		}
+	}
+
+	for (int i = 0; i < twoInteger.size(); i++) {
+		sorted.push_back(twoInteger[i]);
+	}
+	for (int i = 0; i < oneInteger.size(); i++) {
+		sorted.push_back(oneInteger[i]);
+	}
+	for (int i = 0; i < noInteger.size(); i++) {
+		sorted.push_back(noInteger[i]);
+	}
+	for (int i = 0; i < invalid.size(); i++) {
+		sorted.push_back(invalid[i]);
+	}
+	return sorted;
+}
+
+vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
+	vector<string> Calls;
+	vector<string> CallsS;
+	vector<string> Modifies;
+	vector<string> Parent;
+	vector<string> ParentS;
+	vector<string> Follows;
+	vector<string> FollowsS;
+	vector<string> Uses;
+	vector<string> Next;
+	vector<string> NextS;
+	vector<string> Affects;
+	vector<string> AffectsS;
+	vector<string> others;
+	vector<string> sorted;
+
+	for (int i = 0; i < table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
+
+		vector<string> words = stringToVector(str, "(");
+		string syn = trim(words[0]);
+
+		if (syn=="Calls") {
+			Calls.push_back(str);
+		}
+		else if (syn == "Calls*") {
+			CallsS.push_back(str);
+		}
+		else if (syn == "Modifies") {
+			Modifies.push_back(str);
+		}
+		else if (syn == "Parent") {
+			Parent.push_back(str);
+		}
+		else if (syn == "Parent*") {
+			ParentS.push_back(str);
+		}
+		else if (syn == "Follows") {
+			Follows.push_back(str);
+		}
+		else if (syn == "Follows*") {
+			FollowsS.push_back(str);
+		}
+		else if (syn == "Uses") {
+			Uses.push_back(str);
+		}
+		else if (syn == "Next") {
+			Next.push_back(str);
+		}
+		else if (syn == "Next*") {
+			NextS.push_back(str);
+		}
+		else if (syn == "Affects") {
+			Affects.push_back(str);
+		}
+		else if (syn == "Affects*") {
+			AffectsS.push_back(str);
+		}
+		else {
+			others.push_back(str);
+		}
+	}
+
+	for (int i = 0; i < Calls.size(); i++) {
+		sorted.push_back(Calls[i]);
+	}
+	for (int i = 0; i < CallsS.size(); i++) {
+		sorted.push_back(CallsS[i]);
+	}
+	for (int i = 0; i < Modifies.size(); i++) {
+		sorted.push_back(Modifies[i]);
+	}
+	for (int i = 0; i < Parent.size(); i++) {
+		sorted.push_back(Parent[i]);
+	}
+	for (int i = 0; i < ParentS.size(); i++) {
+		sorted.push_back(ParentS[i]);
+	}
+	for (int i = 0; i < Follows.size(); i++) {
+		sorted.push_back(Follows[i]);
+	}
+	for (int i = 0; i < FollowsS.size(); i++) {
+		sorted.push_back(FollowsS[i]);
+	}
+	for (int i = 0; i < Uses.size(); i++) {
+		sorted.push_back(Uses[i]);
+	}
+	for (int i = 0; i < Next.size(); i++) {
+		sorted.push_back(Next[i]);
+	}
+	for (int i = 0; i < NextS.size(); i++) {
+		sorted.push_back(NextS[i]);
+	}
+	for (int i = 0; i < Affects.size(); i++) {
+		sorted.push_back(Affects[i]);
+	}
+	for (int i = 0; i < AffectsS.size(); i++) {
+		sorted.push_back(AffectsS[i]);
+	}
+	for (int i = 0; i < others.size(); i++) {
+		sorted.push_back(others[i]);
+	}
+	return sorted;
 }
 
 void QueryPreprocessor::setPatternTable(string input){
@@ -432,6 +601,18 @@ bool QueryPreprocessor::containWord(string str, string arr[], int size){
         }
     }
     return false;
+}
+
+bool QueryPreprocessor::isInteger(string str) {
+	if (str.size() == 0) {
+		return false;
+	}
+	for (int i = 0; i < str.size(); i++) {
+		if (!isdigit(str.at(i))) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void QueryPreprocessor::printTable(vector<string> table) {

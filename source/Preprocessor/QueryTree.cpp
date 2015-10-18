@@ -109,7 +109,7 @@ void QueryTree::setSuchThat(vector<string> table){
 			suchThatPtr->setSecondAttr(second);
 		}
 		else {
-			cout << "wrong such that TREE"  << endl;
+			cout << "wrong such that TREE:  " << str << endl;
 			isValid = false;
 		}
 
@@ -724,16 +724,8 @@ bool QueryTree::isValidExpressionSpec(string str) {
 	if (isValidName(insideQuotes) || isInteger(insideQuotes)) {
 		return true;
 	}
-	if (insideQuotes.find('+') == insideQuotes.rfind('+')) {
-		string first = insideQuotes.substr(0, insideQuotes.find('+'));
-		first = trim(first);
-		string second = insideQuotes.substr(insideQuotes.find('+')+1);
-		second = trim(second);
-		if ((isValidName(first) || isInteger(first)) && (isValidName(second) || isInteger(second)))
-			return true;
-	}
 
-	return false;
+	return true;
 }
 
 bool QueryTree::isInteger(string str) {
