@@ -59,13 +59,13 @@ bool FollowTable::isFollows(string prev, string next) {
 	return (next == getNext(prev));
 }
 
-void FollowTable::generateFollowSTable() {
+FollowSTable* FollowTable::generateFollowSTable() {
 	FollowSTable* followSTable = new FollowSTable();
 	for (unsigned i = 0; i < followTable.size(); i++) {
 		queue<string> lineQ;
 		string line = followTable.at(i).prev;
 		lineQ.push(line);
-		while (!lineQ.empty) {
+		while (!lineQ.empty()) {
 			string cur = lineQ.front();
 			lineQ.pop();
 			string next = getNext(cur);
@@ -75,4 +75,5 @@ void FollowTable::generateFollowSTable() {
 			}
 		}
 	}
+	return followSTable;
 }

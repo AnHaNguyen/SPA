@@ -82,13 +82,13 @@ bool ParentTable::isParent(string lineNo, string child) {
 	return false;
 }
 
-void ParentTable::generateParentSTable() {
+ParentSTable* ParentTable::generateParentSTable() {
 	ParentSTable* parentSTable = new ParentSTable();
 	for (unsigned i = 0; i < parentTable.size(); i++) {
 		queue<string> lineQ;
 		string line = parentTable.at(i).lineNo;
 		lineQ.push(line);
-		while (!lineQ.empty) {
+		while (!lineQ.empty()) {
 			string cur = lineQ.front();
 			lineQ.pop();
 			vector<string> childList = getChild(cur);
@@ -98,4 +98,5 @@ void ParentTable::generateParentSTable() {
 			}
 		}
 	}
+	return parentSTable;
 }

@@ -1,7 +1,7 @@
 #include <vector>
+#include <string>
 #include "CallTable.h"
-#include "Utility.h"
-
+#include "CallSTable.h"
 
 CallTable::CallTable() {
 }
@@ -116,16 +116,13 @@ vector<callEntry_t> CallTable::getTable() {
 	return callTable;
 }
 
-void CallTable::generateCallSTable() {
-	if (isContainedRecur()) {
-		return;
-	}
+CallSTable* CallTable::generateCallSTable() {
 	CallSTable* callSTable = new CallSTable();
 	for (unsigned i = 0; i < callTable.size(); i++) {
 		queue<string> lineQ;
 		string line = callTable.at(i).caller;
 		lineQ.push(line);
-		while (!lineQ.empty) {
+		while (!lineQ.empty()) {
 			string cur = lineQ.front();
 			lineQ.pop();
 			vector<string> callees = getCallees(cur);
@@ -135,4 +132,5 @@ void CallTable::generateCallSTable() {
 			}
 		}
 	}
+	return callSTable;
 }

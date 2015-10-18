@@ -5,12 +5,20 @@
 #include "ParentTable.h"
 
 using namespace std;
+typedef struct ParentSEntry_t {
+	string lineNo;
+	vector<string> child;
+	ParentSEntry_t(string lineNo, string child) {
+		ParentSEntry_t::lineNo = lineNo;
+		ParentSEntry_t::child.push_back(child);
+	}
+} ParentSEntry;
 class ParentSTable {
 	/*ParentEntry_t{
 	string parent;
 	vector<string> child;
 	}*/
-private: vector<ParentEntry_t> parentSTable;
+private: vector<ParentSEntry_t> parentSTable;
 public: ParentSTable();
 		~ParentSTable();
 		bool addToTable(string lineNo, string child);
@@ -19,6 +27,6 @@ public: ParentSTable();
 		int size();
 		bool isContained(string line);
 		bool isParentS(string line, string child);
-		vector<ParentEntry_t> getTable();
+		vector<ParentSEntry_t> getTable();
 };
 #endif

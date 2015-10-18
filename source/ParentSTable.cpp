@@ -1,13 +1,14 @@
 #include "ParentSTable.h"
 #include <vector>
 #include <string>
+#include "ParentTable.h"
 
 ParentSTable::ParentSTable() {}
 ParentSTable::~ParentSTable() {  }
 
 bool ParentSTable::addToTable(string lineNo, string child) {
 	if (isContained(lineNo) == false) {
-		ParentEntry_t *entry = new ParentEntry_t(lineNo, child);
+		ParentSEntry_t *entry = new ParentSEntry_t(lineNo, child);
 		parentSTable.push_back(*entry);
 		return true;
 	}
@@ -61,7 +62,7 @@ bool ParentSTable::isContained(string line) {
 	return false;
 }
 
-vector<ParentEntry_t> ParentSTable::getTable() {
+vector<ParentSEntry_t> ParentSTable::getTable() {
 	return parentSTable;
 }
 

@@ -1,13 +1,14 @@
 #include "CallSTable.h"
 #include <vector>
 #include <string>
+#include "CallTable.h"
 
 CallSTable::CallSTable() {}
 CallSTable::~CallSTable() {  }
 
 bool CallSTable::addToTable(string caller, string callee) {
 	if (isContained(caller) == false) {
-		callEntry_t *entry = new callEntry_t(caller, callee);
+		callSEntry_t *entry = new callSEntry_t(caller, callee);
 		callSTable.push_back(*entry);
 		return true;
 	}
@@ -61,7 +62,7 @@ bool CallSTable::isContained(string line) {
 	return false;
 }
 
-vector<callEntry_t> CallSTable::getTable() {
+vector<callSEntry_t> CallSTable::getTable() {
 	return callSTable;
 }
 

@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include "Utility.h"
 #include "CallSTable.h"
 #include <queue>
 
@@ -33,7 +32,7 @@ public:
 	vector<callEntry_t> getTable();			//return whole table as vector
 	bool isContainedRecur();
 	bool isCall(string caller, string callee);		//check Calls(p1,p2);
-	void generateCallSTable();
+	CallSTable* generateCallSTable();
 };
 
 
