@@ -126,6 +126,27 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
 		}
 
+		TEST_METHOD(DEModUseTable2) {
+			vector<string>code2 = { "procedureABC{","i=1;","b=200;","c=a;",
+				"ifathen{","whilebeta{","oSCar=1*beta+tmp;","whiletmp{",
+				"oSCar=I-(k+j1k*chArlie);}}","whilex{","x=x+1;",
+				"ifleftthen{","callSecond;","ifrightthen{","Romeo=Romeo-1;",
+				"b=0;","c=delta+l*width+Romeo;}","else{","whilec{","callInit;",
+				"c=c-1;}","x=x+1;}}","else{","callInit;}}}","else{",
+				"callInit;}}",
+				"procedureSecond{","ifxthen{","Y1=0;}","else{",
+				"ifleftthen{","callInit;","ifrightthen{","Romeo=Romeo-1;",
+				"b=0;","c=delta+l*width+Romeo;}","else{","whilec{",
+				"callInit;","c=c-1;}","x=x+1;}}","else{","callInit;}}}",
+				"procedureInit{","whilea{","x1=0;}};" };
+			DesignExtractor ext = DesignExtractor(code2);
+
+			ModifyTable* modTable = ext.getModTable();
+			UseTable* useTable = ext.getUseTable();
+
+
+		}
+
 		TEST_METHOD(DEProcTable)
 		{
 			vector <string> code = { "procedureFirst{", "x=2;}",
