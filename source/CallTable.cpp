@@ -1,7 +1,7 @@
 #include <vector>
+#include <string>
 #include "CallTable.h"
-#include "Utility.h"
-
+#include "CallSTable.h"
 
 CallTable::CallTable() {
 }
@@ -114,4 +114,23 @@ bool CallTable::checkRecurDFS(string caller, vector<string> callees, vector<stri
 
 vector<callEntry_t> CallTable::getTable() {
 	return callTable;
+}
+
+CallSTable* CallTable::generateCallSTable() {
+	CallSTable* callSTable = new CallSTable();
+	for (unsigned i = 0; i < callTable.size(); i++) {
+		queue<string> lineQ;
+		string line = callTable.at(i).caller;
+		lineQ.push(line);
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> callees = getCallees(cur);
+			for (unsigned j = 0; j < callees.size(); j++) {
+				lineQ.push(callees.at(j));
+				callSTable->addToTable(line, callees.at(j));
+			}
+		}
+	}
+	return callSTable;
 }

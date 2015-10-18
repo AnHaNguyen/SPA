@@ -148,14 +148,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
+    <ClInclude Include="..\source\CallSTable.h" />
     <ClInclude Include="..\Source\CallTable.h" />
     <ClInclude Include="..\Source\CFG.h" />
     <ClInclude Include="..\source\ConstTable.h" />
     <ClInclude Include="..\source\DesignExtractor.h" />
+    <ClInclude Include="..\source\FollowSTable.h" />
     <ClInclude Include="..\Source\FollowTable.h" />
     <ClInclude Include="..\Source\GNode.h" />
     <ClInclude Include="..\Source\ModifyTable.h" />
     <ClInclude Include="..\source\NextTable.h" />
+    <ClInclude Include="..\source\ParentSTable.h" />
     <ClInclude Include="..\Source\ParentTable.h" />
     <ClInclude Include="..\source\Parser.h" />
     <ClInclude Include="..\source\PKB.h" />
@@ -176,15 +179,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AST.cpp" />
+    <ClCompile Include="..\source\CallSTable.cpp" />
     <ClCompile Include="..\Source\CallTable.cpp" />
     <ClCompile Include="..\Source\CFG.cpp" />
     <ClCompile Include="..\source\ConstTable.cpp" />
     <ClCompile Include="..\source\DesignExtractor.cpp" />
+    <ClCompile Include="..\source\FollowSTable.cpp" />
     <ClCompile Include="..\Source\FollowTable.cpp" />
     <ClCompile Include="..\Source\GNode.cpp" />
     <ClCompile Include="..\source\main.cpp" />
     <ClCompile Include="..\Source\ModifyTable.cpp" />
     <ClCompile Include="..\source\NextTable.cpp" />
+    <ClCompile Include="..\source\ParentSTable.cpp" />
     <ClCompile Include="..\Source\ParentTable.cpp" />
     <ClCompile Include="..\source\Parser.cpp" />
     <ClCompile Include="..\source\PKB.cpp" />
