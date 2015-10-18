@@ -18,6 +18,9 @@
 #include "ProgLine.h"
 #include "PKB.h"
 #include "NextTable.h"
+#include "ParentSTable.h"
+#include "FollowSTable.h"
+#include "CallSTable.h"
 
 using namespace std;
 
@@ -81,6 +84,9 @@ private:
 	ConstTable* constTable;
 	ProgLine* progLine;
 	NextTable* nextTable;
+	ParentSTable* parentSTable;
+	FollowSTable* followSTable;
+	CallSTable* callSTable;
 
 	int lineNumber;
 	int stmtLstNumber;
@@ -126,6 +132,7 @@ private:
 	string findLast(string line);
 	string nearestNext(string line);
 	bool processNextTable();
+	void processSTable();
 
 public:
 	DesignExtractor();
