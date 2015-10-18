@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "ParentSTable.h"
 
 using namespace std;
 typedef struct ParentEntry_t {
@@ -25,6 +26,7 @@ public:	ParentTable();
 		bool isContained(string lineNo);
 		bool isParent(string lineNo, string child);
 		vector<ParentEntry_t> getTable();
+		ParentSTable* generateParentSTable();
 };
 
 #endif
