@@ -728,12 +728,87 @@ namespace UnitTesting
 					"callInit;","c=c-1;}","x=x+1;}}","else{","callInit;}}}",
 				"procedureInit{","whilea{","x1=0;}};"};
 			DesignExtractor ext = DesignExtractor(code2);
-			//NextTable* table = ext.getNextTable();
-			//Assert::AreEqual(table->size(), 32);
-			//Assert::AreEqual(table->getTable().at(0).lineNo, (string)"1");
-			//Assert::AreEqual(table->getTable().at(1).lineNo, (string) "2");
-			//Assert::AreEqual(table->getTable().at(2).lineNo, (string) "4");
+			NextTable* table = ext.getNextTable();
+			ParentTable* pTable = ext.getParentTable();
+			FollowTable* fTable = ext.getFollowTable();
+			Assert::AreEqual(table->size(), 32);
+					
+			Assert::AreEqual(table->getTable().at(0).lineNo, (string)"1");
+			Assert::AreEqual(table->getTable().at(0).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(0).nextStmts.at(0), (string)"2");
+			Assert::AreEqual(table->getTable().at(1).lineNo, (string) "2");
+			Assert::AreEqual(table->getTable().at(1).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(1).nextStmts.at(0), (string)"3");
+			Assert::AreEqual(table->getTable().at(2).lineNo, (string) "3");
+			Assert::AreEqual(table->getTable().at(2).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(2).nextStmts.at(0), (string)"4");
+			Assert::AreEqual(table->getTable().at(3).lineNo, (string) "4");
+			Assert::AreEqual(table->getTable().at(3).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(3).nextStmts.at(0), (string)"5");
+			Assert::AreEqual(table->getTable().at(3).nextStmts.at(1), (string)"22");
 			
+			Assert::AreEqual(table->getTable().at(4).lineNo, (string) "5");
+			Assert::AreEqual(table->getTable().at(4).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(4).nextStmts.at(0), (string)"6");
+			Assert::AreEqual(table->getTable().at(4).nextStmts.at(1), (string)"9");
+
+			Assert::AreEqual(table->getTable().at(5).lineNo, (string) "7");
+
+			Assert::AreEqual(table->getTable().at(5).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(5).nextStmts.at(0), (string)"5");
+			Assert::AreEqual(table->getTable().at(5).nextStmts.at(1), (string)"8");
+
+			Assert::AreEqual(table->getTable().at(6).lineNo, (string) "6");
+			Assert::AreEqual(table->getTable().at(6).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(6).nextStmts.at(0), (string)"7");
+			Assert::AreEqual(table->getTable().at(7).lineNo, (string) "8");
+			Assert::AreEqual(table->getTable().at(7).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(7).nextStmts.at(0), (string)"7");
+			Assert::AreEqual(table->getTable().at(8).lineNo, (string) "9");
+			Assert::AreEqual(table->getTable().at(8).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(8).nextStmts.at(0), (string)"10");
+			Assert::AreEqual(table->getTable().at(9).lineNo, (string) "10");
+			Assert::AreEqual(table->getTable().at(9).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(9).nextStmts.at(0), (string)"11");
+			Assert::AreEqual(table->getTable().at(10).lineNo, (string) "11");
+			Assert::AreEqual(table->getTable().at(10).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(10).nextStmts.at(0), (string)"12");
+			Assert::AreEqual(table->getTable().at(10).nextStmts.at(1), (string)"21");
+
+			Assert::AreEqual(table->getTable().at(11).lineNo, (string) "21");
+			Assert::AreEqual(table->getTable().at(11).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(11).nextStmts.at(0), (string)"9");
+			Assert::AreEqual(table->getTable().at(12).lineNo, (string) "12");
+			Assert::AreEqual(table->getTable().at(12).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(12).nextStmts.at(0), (string)"13");
+			Assert::AreEqual(table->getTable().at(13).lineNo, (string) "13");
+			Assert::AreEqual(table->getTable().at(13).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(13).nextStmts.at(0), (string)"14");
+			Assert::AreEqual(table->getTable().at(13).nextStmts.at(1), (string)"17");
+
+			Assert::AreEqual(table->getTable().at(14).lineNo, (string) "16");
+			Assert::AreEqual(table->getTable().at(14).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(14).nextStmts.at(0), (string)"9");
+			Assert::AreEqual(table->getTable().at(15).lineNo, (string) "20");
+			Assert::AreEqual(table->getTable().at(15).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(15).nextStmts.at(0), (string)"9");
+			Assert::AreEqual(table->getTable().at(16).lineNo, (string) "14");
+			Assert::AreEqual(table->getTable().at(16).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(16).nextStmts.at(0), (string)"15");
+			Assert::AreEqual(table->getTable().at(17).lineNo, (string) "15");
+			Assert::AreEqual(table->getTable().at(17).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(17).nextStmts.at(0), (string)"16");
+			Assert::AreEqual(table->getTable().at(18).lineNo, (string) "17");
+			Assert::AreEqual(table->getTable().at(18).nextStmts.size(), (unsigned)2);
+			Assert::AreEqual(table->getTable().at(18).nextStmts.at(0), (string)"18");
+			Assert::AreEqual(table->getTable().at(18).nextStmts.at(1), (string)"20");
+
+			Assert::AreEqual(table->getTable().at(19).lineNo, (string) "19");
+			Assert::AreEqual(table->getTable().at(19).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(19).nextStmts.at(0), (string)"17");
+			Assert::AreEqual(table->getTable().at(20).lineNo, (string) "18");
+			Assert::AreEqual(table->getTable().at(20).nextStmts.size(), (unsigned)1);
+			Assert::AreEqual(table->getTable().at(20).nextStmts.at(0), (string)"19");
 		}
 	};
 }

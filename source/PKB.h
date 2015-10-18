@@ -58,8 +58,10 @@ public:
 		 static void setProgLine(ProgLine* progLine);				//for Extractor
 
 		 static vector<string> checkAssign(string pattern, bool contains_);	//to check pattern Assign
-		 static vector<string> patternIf(string controlVar);			//to check pattern If
-		 static vector<string> patternWhile(string controlVar);			//to check pattern While
+		 static vector<string> patternIf(string controlVar, bool containsQ);			
+															//to check pattern If
+		 static vector<string> patternWhile(string controlVar, bool containsQ);			
+															//to check pattern While
 };
 
 #endif

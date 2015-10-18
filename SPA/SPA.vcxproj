@@ -159,9 +159,11 @@
     <ClInclude Include="..\Source\ParentTable.h" />
     <ClInclude Include="..\source\Parser.h" />
     <ClInclude Include="..\source\PKB.h" />
+    <ClInclude Include="..\source\Preprocessor\AttrRef.h" />
     <ClInclude Include="..\Source\Preprocessor\PrePatternNode.h" />
     <ClInclude Include="..\Source\Preprocessor\PreResultNode.h" />
     <ClInclude Include="..\Source\Preprocessor\PreSuchThatNode.h" />
+    <ClInclude Include="..\source\Preprocessor\PreWithNode.h" />
     <ClInclude Include="..\Source\Preprocessor\QueryPreprocessor.h" />
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
     <ClInclude Include="..\Source\ProcTable.h" />
@@ -186,9 +188,11 @@
     <ClCompile Include="..\Source\ParentTable.cpp" />
     <ClCompile Include="..\source\Parser.cpp" />
     <ClCompile Include="..\source\PKB.cpp" />
+    <ClCompile Include="..\source\Preprocessor\AttrRef.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PrePatternNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PreResultNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\PreSuchThatNode.cpp" />
+    <ClCompile Include="..\source\Preprocessor\PreWithNode.cpp" />
     <ClCompile Include="..\Source\Preprocessor\QueryPreprocessor.cpp" />
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />

@@ -34,14 +34,18 @@ public:
     int getSymbolIndex(vector< vector<string> > table, string str);
 	string getSynType(vector< vector<string> > table, string str);
 	bool isValidSuchThatAttribute(string syn, string first, string second);
-	bool isValidPatternAttribute(string syn, string first, string second);
+	bool isValidPatternAttribute(string syn, string first, string second, string third);
 	bool isValidIdent(string str);
 	bool isValidSynonym(vector< vector<string> > table, string str);
 	bool isValidName(string str);
 	bool isValidStmtRef(vector< vector<string> > table, string str);
 	bool isValidEntRef(vector< vector<string> > table, string str);
+	bool isValidLineRef(vector< vector<string> > table, string str);
 	bool isValidExpressionSpec(string str);
 	bool isAssign(string str);
+	bool isVariable(string str);
+	bool isIf(string str);
+	bool isWhile(string str);
 	bool isInSymbolTable(vector< vector<string> > table, string str);
 	bool isInteger(string str);
 	bool containWord(string str, string arr[], int size);
@@ -55,6 +59,7 @@ public:
 	
 	void printTable(vector<string> table);
 	void printDoubleTable(vector< vector<string> > table);
+	int countWords(string str, string delimiter);
 };
 
 #endif

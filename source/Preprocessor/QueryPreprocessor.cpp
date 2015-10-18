@@ -7,7 +7,7 @@
 
 using namespace std;
 
-string designEntity[] = {"assign","stmt","while","variable","constant","prog_line"};
+string designEntity[] = {"assign","stmt","while","variable","constant","prog_line","if","procedure","call","program","stmtLst","plus","minus","times"};
 string keywords[] = { "such that", "pattern" };
 
 QueryPreprocessor::QueryPreprocessor(){
@@ -25,7 +25,8 @@ vector<string> QueryPreprocessor::start(string line) {
 		input = trim("Select" + seperate[1]);
 	}
 	QueryTree* tree = startProcess(declare, input);
-
+	//vector<string> result;
+	//return result;
 	QueryHandler handler;
 	return handler.queryRec(tree);
 }
@@ -56,7 +57,7 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 		//	printTable(selections);
 	}
 	else {
-		//cout << "wrong select" << endl;
+		cout << "wrong select" << endl;
 		tree->setValidity(false);
 		return tree;
 	}
@@ -102,7 +103,7 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 		firstWord = trim(firstWord);
 		string remainWord = removeFirstToken(temp[i]);
 		remainWord = trim(remainWord);
-		if (!containWord(firstWord, designEntity, 6)) {
+		if (!containWord(firstWord, designEntity, 14)) {
 			return false;
 		}
 		if (remainWord.find(",") != string::npos) {
@@ -144,11 +145,11 @@ bool QueryPreprocessor::isValidSuchThat(){
 		string clause = relations[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			//cout << "wrong such that 1" << endl;
+			cout << "wrong such that 1" << endl;
 			return false;
 		}
 		if (countWords(clause, ",")>2) {
-			//cout << "wrong such that 2" << endl;
+			cout << "wrong such that 2" << endl;
 			return false;
 		}
 	}
@@ -159,11 +160,11 @@ bool QueryPreprocessor::isValidPattern(){
 		string clause = patterns[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			//cout << "wrong pattern 1" << endl;
+			cout << "wrong pattern 1" << endl;
 			return false;
 		}
-		if (countWords(clause, ",")>2) {
-			//cout << "wrong pattern 2" << endl;
+		if (countWords(clause, ",")>3) {
+			cout << "wrong pattern 2" << endl;
 			return false;
 		}
 	}
@@ -219,6 +220,28 @@ vector<string> QueryPreprocessor::extractContent(string str, string clause) {
 	return separation;
 }
 
+vector< vector<string> > QueryPreprocessor::seperateClause(string str, string clause) {
+	vector< vector<string> > table;
+	while (str.find(clause) != string::npos) {
+		table.push_back(extractContent(str, clause));
+		str = table[table.size() - 1][2];
+	}
+	return table;
+}
+
+vector<string> QueryPreprocessor::setClauseTable(vector< vector<string> > table) {
+	vector<string> newTable;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i][1];
+		vector<string> seperateAnd = stringToVector(str, "and");
+		for (int j = 0; j<seperateAnd.size(); j++) {
+			string content = trim(seperateAnd[j]);
+			newTable.push_back(content);
+		}
+	}
+	return newTable;
+}
+
 void QueryPreprocessor::setDeclarationTable(string declare){
 
     string str = removeMultipleSpace(declare);
@@ -238,11 +261,8 @@ void QueryPreprocessor::setSuchThatTable(string input){
 
 	vector <string> extractSuchThat = extractContent(str, "such that");
 
-	string content = extractSuchThat[1];
-    if(content!=""){
-		content = trim(content);
-		relations.push_back(content);
-    }
+	vector< vector<string> > suchThatClauses = seperateClause(str, "such that");
+	relations = setClauseTable(suchThatClauses);	
 }
 
 void QueryPreprocessor::setPatternTable(string input){
@@ -251,20 +271,17 @@ void QueryPreprocessor::setPatternTable(string input){
 
 	vector <string> extractPattern = extractContent(str, "pattern");
 
-	string content = extractPattern[1];
-	if (content != "") {
-		content = trim(content);
-		patterns.push_back(content);
-	}
+	vector< vector<string> > patternClauses = seperateClause(str, "pattern");
+	patterns = setClauseTable(patternClauses);
 }
 
 void QueryPreprocessor::setResultTable(string input){
 
 	string str = removeMultipleSpace(input);
 
-	vector <string> extractSuchThat = extractContent(str, "Select");
+	vector <string> extractResult = extractContent(str, "Select");
 
-	string content = extractSuchThat[1];
+	string content = extractResult[1];
 	content = trim(content);
 	selections.push_back(content);
 }
@@ -370,4 +387,20 @@ void QueryPreprocessor::printTable(vector<string> table) {
 	for (int i = 0; i<table.size(); i++) {
 		cout << table[i] << endl;
 	}
+}
+
+vector<string> QueryPreprocessor::getDeclarationTable() {
+	return declarations;
+}
+
+vector<string> QueryPreprocessor::getSuchThatTable() {
+	return relations;
+}
+
+vector<string> QueryPreprocessor::getPatternTable() {
+	return patterns;
+}
+
+vector<string> QueryPreprocessor::getResultTable() {
+	return selections;
 }
