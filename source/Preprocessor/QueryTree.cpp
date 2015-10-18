@@ -10,6 +10,7 @@ QueryTree::QueryTree(){
     result = new PreResultNode();
     suchThat = new PreSuchThatNode();
     pattern = new PrePatternNode();
+	with = new PreWithNode();
 }
 
 QueryTree::~QueryTree(){
@@ -20,15 +21,23 @@ QueryTree::~QueryTree(){
 bool QueryTree::getValidity(){
     return isValid;
 }
+
 PreResultNode* QueryTree::getResult(){
     return result;
 }
+
 PreSuchThatNode* QueryTree::getSuchThat(){
     return suchThat;
 }
+
 PrePatternNode* QueryTree::getPattern(){
     return pattern;
 }
+
+PreWithNode* QueryTree::getWith() {
+	return with;
+}
+
 vector< vector<string> > QueryTree::getSymbolTable(){
     return symbolTable;
 }
@@ -146,6 +155,53 @@ void QueryTree::setPattern(vector<string> table){
 		PrePatternNode* nextNode = new PrePatternNode();
 		patternPtr->setNext(nextNode);
 		patternPtr = patternPtr->getNext();
+	}
+}
+
+void QueryTree::setWith(vector<string> table) {
+	//printTable(table);
+	if (table.size() == 0) return;
+
+	PreWithNode* withPtr = with;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
+
+		vector<string> equals = stringToVector(str, "=");
+		string left = equals[0];
+		string right = equals[1];
+
+		if (isValidWithAttribute(left,right)) {
+			if (left.find(".") != string::npos) {
+				vector<string> leftWords = stringToVector(left, ".");
+				string synonym = leftWords[0];
+				string attrName = leftWords[1];
+				AttrRef leftAttrRef(synonym, attrName);
+				withPtr->setLeftAttrRef(leftAttrRef);
+			}
+			if (left.find(".") == string::npos) {
+				withPtr->setLeftType(left);
+			}
+
+			if (right.find(".") != string::npos) {
+				vector<string> rightWords = stringToVector(right, ".");
+				string synonym = rightWords[0];
+				string attrName = rightWords[1];
+				AttrRef rightAttrRef(synonym, attrName);
+				withPtr->setRightAttrRef(rightAttrRef);
+			}
+			if (right.find(".") == string::npos) {
+				withPtr->setRightType(right);
+			}
+		}
+		else {
+			cout << "wrong with TREE" << endl;
+			isValid = false;
+		}
+
+		PreWithNode* nextNode = new PreWithNode();
+		withPtr->setNext(nextNode);
+		withPtr = withPtr->getNext();
 	}
 }
 
@@ -454,6 +510,80 @@ bool QueryTree::isValidPatternAttribute(string syn, string first, string second,
 		return true;
 	}
 
+	return false;
+}
+
+bool QueryTree::isValidWithAttribute(string left, string right) {
+	if (isValidRef(left) && isValidRef(right)) {
+		string firstType = "";
+		string secondType = "";
+		firstType = getRefType(left);
+		secondType = getRefType(right);
+		if (firstType != secondType) {
+			cout << "523" << endl;
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+string QueryTree::getRefType(string str) {
+	if (str.find("procName") != string::npos || str.find("varName") != string::npos || str.find("\"") != string::npos) {
+		return "NAME";
+	}
+	if (str.find("value") != string::npos || str.find("stmt#") != string::npos || isInteger(str) || getSynType(symbolTable, str) == "prog_line" ||
+		getSynType(symbolTable, str) == "assign" || getSynType(symbolTable, str) == "stmt") {
+		return "INTEGER";
+	}
+	return "";
+}
+
+bool QueryTree::isValidRef(string str) {
+	if (str.length() > 2) {
+		if (str.at(0) == '\"' && str.at(str.length() - 1) == '\"') {
+			string insideQuotes = str.substr(1, str.length() - 2);
+			if (isValidIdent(insideQuotes)) {
+				return true;
+			}
+		}
+	}
+
+	if (isValidAttrRef(str) || isInteger(str) || getSynType(symbolTable, str) == "prog_line" || 
+		getSynType(symbolTable, str) == "assign" || getSynType(symbolTable, str) == "stmt") {
+		return true;
+	}
+	cout << "546" << endl;
+	return false;
+}
+
+bool QueryTree::isValidAttrRef(string str) {
+	if (str.find(".") != string::npos) {
+		vector<string> words = stringToVector(str, ".");
+		string first = words[0];
+		string second = words[1];
+		if (getSynType(symbolTable, first) == "procedure" && second == "procName") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "variable" && second == "varName") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "constant" && second == "value") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "stmt" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "assign" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "prog_line" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "call" && second == "procName") {
+			return true;
+		}
+	}
 	return false;
 }
 

@@ -3,12 +3,12 @@
 #include <iostream>
 #include "QueryTree.h"
 #include "QueryPreprocessor.h"
-#include "..\QueryProcessor\QueryHandler.h"
+//#include "..\QueryProcessor\QueryHandler.h"
 
 using namespace std;
 
 string designEntity[] = {"assign","stmt","while","variable","constant","prog_line","if","procedure","call","program","stmtLst","plus","minus","times"};
-string keywords[] = { "such that", "pattern" };
+string keywords[] = { "such that", "pattern", "with" };
 
 QueryPreprocessor::QueryPreprocessor(){
 }
@@ -25,10 +25,10 @@ vector<string> QueryPreprocessor::start(string line) {
 		input = trim("Select" + seperate[1]);
 	}
 	QueryTree* tree = startProcess(declare, input);
-	//vector<string> result;
-	//return result;
-	QueryHandler handler;
-	return handler.queryRec(tree);
+	vector<string> result;
+	return result;
+	//QueryHandler handler;
+	//return handler.queryRec(tree);
 }
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
@@ -70,16 +70,16 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 	//	cout << "-----pattern table----" << endl;
 	//	printTable(patterns);
 
+	setWithTable(input);
 
-
-	if (isValidSuchThat() && isValidPattern()) {
+	if (isValidSuchThat() && isValidPattern() && isValidWith()) {
 		tree->setSymbolTable(declarations);
 		tree->setPattern(patterns);
 		tree->setResult(selections);
 		tree->setSuchThat(relations);
+		tree->setWith(withs);
 		return tree;
 	}
-
     else{
         tree->setValidity(false);
         return tree;
@@ -126,6 +126,7 @@ bool QueryPreprocessor::isValidDeclaration(string declare){
 	}
 	return true;
 }
+
 bool QueryPreprocessor::isValidSelection(string input){
 	vector<string> extractSelect = extractContent(input, "Select");
 	extractSelect[1] = trim(extractSelect[1]);
@@ -140,6 +141,7 @@ bool QueryPreprocessor::isValidSelection(string input){
 
 	return true;
 }
+
 bool QueryPreprocessor::isValidSuchThat(){
 	for (int i = 0; i < relations.size(); i++) {
 		string clause = relations[i];
@@ -155,6 +157,7 @@ bool QueryPreprocessor::isValidSuchThat(){
 	}
 	return true;
 }
+
 bool QueryPreprocessor::isValidPattern(){
 	for (int i = 0; i < patterns.size(); i++) {
 		string clause = patterns[i];
@@ -165,6 +168,19 @@ bool QueryPreprocessor::isValidPattern(){
 		}
 		if (countWords(clause, ",")>3) {
 			cout << "wrong pattern 2" << endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+bool QueryPreprocessor::isValidWith() {
+	for (int i = 0; i < withs.size(); i++) {
+		string clause = withs[i];
+		if (clause.find("=") == string::npos) {
+			return false;
+		}
+		if (countWords(clause, ".") > 3) {
 			return false;
 		}
 	}
@@ -258,9 +274,6 @@ void QueryPreprocessor::setDeclarationTable(string declare){
 void QueryPreprocessor::setSuchThatTable(string input){
 
     string str = removeMultipleSpace(input);
-
-	vector <string> extractSuchThat = extractContent(str, "such that");
-
 	vector< vector<string> > suchThatClauses = seperateClause(str, "such that");
 	relations = setClauseTable(suchThatClauses);	
 }
@@ -268,11 +281,15 @@ void QueryPreprocessor::setSuchThatTable(string input){
 void QueryPreprocessor::setPatternTable(string input){
 
 	string str = removeMultipleSpace(input);
-
-	vector <string> extractPattern = extractContent(str, "pattern");
-
 	vector< vector<string> > patternClauses = seperateClause(str, "pattern");
 	patterns = setClauseTable(patternClauses);
+}
+
+void QueryPreprocessor::setWithTable(string input) {
+
+	string str = removeMultipleSpace(input);
+	vector< vector<string> > withClauses = seperateClause(str, "with");
+	withs = setClauseTable(withClauses);
 }
 
 void QueryPreprocessor::setResultTable(string input){
@@ -399,6 +416,10 @@ vector<string> QueryPreprocessor::getSuchThatTable() {
 
 vector<string> QueryPreprocessor::getPatternTable() {
 	return patterns;
+}
+
+vector<string> QueryPreprocessor::getWithTable() {
+	return withs;
 }
 
 vector<string> QueryPreprocessor::getResultTable() {

@@ -12,6 +12,7 @@ private:
     vector<string> declarations;
     vector<string> relations;
     vector<string> patterns;
+	vector<string> withs;
     vector<string> selections;
 
 public:
@@ -21,11 +22,13 @@ public:
     void setDeclarationTable(string str);
     void setSuchThatTable(string str);
     void setPatternTable(string str);
+	void setWithTable(string str);
 	void setResultTable(string str);
 
 	vector<string> getDeclarationTable();
 	vector<string> getSuchThatTable();
 	vector<string> getPatternTable();
+	vector<string> getWithTable();
 	vector<string> getResultTable();
 
 	vector<string> start(string line);
@@ -34,6 +37,7 @@ public:
 	bool isValidSelection(string str);
     bool isValidSuchThat();
     bool isValidPattern();
+	bool isValidWith();
 
     bool containWord(string str, string arr[], int size);
 	vector<string> extractContent(string str, string clause);
