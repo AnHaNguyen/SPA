@@ -621,5 +621,76 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"p1", tree50->getSuchThat()->getFirstAttr());
 			Assert::AreEqual((string)"\"x\"", tree50->getSuchThat()->getSecondAttr());
 		}
+
+		TEST_METHOD(with_table)
+		{
+			QueryPreprocessor pro51;
+			string input51 = "Select w with n1 = 10 and p1.procName = v1.varName such that Modifies(1,v1) with s1.stmt# = c1.value with c1.value = 8";
+			pro51.setWithTable(input51);
+			Assert::AreEqual(4, (int)pro51.getWithTable().size());
+			Assert::AreEqual((string)"n1 = 10", pro51.getWithTable()[0]);
+			Assert::AreEqual((string)"p1.procName = v1.varName", pro51.getWithTable()[1]);
+			Assert::AreEqual((string)"s1.stmt# = c1.value", pro51.getWithTable()[2]);
+			Assert::AreEqual((string)"c1.value = 8", pro51.getWithTable()[3]);
+		}
+
+		TEST_METHOD(with_nodes)
+		{
+			QueryPreprocessor pro52;
+			string declare52 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;prog_line n1,n2;procedure p1;constant c1;";
+			string input52 = "Select w with n1=10 and p1.procName=v1.varName such that Modifies(1,v1) with s1.stmt#=c1.value with c1.value=8 with p1.procName=\"main\"";
+			QueryTree* tree52 = pro52.startProcess(declare52, input52);
+
+			Assert::AreEqual(true, tree52->getValidity());
+			Assert::AreEqual((string)"n1", tree52->getWith()->getLeftType());
+
+			Assert::AreEqual((string)"p1", tree52->getWith()->getNext()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"procName", tree52->getWith()->getNext()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"v1", tree52->getWith()->getNext()->getRightAttrRef().getSynonym());
+			Assert::AreEqual((string)"varName", tree52->getWith()->getNext()->getRightAttrRef().getAttr());
+
+			Assert::AreEqual((string)"s1", tree52->getWith()->getNext()->getNext()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"stmt#", tree52->getWith()->getNext()->getNext()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"c1", tree52->getWith()->getNext()->getNext()->getRightAttrRef().getSynonym());
+			Assert::AreEqual((string)"value", tree52->getWith()->getNext()->getNext()->getRightAttrRef().getAttr());
+
+			Assert::AreEqual((string)"c1", tree52->getWith()->getNext()->getNext()->getNext()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"value", tree52->getWith()->getNext()->getNext()->getNext()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"8", tree52->getWith()->getNext()->getNext()->getNext()->getRightType());
+
+			Assert::AreEqual((string)"p1", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"procName", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"\"main\"", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getRightType());
+		}
+
+		TEST_METHOD(with_invalid_refType_1)
+		{
+			QueryPreprocessor pro53;
+			string declare53 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;prog_line n1,n2;procedure p1;constant c1;";
+			string input53 = "Select w with n1 = p1.procName";
+			QueryTree* tree53 = pro53.startProcess(declare53, input53);
+
+			Assert::AreEqual(false, tree53->getValidity());
+		}
+
+		TEST_METHOD(with_invalid_refType_2)
+		{
+			QueryPreprocessor pro54;
+			string declare54 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;prog_line n1,n2;procedure p1;constant c1;";
+			string input54 = "Select w with p1 = \"main\"";
+			QueryTree* tree54 = pro54.startProcess(declare54, input54);
+
+			Assert::AreEqual(false, tree54->getValidity());
+		}
+
+		TEST_METHOD(with_invalid_refType_3)
+		{
+			QueryPreprocessor pro55;
+			string declare55 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;prog_line n1,n2;procedure p1;constant c1;";
+			string input55 = "Select w with p1. = \"main\"";
+			QueryTree* tree55 = pro55.startProcess(declare55, input55);
+
+			Assert::AreEqual(false, tree55->getValidity());
+		}
 	};
 }
