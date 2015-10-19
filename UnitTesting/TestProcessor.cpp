@@ -773,6 +773,7 @@ namespace TestProcessor {
 			vector<string> emptyVector;
 
 
+
 			/**	
 			 *	assign a1;
 			 *	Select a1 such that Modifies(a1, "x");
@@ -866,6 +867,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("23"), results[8]);*/
 
 
+
 			/**
 			 *	while w1;
 			 *	Select w1 such that Modifies(w1, "x");
@@ -923,6 +925,8 @@ namespace TestProcessor {
 			Assert::AreEqual(1, int(results.size()));
 			Assert::AreEqual(string("b"), results[0]);
 
+
+
 			/**
 			 *	variable v1;
 			 *	Select v1 such that Modifies(8, v1);
@@ -955,11 +959,11 @@ namespace TestProcessor {
 
 
 			/**
-			*	variable v1;
-			*	Select v1 such that Modifies(17, v1);
-			*
-			*	stmt# 8 is a while stmt with another nested call-stmt
-			*/
+			 *	variable v1;
+			 *	Select v1 such that Modifies(17, v1);
+			 *
+			 *	stmt# 8 is a while stmt with another nested call-stmt
+			 */
 			QueryTree* tree7 = new QueryTree();
 
 			vector<string> declarations7;
@@ -983,6 +987,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("j"), results[1]);
 			Assert::AreEqual(string("x"), results[2]);
 			Assert::AreEqual(string("z"), results[3]);
+
 
 
 			/**
@@ -1013,6 +1018,8 @@ namespace TestProcessor {
 			Assert::AreEqual(string("j"), results[0]);
 			Assert::AreEqual(string("x"), results[1]);
 			Assert::AreEqual(string("z"), results[2]);
+
+
 
 			/**
 			 *	stmt s1;
@@ -1046,6 +1053,8 @@ namespace TestProcessor {
 			Assert::AreEqual(string("23"), results[4]);
 			Assert::AreEqual(string("25"), results[5]);
 
+
+
 			/**
 			 *	variable v1;
 			 *	Select v1 such that Modifies(7, v1);
@@ -1074,6 +1083,222 @@ namespace TestProcessor {
 			Assert::AreEqual(string("a"), results[0]);
 			Assert::AreEqual(string("i"), results[1]);
 			Assert::AreEqual(string("j"), results[2]);
+			Assert::AreEqual(string("x"), results[3]);
+			Assert::AreEqual(string("y"), results[4]);
+			Assert::AreEqual(string("z"), results[5]);
+		}
+
+
+
+		TEST_METHOD(Processor_Uses) {
+			vector<string> code = {
+				"procedure First{",
+				"x=3;",				// 1
+				"y=2;",				// 2
+				"z=1;",				// 3
+				"a=x+y;",			// 4
+				"b=x+y+z+a+5;",		// 5
+				"c=a+b;",			// 6
+				"call Second;",		// 7
+				"while y{",			// 8
+				"y=y-1;",			// 9
+				"z=y+x;",			// 10
+				"b=y+z;}",			// 11
+				"while x{",			// 12
+				"x=x-1;}}", 		// 13
+				"procedure Second{",
+				"x=4+x;",			// 14
+				"y=1+y;",			// 15
+				"a=a-1;",			// 16
+				"while a{",			// 17
+				"z=x-1;",			// 18
+				"call Third;}}",	// 19
+				"procedure Third{",
+				"z=x+1;",			// 20
+				"k=x+y;",			// 21
+				"while i{",			// 22
+				"while k{",			// 23
+				"z=i-1;",			// 24
+				"j=z+1;",			// 25
+				"x=1+1;}}}",		// 26
+			};
+
+			DesignExtractor ext = DesignExtractor(code);
+
+			// Variables that will be reused in different queries
+			QueryHandler handler;
+			vector<string> results;
+			vector<string> emptyVector;
+
+
+
+			/**
+		  	 *	assign a1;
+			 *	Select a1 such that Uses(a1, "x");
+			 */
+			QueryTree* tree1 = new QueryTree();
+
+			vector<string> declarations1;
+			declarations1.push_back("assign a1");
+			tree1->setSymbolTable(declarations1);
+
+			vector<string> selections1;
+			selections1.push_back("a1");
+			tree1->setResult(selections1);
+
+			vector<string> relations1;
+			relations1.push_back("Uses(a1, \"x\")");
+			tree1->setSuchThat(relations1);
+
+			tree1->setPattern(emptyVector);
+
+			results = handler.queryRec(tree1);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			Assert::AreEqual(8, int(results.size()));
+			Assert::AreEqual(string("4"), results[0]);
+			Assert::AreEqual(string("5"), results[1]);
+			Assert::AreEqual(string("10"), results[2]);
+			Assert::AreEqual(string("13"), results[3]);
+			Assert::AreEqual(string("14"), results[4]);
+			Assert::AreEqual(string("18"), results[5]);
+			Assert::AreEqual(string("20"), results[6]);
+			Assert::AreEqual(string("21"), results[7]);
+			
+
+
+			/**
+			 *	variable v1;
+			 *	Select v1 such that Uses(5, v1);
+			 */
+			QueryTree* tree2 = new QueryTree();
+
+			vector<string> declarations2;
+			declarations2.push_back("variable v1");
+			tree2->setSymbolTable(declarations2);
+
+			vector<string> selections2;
+			selections2.push_back("v1");
+			tree2->setResult(selections2);
+
+			vector<string> relations2;
+			relations2.push_back("Uses(5, v1)");
+			tree2->setSuchThat(relations2);
+
+			tree2->setPattern(emptyVector);
+
+			results = handler.queryRec(tree2);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(4, int(results.size()));
+			Assert::AreEqual(string("a"), results[0]);
+			Assert::AreEqual(string("x"), results[1]);
+			Assert::AreEqual(string("y"), results[2]);
+			Assert::AreEqual(string("z"), results[3]);
+
+
+
+			/**
+			 *	stmt s1;
+			 *	Select s1 such that Uses(s1, \"z\");
+			 *
+			 *	single + nested while-stmt, and nested procedure calls
+			 */
+			QueryTree* tree3 = new QueryTree();
+
+			vector<string> declarations3;
+			declarations3.push_back("stmt s1");
+			tree3->setSymbolTable(declarations3);
+
+			vector<string> selections3;
+			selections3.push_back("s1");
+			tree3->setResult(selections3);
+
+			vector<string> relations3;
+			relations3.push_back("Uses(s1, \"z\")");
+			tree3->setSuchThat(relations3);
+
+			tree3->setPattern(emptyVector);
+
+			results = handler.queryRec(tree3);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			Assert::AreEqual(9, int(results.size()));
+			Assert::AreEqual(string("5"), results[0]);
+			Assert::AreEqual(string("7"), results[1]);
+			Assert::AreEqual(string("8"), results[2]);
+			Assert::AreEqual(string("11"), results[3]);
+			Assert::AreEqual(string("17"), results[4]);
+			Assert::AreEqual(string("19"), results[5]);
+			Assert::AreEqual(string("22"), results[6]);
+			Assert::AreEqual(string("23"), results[7]);
+			Assert::AreEqual(string("25"), results[8]);
+
+
+
+			/**
+			 *	stmt s1;
+			 *	Select s1 such that Uses(s1, \"k\");
+			 *
+			 *	Check control variable on stmt# 23
+			 */
+			QueryTree* tree4 = new QueryTree();
+
+			vector<string> declarations4;
+			declarations4.push_back("stmt s1");
+			tree4->setSymbolTable(declarations4);
+
+			vector<string> selections4;
+			selections4.push_back("s1");
+			tree4->setResult(selections4);
+
+			vector<string> relations4;
+			relations4.push_back(" Uses(s1, \"k\")");
+			tree4->setSuchThat(relations4);
+
+			tree4->setPattern(emptyVector);
+
+			// For Tue
+			// Control variables for while are not caught, see test5 for the cause
+			results = handler.queryRec(tree4);
+			sort(results.begin(), results.end(), compareStringsAsNumbers);
+			Assert::AreEqual(5, int(results.size()));
+			Assert::AreEqual(string("7"), results[0]);
+			Assert::AreEqual(string("17"), results[1]);
+			Assert::AreEqual(string("19"), results[2]);
+			Assert::AreEqual(string("22"), results[3]);
+			Assert::AreEqual(string("23"), results[4]);
+
+
+
+			/**
+			 *	variable v1;
+			 *	Select v1 such that Uses(17, v1)
+			 *
+			 *	while stmt with nested-call with nested-while
+			 */
+			QueryTree* tree5 = new QueryTree();
+
+			vector<string> declarations5;
+			declarations5.push_back("variable v1");
+			tree5->setSymbolTable(declarations5);
+
+			vector<string> selections5;
+			selections5.push_back("v1");
+			tree5->setResult(selections5);
+
+			vector<string> relations5;
+			relations5.push_back("Uses(17, v1)");
+			tree5->setSuchThat(relations5);
+
+			tree5->setPattern(emptyVector);
+
+			// For Tue
+			// Control variables are not trimmed, so "while x" is 
+			// stored as " x" instead of "x"
+			results = handler.queryRec(tree5);
+			sort(results.begin(), results.end());
+			Assert::AreEqual(6, int(results.size()));
+			Assert::AreEqual(string("a"), results[0]);
+			Assert::AreEqual(string("i"), results[1]);
+			Assert::AreEqual(string("k"), results[2]);
 			Assert::AreEqual(string("x"), results[3]);
 			Assert::AreEqual(string("y"), results[4]);
 			Assert::AreEqual(string("z"), results[5]);
