@@ -5,7 +5,7 @@
 #include <string>
 
 using namespace std;
-typedef struct ConstEntry_t {	
+typedef struct ConstEntry_t {
 	string line;
 	vector<string> constants;
 	ConstEntry_t(string line, string constant) {
@@ -15,8 +15,11 @@ typedef struct ConstEntry_t {
 }ConstEntry;
 
 class ConstTable {
-private: vector<ConstEntry_t> constTable;
-public: ConstTable();
+	private:
+		vector<ConstEntry_t> constTable;
+
+	public:
+		ConstTable();
 		~ConstTable();
 		bool addToTable(string line, string constant);		//also include proc and containers
 		vector<string> getConst(string line);			//return the constants used in a line
