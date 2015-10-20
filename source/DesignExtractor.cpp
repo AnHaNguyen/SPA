@@ -367,6 +367,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 	queue<TNode*> finalQueue = queue<TNode*>();
 	int len = rightSideText.length();
 	TNode* finalStickNode = new TNode();
+	bool noBracket = true;
 
 	// process for bracket
 	for (int i = 0; i < len; i++) {
@@ -374,6 +375,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 
 		if (curChar == ROUND_OPEN_BRACKET) {
 			bracketStack.push(i);
+			noBracket = false;
 		}
 		else if (curChar == ROUND_CLOSE_BRACKET) {
 			int openBracket = bracketStack.top();
@@ -390,7 +392,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 			for (int j = openBracket; j <= i; j++) {
 				rightSideText.replace(j, 1, FAKE_ROUND_BRACKET);
 			}
-			
+
 			if (bracketStack.empty()) {
 				TNode* finalNode = seperateNodeBracket.front();
 				seperateNodeBracket.pop();
@@ -401,7 +403,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 		}
 	}
 
-	if (rightSideText.find_first_not_of(FAKE_ROUND_BRACKET) != string::npos) {
+	if (rightSideText.find_first_not_of(FAKE_ROUND_BRACKET) != string::npos || noBracket) {
 		seperateNodeBracket = finalQueue;
 		finalStickNode = processInsideBracket(curProcAst, rightSideText, lineNumber);
 	}
@@ -514,9 +516,11 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			curNode->setChild(leftNode);
 			leftNode->setParent(curNode);
 
-			curPlusMinusNode->setChild(curNode);
-			curNode->setParent(curPlusMinusNode);
-			curNode = curPlusMinusNode;
+			if (curPlusMinusNode != curNode) {
+				curPlusMinusNode->setChild(curNode);
+				curNode->setParent(curPlusMinusNode);
+				curNode = curPlusMinusNode;
+			}
 
 			signNode->setChild(curNode);
 			curNode->setParent(signNode);

@@ -126,7 +126,7 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
 		}
 
-		TEST_METHOD(DEModUseTable2) {
+		/*TEST_METHOD(DEModUseTable2) {
 			vector<string>code2 = { "procedureABC{","i=1;","b=200;","c=a;",
 				"ifathen{","whilebeta{","oSCar=1*beta+tmp;","whiletmp{",
 				"oSCar=I-(k+j1k*chArlie);}}","whilex{","x=x+1;",
@@ -145,7 +145,7 @@ namespace UnitTesting
 			UseTable* useTable = ext.getUseTable();
 
 
-		}
+		}*/
 
 		TEST_METHOD(DEProcTable)
 		{
@@ -196,6 +196,7 @@ namespace UnitTesting
 			Assert::AreEqual(constTable->getConst("13").size(), (unsigned) 0);
 		}
 
+		//---------------------------Test Build AST----------------------------//
 		TEST_METHOD(TestExtBuildAST) {
 			vector <string> code1 = { "procedureFirst{", "x=2;","ifxthen{", "z=3+z;}",
 				"else{", "z=1;}}",
@@ -260,82 +261,11 @@ namespace UnitTesting
 			// test for 16th node: 1: constant
 			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getValue(), (string) "1");
 			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getType(), CONSTANT);
-
-			/*AST* proc2 = astList.at(1);
-			
-			Assert::AreEqual(proc2->getTree().size(), (unsigned)23);
-			// test for procedure Second
-			Assert::AreEqual(proc2->getTree().at(0)->getType(), (string) "procedure");
-			Assert::AreEqual(proc2->getTree().at(0)->getValue(), (string) "Second");
-			Assert::AreEqual(proc2->getTree().at(2)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(3)->getValue(), (string) "i");
-			Assert::AreEqual(proc2->getTree().at(4)->getValue(), (string) "5");
-			// test for 5th Node: Third: Call
-			Assert::AreEqual(proc2->getTree().at(5)->getType(), CALL);
-			Assert::AreEqual(proc2->getTree().at(5)->getValue(), (string) "Third");
-
-			Assert::AreEqual(proc2->getTree().at(6)->getType(), WHILE);
-			Assert::AreEqual(proc2->getTree().at(7)->getValue(), (string) "i");
-			Assert::AreEqual(proc2->getTree().at(8)->getType(), STMTLST);
-
-			Assert::AreEqual(proc2->getTree().at(9)->getType(), ASSIGN);
-			Assert::AreEqual(proc2->getTree().at(10)->getValue(), (string) "x");
-			Assert::AreEqual(proc2->getTree().at(10)->getType(), VARIABLE);
-			Assert::AreEqual(proc2->getTree().at(12)->getValue(), (string) "2");
-			Assert::AreEqual(proc2->getTree().at(13)->getType(), PLUS_TEXT);
-			Assert::AreEqual(proc2->getTree().at(14)->getValue(), (string) "y");
-			Assert::AreEqual(proc2->getTree().at(15)->getType(), PLUS_TEXT);
-			Assert::AreEqual(proc2->getTree().at(16)->getType(), ASSIGN);
-			Assert::AreEqual(proc2->getTree().at(17)->getValue(), (string) "z");
-			Assert::AreEqual(proc2->getTree().at(18)->getValue(), (string) "z");
-			Assert::AreEqual(proc2->getTree().at(19)->getType(), CONSTANT);
-
-			Assert::AreEqual(proc2->getTree().at(1)->getChildList().size(), (unsigned)4);
-			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(0)->getType(), (string) "assign");
-			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(2)->getType(), (string) "while");
-			Assert::AreEqual(proc2->getTree().at(1)->getChildList().at(1)->getType(), CALL);
-
-			TNode* ass = proc2->getTree().at(1)->getChildList().at(3);
-			Assert::AreEqual(ass->getChildList().at(0)->getValue(), (string) "z");
-			Assert::AreEqual(ass->getChildList().at(1)->getType(), (string) "plus");
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().size(), (unsigned) 2);
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(1)->getValue(), (string) "i");
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getType(), (string) "plus");
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getChildList().at(0)->getValue(), (string) "z");
-			Assert::AreEqual(ass->getChildList().at(1)->getChildList().at(0)->getChildList().at(1)->getValue(), (string) "2");
-			
-			TNode* whi = proc2->getTree().at(1)->getChildList().at(2);
-			Assert::AreEqual(whi->getChildList().at(0)->getValue(), (string) "i");
-			
-			Assert::AreEqual(whi->getChildList().at(1)->getType(), (string) "stmtLst");
-			Assert::AreEqual(whi->getChildList().at(1)->getChildList().size(), (unsigned) 1);
-			TNode* ass1 = whi->getChildList().at(1)->getChildList().at(0);
-			Assert::AreEqual(ass1->getChildList().at(0)->getValue(), (string) "x");
-			Assert::AreEqual(ass1->getChildList().at(1)->getChildList().at(1)->getValue(), (string) "y");
-
-			AST* proc3 = astList.at(2);
-			Assert::AreEqual(proc3->getTree().size(), (unsigned)8);
-			Assert::AreEqual(proc3->getTree().at(0)->getType(), (string) "procedure");
-			Assert::AreEqual(proc3->getTree().at(0)->getChildList().at(0)->getType(), (string) "stmtLst");
-			Assert::AreEqual(proc3->getTree().at(1)->getChildList().size(), (unsigned) 2);
-			Assert::AreEqual(proc3->getTree().at(0)->getValue(), (string) "Third");
-			Assert::AreEqual(proc3->getTree().at(1)->getChildList().at(0)->getType(), (string) "assign");
-			Assert::AreEqual(proc3->getTree().at(1)->getChildList().at(1)->getType(), (string) "assign");
-			Assert::AreEqual(proc3->getTree().at(2)->getType(), (string) "assign");
-			Assert::AreEqual(proc3->getTree().at(2)->getChildList().at(0)->getValue(), (string) "z");
-			Assert::AreEqual(proc3->getTree().at(2)->getChildList().at(1)->getValue(), (string) "5");
-			Assert::AreEqual(proc3->getTree().at(3)->getValue(), (string) "z");
-			Assert::AreEqual(proc3->getTree().at(4)->getValue(), (string) "5");
-			Assert::AreEqual(proc3->getTree().at(5)->getType(), (string) "assign");
-			Assert::AreEqual(proc3->getTree().at(5)->getChildList().at(0)->getValue(), (string) "v");
-			Assert::AreEqual(proc3->getTree().at(5)->getChildList().at(1)->getValue(), (string) "z");
-			Assert::AreEqual(proc3->getTree().at(6)->getValue(), (string) "v");
-			Assert::AreEqual(proc3->getTree().at(7)->getValue(), (string) "z");*/
 		}
 		
-		TEST_METHOD(TestExtBuildASTWTimesAndBracket) {
+		/*TEST_METHOD(TestExtBuildASTWTimesAndBracket) {
 			vector<string> code = { "procedureFirst{", "x=c+(a*b+(m*(t+a)-(10+y))-c*(y+t))-(10*e);}" };
-		/*	DesignExtractor ext = DesignExtractor(code);
+			DesignExtractor ext = DesignExtractor(code);
 
 			vector<AST*> astList = ext.getASTList();
 			AST* astProc1 = astList.at(0);
@@ -423,8 +353,8 @@ namespace UnitTesting
 			Assert::AreEqual(astProc1->getTree().at(27)->getValue(), (string) "10");
 
 			Assert::AreEqual(astProc1->getTree().at(28)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(28)->getValue(), (string) "e");*/
-		}
+			Assert::AreEqual(astProc1->getTree().at(28)->getValue(), (string) "e");
+		}*/
 
 		TEST_METHOD(TestExtBuildAST2) {
 			vector<string> code = { "procedureFirst{", "x=c+1;}" };
@@ -439,73 +369,6 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(0)->getType(), VARIABLE);
 			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(1)->getValue(), (string) "1");
 			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(1)->getType(), CONSTANT);
-		}
-
-		TEST_METHOD(DEParentTable) {
-			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
-				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
-				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
-				"procedureThird{", "z=5;", "v=z;}" };
-			DesignExtractor ext = DesignExtractor(code);
-
-			ParentTable* parentTable = ext.getParentTable();
-
-			vector<string> childrenOfWhile = parentTable->getChild("5");
-			Assert::AreEqual(childrenOfWhile.size(), (unsigned) 2);
-			Assert::AreEqual(childrenOfWhile.at(0), (string) "6");
-			Assert::AreEqual(childrenOfWhile.at(1), (string) "7");
-		}
-
-		TEST_METHOD(DEFollowTable) {
-			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
-				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
-				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
-				"procedureThird{", "z=5;", "v=z;}" };
-			DesignExtractor ext = DesignExtractor(code);
-
-			FollowTable* followTable = ext.getFollowTable();
-
-			Assert::AreEqual(followTable->size(), 8);
-
-			Assert::AreEqual(followTable->getNext("1"), (string) "2");
-			Assert::AreEqual(followTable->getPrev("2"), (string) "1");
-			Assert::AreEqual(followTable->getNext("2"), (string) "");
-
-			Assert::AreEqual(followTable->getNext("3"), (string) "4");
-			Assert::AreEqual(followTable->getPrev("4"), (string) "3");
-			Assert::AreEqual(followTable->getNext("4"), (string) "5");
-			Assert::AreEqual(followTable->getPrev("5"), (string) "4");
-
-			Assert::AreNotEqual(followTable->getNext("5"), (string) "6");
-			Assert::AreNotEqual(followTable->getPrev("6"), (string) "5");
-			Assert::AreEqual(followTable->getNext("6"), (string) "7");
-			Assert::AreEqual(followTable->getPrev("7"), (string) "6");
-
-			Assert::AreEqual(followTable->getNext("5"), (string) "8");
-			Assert::AreEqual(followTable->getPrev("8"), (string) "5");
-
-			Assert::AreNotEqual(followTable->getNext("10"), (string) "11");
-			Assert::AreNotEqual(followTable->getPrev("11"), (string) "10");
-			Assert::AreEqual(followTable->getNext("11"), (string) "12");
-		}
-
-		TEST_METHOD(DEProgLine) {
-			vector <string> code = { "procedureFirst{", "x=2;}",
-				"procedureSecond{", "ifxthen{", "i=5;}", "else{", "x=4;}" , "whilei{" ,"x=x+2+y;}" ,"z=z+x+i;}",
-				"procedureThird{", "z=5;}" };
-			DesignExtractor ext = DesignExtractor(code);
-			ProgLine* progLine = ext.getProgLine();
-
-			Assert::AreEqual(progLine->getType((string)"1"), ASSIGN);
-			Assert::AreEqual(progLine->getProcedure((string)"1"), (string) "First");
-
-			Assert::AreEqual(progLine->getType((string)"2"), IF);
-			Assert::AreEqual(progLine->getType((string)"3"), ASSIGN);
-			Assert::AreEqual(progLine->getType((string)"4"), ASSIGN);
-			Assert::AreEqual(progLine->getType((string)"5"), WHILE);
-			Assert::AreEqual(progLine->getProcedure((string)"3"), (string) "Second");
-
-			Assert::AreEqual(progLine->getProcedure((string)"8"), (string) "Third");
 		}
 
 		TEST_METHOD(DE_AST_SimplestTestCase) {
@@ -582,7 +445,7 @@ namespace UnitTesting
 
 		TEST_METHOD(DE_AST_Test2) {
 			vector<string> code = { "procedureFirst{",
-			"x=b+(a+c*d*e)+h*g;}" };
+				"x=b+(a+c*d*e)+h*g;}" };
 
 			DesignExtractor ext = DesignExtractor(code);
 			vector<AST*> astList = ext.getASTList();
@@ -615,7 +478,7 @@ namespace UnitTesting
 
 		TEST_METHOD(DE_AST_MoreComplicated) {
 			vector<string> code = { "procedureFirst{",
-			"x=(b+c*d*e+h*g)+(((a+b*c)-(10*e))+9)-(d+h*g);}" };
+				"x=(b+c*d*e+h*g)+(((a+b*c)-(10*e))+9)-(d+h*g);}" };
 
 			DesignExtractor ext = DesignExtractor(code);
 			vector<AST*> astList = ext.getASTList();
@@ -650,7 +513,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(13)->getChildList().at(1)->getValue(), (string) "g");
 
 			Assert::AreEqual(ast->getTree().at(14)->getValue(), (string) "g");
-			
+
 			Assert::AreEqual(ast->getTree().at(15)->getType(), VARIABLE);
 			Assert::AreEqual(ast->getTree().at(15)->getValue(), (string) "a");
 
@@ -671,7 +534,7 @@ namespace UnitTesting
 
 			Assert::AreEqual(ast->getTree().at(20)->getType(), CONSTANT);
 			Assert::AreEqual(ast->getTree().at(20)->getParent()->getType(), TIMES_TEXT);
-			
+
 			Assert::AreEqual(ast->getTree().at(21)->getType(), TIMES_TEXT);
 			Assert::AreEqual(ast->getTree().at(21)->getParent()->getType(), MINUS_TEXT);
 
@@ -715,6 +578,116 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(0)->getValue(), (string) "x");
 			Assert::AreEqual(ast->getTree().at(2)->getChildList().at(1)->getType(), MINUS_TEXT);
 		}
+
+		TEST_METHOD(DE_AST_MixPlusTimes) {
+			vector<string> code = { "procedureFirst{", "b=a+x*y+a;}" };
+
+			DesignExtractor ext = DesignExtractor(code);
+			vector<AST*> astList = ext.getASTList();
+
+			AST* ast = astList.at(0);
+			Assert::AreEqual(ast->getTree().at(4)->getValue(), (string) "a");
+			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(0)->getValue(), (string) "a");
+
+			Assert::AreEqual(ast->getTree().at(5)->getType(), PLUS_TEXT);
+			Assert::AreEqual(ast->getTree().at(6)->getValue(), (string) "x");
+
+			Assert::AreEqual(ast->getTree().at(7)->getType(), TIMES_TEXT);
+			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(1)->getType(), TIMES_TEXT);
+
+			Assert::AreEqual(ast->getTree().at(8)->getValue(), (string) "y");
+			Assert::AreEqual(ast->getTree().at(9)->getType(), PLUS_TEXT);
+			Assert::AreEqual(ast->getTree().at(10)->getValue(), (string) "a");
+
+			//--------------------------------------------------------------//
+			vector<string> code1 = { "procedureFirst{", "b=x*y+i*r;}" };
+			DesignExtractor ext1 = DesignExtractor(code1);
+			vector<AST*> astList1 = ext1.getASTList();
+
+			AST* ast1 = astList1.at(0);
+			Assert::AreEqual(ast1->getTree().at(4)->getValue(), (string) "x");
+			Assert::AreEqual(ast1->getTree().at(5)->getType(), TIMES_TEXT);
+			Assert::AreEqual(ast1->getTree().at(6)->getValue(), (string) "y");
+
+			Assert::AreEqual(ast1->getTree().at(7)->getType(), PLUS_TEXT);
+			Assert::AreEqual(ast1->getTree().at(7)->getChildList().at(0)->getType(), TIMES_TEXT);
+			Assert::AreEqual(ast1->getTree().at(7)->getChildList().at(1)->getType(), TIMES_TEXT);
+
+			Assert::AreEqual(ast1->getTree().at(8)->getValue(), (string) "i");
+			Assert::AreEqual(ast1->getTree().at(9)->getType(), TIMES_TEXT);
+			Assert::AreEqual(ast1->getTree().at(9)->getChildList().at(0)->getValue(), (string) "i");
+			Assert::AreEqual(ast1->getTree().at(9)->getChildList().at(1)->getValue(), (string) "r");
+			Assert::AreEqual(ast1->getTree().at(10)->getValue(), (string) "r");
+		}
+		//-------------------------------------------------------------------------------------//
+
+		TEST_METHOD(DEParentTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
+			ParentTable* parentTable = ext.getParentTable();
+
+			vector<string> childrenOfWhile = parentTable->getChild("5");
+			Assert::AreEqual(childrenOfWhile.size(), (unsigned) 2);
+			Assert::AreEqual(childrenOfWhile.at(0), (string) "6");
+			Assert::AreEqual(childrenOfWhile.at(1), (string) "7");
+		}
+
+		TEST_METHOD(DEFollowTable) {
+			vector <string> code = { "procedureFirst{", "x=2;", "z=3;}",
+				"procedureSecond{", "x=0;",  "i=5;" , "whilei{" ,"x=x+2+y;",
+				"i=i+1;}" ,"z=z+x+i;", "y=z+2;", "x=x+y+z;}",
+				"procedureThird{", "z=5;", "v=z;}" };
+			DesignExtractor ext = DesignExtractor(code);
+
+			FollowTable* followTable = ext.getFollowTable();
+
+			Assert::AreEqual(followTable->size(), 8);
+
+			Assert::AreEqual(followTable->getNext("1"), (string) "2");
+			Assert::AreEqual(followTable->getPrev("2"), (string) "1");
+			Assert::AreEqual(followTable->getNext("2"), (string) "");
+
+			Assert::AreEqual(followTable->getNext("3"), (string) "4");
+			Assert::AreEqual(followTable->getPrev("4"), (string) "3");
+			Assert::AreEqual(followTable->getNext("4"), (string) "5");
+			Assert::AreEqual(followTable->getPrev("5"), (string) "4");
+
+			Assert::AreNotEqual(followTable->getNext("5"), (string) "6");
+			Assert::AreNotEqual(followTable->getPrev("6"), (string) "5");
+			Assert::AreEqual(followTable->getNext("6"), (string) "7");
+			Assert::AreEqual(followTable->getPrev("7"), (string) "6");
+
+			Assert::AreEqual(followTable->getNext("5"), (string) "8");
+			Assert::AreEqual(followTable->getPrev("8"), (string) "5");
+
+			Assert::AreNotEqual(followTable->getNext("10"), (string) "11");
+			Assert::AreNotEqual(followTable->getPrev("11"), (string) "10");
+			Assert::AreEqual(followTable->getNext("11"), (string) "12");
+		}
+
+		TEST_METHOD(DEProgLine) {
+			vector <string> code = { "procedureFirst{", "x=2;}",
+				"procedureSecond{", "ifxthen{", "i=5;}", "else{", "x=4;}" , "whilei{" ,"x=x+2+y;}" ,"z=z+x+i;}",
+				"procedureThird{", "z=5;}" };
+			DesignExtractor ext = DesignExtractor(code);
+			ProgLine* progLine = ext.getProgLine();
+
+			Assert::AreEqual(progLine->getType((string)"1"), ASSIGN);
+			Assert::AreEqual(progLine->getProcedure((string)"1"), (string) "First");
+
+			Assert::AreEqual(progLine->getType((string)"2"), IF);
+			Assert::AreEqual(progLine->getType((string)"3"), ASSIGN);
+			Assert::AreEqual(progLine->getType((string)"4"), ASSIGN);
+			Assert::AreEqual(progLine->getType((string)"5"), WHILE);
+			Assert::AreEqual(progLine->getProcedure((string)"3"), (string) "Second");
+
+			Assert::AreEqual(progLine->getProcedure((string)"8"), (string) "Third");
+		}
+		
 		TEST_METHOD(TestExtBuildNextTable) {
 			vector<string>code2 = {"procedureABC{","i=1;","b=200;","c=a;",
 			"ifathen{","whilebeta{","oSCar=1*beta+tmp;","whiletmp{",
