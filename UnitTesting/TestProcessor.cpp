@@ -775,7 +775,7 @@ namespace TestProcessor {
 
 
 
-			/**	
+			/**
 			 *	assign a1;
 			 *	Select a1 such that Modifies(a1, "x");
 			 */
@@ -931,7 +931,7 @@ namespace TestProcessor {
 			/**
 			 *	variable v1;
 			 *	Select v1 such that Modifies(8, v1);
-			 *	
+			 *
 			 *	stmt# 8 is a while stmt
 			 */
 			QueryTree* tree6 = new QueryTree();
@@ -956,7 +956,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("b"), results[0]);
 			Assert::AreEqual(string("y"), results[1]);
 			Assert::AreEqual(string("z"), results[2]);
-			
+
 
 
 			/**
@@ -994,7 +994,7 @@ namespace TestProcessor {
 			/**
 			 *	variable v1;
 			 *	Select v1 such that Modifies(22, v1);
-			 *	
+			 *
 			 *	stmt# 22 is a nested-while statement
 			 */
 			QueryTree* tree8 = new QueryTree();
@@ -1061,7 +1061,7 @@ namespace TestProcessor {
 			 *	Select v1 such that Modifies(7, v1);
 			 *
 			 *	stmt# 7 is the procedure call
-			 */	
+			 */
 			QueryTree* tree10 = new QueryTree();
 
 			vector<string> declarations10;
@@ -1164,7 +1164,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("18"), results[5]);
 			Assert::AreEqual(string("20"), results[6]);
 			Assert::AreEqual(string("21"), results[7]);
-			
+
 
 
 			/**
@@ -1296,7 +1296,7 @@ namespace TestProcessor {
 			// Expected:  "a",  "i",  "k", "x", "y", "z"
 			// Results:  " a", " i", " k", "i", "x", "y", "z"
 			//
-			// Control variables are not trimmed, so "while x" is 
+			// Control variables are not trimmed, so "while x" is
 			// stored as " x" instead of "x"
 			results = handler.queryRec(tree5);
 			sort(results.begin(), results.end());
@@ -1317,23 +1317,23 @@ namespace TestProcessor {
 				"x=3;",					// 1
 				"y=2;",					// 2
 				"z=1;",					// 3
-				
+
 				"a=x;",					// 4
 				"b=x;",					// 5
 
 				"a=x*y;",				// 6
 				"b=x*y;",				// 7
-				
+
 				// TODO: DongWei remember to remove brackets
 				"a=a+(x*y);",			// 8
 				"b=a+(x*y);",			// 9
-				
+
 				"a=(x*y)+a;",			// 10
 				"b=(x*y)+a;",			// 11
-				
+
 				"a=a+(x*y)+a;",			// 12
 				"b=a+(x*y)+a;",			// 13
-				
+
 				"a=(x*y)+(x*y);",		// 14
 				"b=(x*y)+(x*y);}",		// 15
 			};
@@ -1346,14 +1346,14 @@ namespace TestProcessor {
 
 
 			DesignExtractor ext = DesignExtractor(code);
-			
+
 			// Variables that will be reused in different queries
 			QueryHandler handler;
 			vector<string> results;
 			vector<string> emptyVector;
 
 
-			
+
 			/**
 			 *	assign a;
 			 *	Select a pattern a("b", _);
@@ -1642,12 +1642,12 @@ namespace TestProcessor {
 
 			if (strtol(s1.c_str(), NULL, 10) > strtol(s2.c_str(), NULL, 10)) {
 				return false;
-			} else { 
-				return true; 
+			} else {
+				return true;
 			}
 
 		}
 	};
 
-	
+
 }
