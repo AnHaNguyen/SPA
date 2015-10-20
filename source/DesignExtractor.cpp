@@ -424,7 +424,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	// first: type, second, position
 	vector<pair<string, int>> signList = vector<pair<string, int>>();
 
-	for (int i = 0; i < subString.length(); i++) {
+	for (unsigned int i = 0; i < subString.length(); i++) {
 		string curChar = subString.substr(i, 1);
 		if (curChar == PLUS) {
 			signList.push_back(make_pair(PLUS_TEXT, i));
@@ -753,7 +753,7 @@ void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
 
 	// if callee's mod/useTable is completed then add(caller, varOfCallee)
 	if (calleeOfCalleeList.size() > 0) {
-		for (int i = 0; i < calleeOfCalleeList.size(); i++) {
+		for (unsigned int i = 0; i < calleeOfCalleeList.size(); i++) {
 			updateModUseTableWCall(callee, calleeOfCalleeList.at(i));
 		}
 	}
@@ -763,11 +763,11 @@ void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
 	vector<string> modVarList = modTable->getModified(callee);
 	vector<string> useVarList2 = useTable->getUsed(callee);
 
-	for (int i = 0; i < modVarList.size(); i++) {
+	for (unsigned int i = 0; i < modVarList.size(); i++) {
 		modTable->addToTable(caller, modVarList.at(i));
 	}
 
-	for (int i = 0; i < useVarList2.size(); i++) {
+	for (unsigned int i = 0; i < useVarList2.size(); i++) {
 		useTable->addToTable(caller, useVarList2.at(i));
 	}
 }
@@ -784,7 +784,7 @@ void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr)
 
 	vector<TNode*> childList = rightNode->getChildList();
 	if (childList.size() > 0) {
-		for (int i = 0; i < childList.size(); i++) {
+		for (unsigned int i = 0; i < childList.size(); i++) {
 			TNode* processedNode = childList.at(i);
 			processRightBranchAST(processedNode, lineNumStr);
 		}
@@ -793,7 +793,7 @@ void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr)
 
 //---------------Smaller modules for Use Table----------------//
 void DesignExtractor::addVarToContainer(string container, vector<string> varList, string type) {
-	for (int i = 0; i < varList.size(); i++) {
+	for (unsigned int i = 0; i < varList.size(); i++) {
 		string iVar = varList.at(i);
 
 		if (type == USE_VAR) {
@@ -979,7 +979,7 @@ int DesignExtractor::getRealLineNumber(int lineNumber, string line) {
 }
 
 bool DesignExtractor::processNextTable() {
-	for (unsigned i = 1; i <= progLine->numOfLines(); i++) {
+	for (int i = 1; i <= progLine->numOfLines(); i++) {
 		string type = progLine->getType(to_string(i));
 		if (type == "assign" || type == "call") {
 			string next = followTable->getNext(to_string(i));

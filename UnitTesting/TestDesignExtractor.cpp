@@ -126,7 +126,7 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
 		}
 
-		/*TEST_METHOD(DEModUseTable2) {
+		TEST_METHOD(DEModUseTable_Complicated) {
 			vector<string>code2 = { "procedureABC{","i=1;","b=200;","c=a;",
 				"ifathen{","whilebeta{","oSCar=1*beta+tmp;","whiletmp{",
 				"oSCar=I-(k+j1k*chArlie);}}","whilex{","x=x+1;",
@@ -144,8 +144,34 @@ namespace UnitTesting
 			ModifyTable* modTable = ext.getModTable();
 			UseTable* useTable = ext.getUseTable();
 
+			// Test ModifyTable
+			Assert::AreEqual(modTable->isModified("8", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("7", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("5", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("4", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("ABC", "oSCar"), true);
 
-		}*/
+			Assert::AreEqual(modTable->isModified("37", "x1"), true);
+			Assert::AreEqual(modTable->isModified("36", "x1"), true);
+			Assert::AreEqual(modTable->isModified("Init", "x1"), true);
+
+			Assert::AreEqual(modTable->isModified("22", "x1"), true);
+			Assert::AreEqual(modTable->isModified("17", "x1"), true);
+			Assert::AreEqual(modTable->isModified("13", "x1"), true);
+			Assert::AreEqual(modTable->isModified("11", "x1"), true);
+			Assert::AreEqual(modTable->isModified("9", "x1"), true);
+			Assert::AreEqual(modTable->isModified("4", "x1"), true);
+
+			Assert::AreEqual(modTable->isModified("ABC", "x1"), true);
+
+			//-----------------------Test Use Table--------------------------//
+			Assert::AreEqual(useTable->isUsed("36", "a"), true);
+			Assert::AreEqual(useTable->isUsed("Init", "a"), true);
+			Assert::AreEqual(useTable->isUsed("4", "a"), true);
+			Assert::AreEqual(useTable->isUsed("11", "a"), true);
+			Assert::AreEqual(useTable->isUsed("17", "a"), true);
+			Assert::AreEqual(useTable->isUsed("13", "a"), true);
+		}
 
 		TEST_METHOD(DEProcTable)
 		{
@@ -619,6 +645,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast1->getTree().at(9)->getChildList().at(1)->getValue(), (string) "r");
 			Assert::AreEqual(ast1->getTree().at(10)->getValue(), (string) "r");
 		}
+
 		//-------------------------------------------------------------------------------------//
 
 		TEST_METHOD(DEParentTable) {
