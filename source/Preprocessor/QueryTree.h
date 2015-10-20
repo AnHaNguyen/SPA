@@ -6,6 +6,7 @@
 #include "PreResultNode.h"
 #include "PreSuchThatNode.h"
 #include "PrePatternNode.h"
+#include "PreWithNode.h"
 using namespace std;
 
 class QueryTree{
@@ -14,6 +15,7 @@ private:
     PreResultNode* result;
     PreSuchThatNode* suchThat;
     PrePatternNode* pattern;
+	PreWithNode* with;
     vector< vector<string> > symbolTable;
 public:
     QueryTree();
@@ -23,18 +25,25 @@ public:
     PreResultNode* getResult();
     PreSuchThatNode* getSuchThat();
     PrePatternNode* getPattern();
+	PreWithNode* getWith();
     vector< vector<string> > getSymbolTable();
 
     void setValidity(bool boolean);
     void setResult(vector<string> terms);
     void setSuchThat(vector<string> terms);
     void setPattern(vector<string> terms);
+	void setWith(vector<string> terms);
     void setSymbolTable(vector<string> terms);
 
     int getSymbolIndex(vector< vector<string> > table, string str);
 	string getSynType(vector< vector<string> > table, string str);
+	string getRefType(string str);
 	bool isValidSuchThatAttribute(string syn, string first, string second);
 	bool isValidPatternAttribute(string syn, string first, string second, string third);
+	bool isValidWithAttribute(string left, string right);
+	bool isValidResultAttribute(vector<string> table, string synonym, string attr);
+	bool isValidRef(string str);
+	bool isValidAttrRef(string str);
 	bool isValidIdent(string str);
 	bool isValidSynonym(vector< vector<string> > table, string str);
 	bool isValidName(string str);

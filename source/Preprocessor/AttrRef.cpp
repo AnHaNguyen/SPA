@@ -5,6 +5,11 @@ AttrRef::AttrRef(){
 	attr = "";
 }
 
+AttrRef::AttrRef(string str1, string str2) {
+	synonym = str1;
+	attr = str2;
+}
+
 
 AttrRef::~AttrRef(){
 }

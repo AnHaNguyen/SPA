@@ -27,6 +27,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	processProcTable();
 	processModUseTable();
 	processNextTable();
+	processSTable();
 	storeToPKB();
 }
 
@@ -45,6 +46,9 @@ void DesignExtractor::initialize() {
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
 	nextTable = new NextTable();
+	followSTable = new FollowSTable();
+	callSTable = new CallSTable();
+	parentSTable = new ParentSTable();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -63,6 +67,9 @@ void DesignExtractor::storeToPKB() {
 	PKB::setFollowTable(followTable);
 	PKB::setProgLine(progLine);
 	PKB::setNextTable(nextTable);
+	PKB::setCallSTable(callSTable);
+	PKB::setFollowSTable(followSTable);
+	PKB::setParentSTable(parentSTable);
 }
 
 //-------------------------AST-------------------------//
@@ -1066,4 +1073,10 @@ string DesignExtractor::nearestNext(string line) {
 		return "";
 	}
 	else return nearestNext(parentTable->getParent(line));
+}
+
+void DesignExtractor::processSTable() {
+	callSTable = callTable->generateCallSTable();
+	parentSTable = parentTable->generateParentSTable();
+	followSTable = followTable->generateFollowSTable();
 }

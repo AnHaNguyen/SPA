@@ -10,6 +10,7 @@ private:
 
 public:
     AttrRef();
+	AttrRef(string str1, string str2);
     ~AttrRef();
 
     string getSynonym();

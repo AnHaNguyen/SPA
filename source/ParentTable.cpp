@@ -1,6 +1,8 @@
 #include "ParentTable.h"
 #include <vector>
 #include <string>
+#include "ParentSTable.h"
+#include <queue>
 
 ParentTable::ParentTable() {
 }
@@ -78,4 +80,23 @@ bool ParentTable::isParent(string lineNo, string child) {
 		}
 	}
 	return false;
+}
+
+ParentSTable* ParentTable::generateParentSTable() {
+	ParentSTable* parentSTable = new ParentSTable();
+	for (unsigned i = 0; i < parentTable.size(); i++) {
+		queue<string> lineQ;
+		string line = parentTable.at(i).lineNo;
+		lineQ.push(line);
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> childList = getChild(cur);
+			for (unsigned j = 0; j < childList.size(); j++){
+				lineQ.push(childList.at(j));
+				parentSTable->addToTable(line, childList.at(j));
+			}
+		}
+	}
+	return parentSTable;
 }

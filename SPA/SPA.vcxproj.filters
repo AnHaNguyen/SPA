@@ -28,6 +28,9 @@
     <ClCompile Include="..\source\NextTable.cpp" />
     <ClCompile Include="..\source\Preprocessor\AttrRef.cpp" />
     <ClCompile Include="..\source\Preprocessor\PreWithNode.cpp" />
+    <ClCompile Include="..\source\ParentSTable.cpp" />
+    <ClCompile Include="..\source\FollowSTable.cpp" />
+    <ClCompile Include="..\source\CallSTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -56,5 +59,8 @@
     <ClInclude Include="..\source\NextTable.h" />
     <ClInclude Include="..\source\Preprocessor\AttrRef.h" />
     <ClInclude Include="..\source\Preprocessor\PreWithNode.h" />
+    <ClInclude Include="..\source\ParentSTable.h" />
+    <ClInclude Include="..\source\FollowSTable.h" />
+    <ClInclude Include="..\source\CallSTable.h" />
   </ItemGroup>
 </Project>

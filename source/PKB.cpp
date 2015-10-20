@@ -22,6 +22,9 @@ CallTable* PKB::callTable;
 NextTable* PKB::nextTable;
 vector<CFG* > PKB::cfgList;
 ProgLine* PKB::progLine;
+FollowSTable* PKB::followSTable;
+CallSTable* PKB::callSTable;
+ParentSTable* PKB::parentSTable;
 
 PKB::PKB() {
 }
@@ -195,3 +198,28 @@ vector<string> PKB::patternWhile(string controlVar, bool contains) {
 	}
 	return returnList;
 }
+
+FollowSTable* PKB::getFollowSTable() {
+	return followSTable;
+}
+
+void PKB::setFollowSTable(FollowSTable* followSTable) {
+	PKB::followSTable = followSTable;
+}
+
+CallSTable* PKB::getCallSTable() {
+	return callSTable;
+}
+
+void PKB::setCallSTable(CallSTable* callSTable) {
+	PKB::callSTable = callSTable;
+}
+
+ParentSTable* PKB::getParentSTable() {
+	return parentSTable;
+}
+
+void PKB::setParentSTable(ParentSTable* parentSTable) {
+	PKB::parentSTable = parentSTable;
+}
+
