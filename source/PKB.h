@@ -74,6 +74,8 @@ public:
 															//to check pattern If
 		 static vector<string> patternWhile(string controlVar, bool containsQ);			
 															//to check pattern While
+		 static bool checkExistMod(string start, string end, string var);
+
 };
 
 #endif

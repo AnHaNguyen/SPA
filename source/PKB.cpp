@@ -223,3 +223,27 @@ void PKB::setParentSTable(ParentSTable* parentSTable) {
 	PKB::parentSTable = parentSTable;
 }
 
+bool PKB::checkExistMod(string start, string end, string modVar) {
+	vector<string> modifier = modifyTable->getModifier(modVar);
+	queue<string> q;
+	q.push(start);
+	while (!q.empty()) {
+		vector<string> nextStmts = nextTable->getNext(q.front());
+		q.pop();
+		for (int i = 0; i < nextStmts.size(); i++) {
+			if (nextStmts.at(i) == end) {
+				return true;
+			}
+			int contain = 0;
+			for (int j = 0; j < modifier.size(); j++) {
+				if (nextStmts.at(i) == modifier.at(j)) {
+					contain = 1;
+				}
+			}
+			if (contain == 0) {
+				q.push(nextStmts.at(i));
+			}
+		}
+	}
+	return false;
+}

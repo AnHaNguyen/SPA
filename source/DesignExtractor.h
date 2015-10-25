@@ -133,6 +133,9 @@ private:
 	string nearestNext(string line);
 	bool processNextTable();
 	void processSTable();
+	void generateCallSTable();
+	void generateFollowSTable();
+	void generateParentSTable();
 
 public:
 	DesignExtractor();

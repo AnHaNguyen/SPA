@@ -23,6 +23,9 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 		processFollowTable(ast.at(i));
 		processParentTable(ast.at(i));
 	}
+	if (callTable->isContainedRecur()) {
+		exit(EXIT_FAILURE);
+	}
 
 	processProcTable();
 	processModUseTable();
@@ -1076,7 +1079,58 @@ string DesignExtractor::nearestNext(string line) {
 }
 
 void DesignExtractor::processSTable() {
-	callSTable = callTable->generateCallSTable();
-	parentSTable = parentTable->generateParentSTable();
-	followSTable = followTable->generateFollowSTable();
+	generateCallSTable();
+	generateParentSTable();
+	generateFollowSTable();
+}
+
+void DesignExtractor::generateCallSTable() {
+	for (unsigned i = 0; i < callTable->size(); i++) {
+		queue<string> lineQ;
+		string line = callTable->getTable().at(i).caller;
+		lineQ.push(line);
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> callees = callTable->getCallees(cur);
+			for (unsigned j = 0; j < callees.size(); j++) {
+				lineQ.push(callees.at(j));
+				callSTable->addToTable(line, callees.at(j));
+			}
+		}
+	}
+}
+
+void DesignExtractor::generateFollowSTable() {
+	for (unsigned i = 0; i < followTable->size(); i++) {
+		queue<string> lineQ;
+		string line = followTable->getTable().at(i).prev;
+		lineQ.push(line);
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			string next = followTable->getNext(cur);
+			if (next != "") {
+				lineQ.push(next);
+				followSTable->addToTable(line, next);
+			}
+		}
+	}
+}
+
+void DesignExtractor::generateParentSTable() {
+	for (unsigned i = 0; i < parentTable->size(); i++) {
+		queue<string> lineQ;
+		string line = parentTable->getTable().at(i).lineNo;
+		lineQ.push(line);
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> childList = parentTable->getChild(cur);
+			for (unsigned j = 0; j < childList.size(); j++) {
+				lineQ.push(childList.at(j));
+				parentSTable->addToTable(line, childList.at(j));
+			}
+		}
+	}
 }

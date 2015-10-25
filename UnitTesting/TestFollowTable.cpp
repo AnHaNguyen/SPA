@@ -37,7 +37,7 @@ namespace UnitTesting
 			Assert::AreEqual(followTable.isFollows("0", "2"), false);
 			Assert::AreEqual(followTable.isFollows("2", "3"), false);
 		}
-		TEST_METHOD(TestGenerateFollowSTable) {
+	/*	TEST_METHOD(TestGenerateFollowSTable) {
 			FollowTable followTable;
 			followTable.addToTable("0", "1");
 			followTable.addToTable("1", "2");
@@ -69,6 +69,6 @@ namespace UnitTesting
 			Assert::AreEqual(fTable->getTable().at(4).lineNo, (string)"8");
 			Assert::AreEqual(fTable->getTable().at(4).followStmts.size(), (unsigned)1);
 			Assert::AreEqual(fTable->getTable().at(4).followStmts.at(0), (string)"9");
-		}
+		}*/
 	};
 }

@@ -54,7 +54,7 @@ namespace UnitTesting
 			callTable2.addToTable("First", "First");
 			Assert::AreEqual(callTable2.isContainedRecur(), true);
 		}
-		TEST_METHOD(TestGenerateCallSTable) {
+		/*TEST_METHOD(TestGenerateCallSTable) {
 			CallTable callTable;
 			callTable.addToTable("0", "1");
 			callTable.addToTable("0", "2");
@@ -102,6 +102,6 @@ namespace UnitTesting
 			Assert::AreEqual(cTable->getTable().at(6).caller, (string)"11");
 			Assert::AreEqual(cTable->getTable().at(6).callees.size(), (unsigned)1);
 			Assert::AreEqual(cTable->getTable().at(6).callees.at(0), (string)"12");
-		}
+		}*/
 	};
 }

@@ -32,7 +32,6 @@ public:
 	vector<callEntry_t> getTable();			//return whole table as vector
 	bool isContainedRecur();
 	bool isCall(string caller, string callee);		//check Calls(p1,p2);
-	CallSTable* generateCallSTable();
 };
 
 

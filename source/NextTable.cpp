@@ -1,6 +1,8 @@
 #include "NextTable.h"
 #include <vector>
 #include <string>
+#include "ProgLine.h"
+#include "PKB.h"
 
 NextTable::NextTable(){}
 NextTable::~NextTable() {}
@@ -77,4 +79,51 @@ bool NextTable::isNext(string prev, string next) {
 
 vector<NextEntry_t> NextTable::getTable() {
 	return nextTable;
+}
+
+vector<string> NextTable::getNextS(string prev) {
+	vector<string> returnList;
+	vector<bool> processed;
+	int numLines = PKB::getProgLine()->numOfLines();
+	for (int i = 0; i < numLines; i++) {
+		processed.push_back(false);
+	}
+	queue<string> q;
+	q.push(prev);
+	while (!q.empty()) {
+		vector<string> nextStmts = getNext(q.front());
+		q.pop();
+		for (unsigned i = 0; i < nextStmts.size(); i++) {
+			if (!processed.at(atoi(nextStmts.at(i).c_str()))) {
+				processed.at(atoi(nextStmts.at(i).c_str())) = true;
+				returnList.push_back(nextStmts.at(i));
+				q.push(nextStmts.at(i));
+			}
+		}
+	}
+	return returnList;
+}
+
+vector<string> NextTable::getPrevS(string next) {
+	vector<string> returnList;
+	for (unsigned i = 0; i < nextTable.size(); i++) {
+		vector<string> nextStarStmts = getNextS(nextTable.at(i).lineNo);
+		for (unsigned j = 0; j < nextStarStmts.size(); j++) {
+			if (next == nextStarStmts.at(j)) {
+				returnList.push_back(nextTable.at(i).lineNo);
+				break;
+			}
+		}
+	}
+	return returnList;
+}
+
+bool NextTable::isNextS(string prev, string next) {
+	vector<string> nextStarStmts = getNextS(prev);
+	for (unsigned i = 0; i < nextStarStmts.size(); i++) {
+		if (nextStarStmts.at(i) == next) {
+			return true;
+		}
+	}
+	return false;
 }
