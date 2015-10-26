@@ -4,19 +4,19 @@ HandleST::~HandleST() {}
 
 string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
-	string ans = "na";
+	string ansVec = "na";
 	//Case 1st: n/s
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
 		|| HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "assign") {
-			ans = "all";
+			ansVec = "all";
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
 			if (folTab->getPrev(secondAtt) != "") {
-				ans = folTab->getPrev(secondAtt);
+				ansVec = folTab->getPrev(secondAtt);
 			}
 		}
 	}
@@ -26,19 +26,19 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 			if (folTab->getNext(firstAtt) != "") {
 				if (HUtility().getSymMean(secondAtt) == "assign") {
 					if (HUtility().contain(HUtility().getAssignTable(), folTab->getNext(firstAtt))) {
-						ans = folTab->getNext(firstAtt);
+						ansVec = folTab->getNext(firstAtt);
 					}
 				}
 				else {
-					ans = folTab->getNext(firstAtt);
+					ansVec = folTab->getNext(firstAtt);
 				}
 			}
 		}
 		else if (folTab->isFollows(firstAtt, secondAtt)) {
-			ans = "true";
+			ansVec = "true";
 		}
 	}
-	return ans;
+	return ansVec;
 }
 
 void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec) {	
@@ -125,20 +125,18 @@ void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &u
 
 vector<string> HandleST::handleNext(string &firstAtt, string &secondAtt) {
 	NextTable* nextTab = PKB::getNextTable();
-	vector<string> ans;
+	vector<string> ansVec;
 	//Case 1st: n/s
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign"
 		|| HUtility().getSymMean(firstAtt) == "if" || HUtility().getSymMean(firstAtt) == "while") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "assign"
 			|| HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
-			ans.push_back("all");
+			ansVec.push_back("all");
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
-			if (nextTab->getPrev(secondAtt).size() > 0) {
-				ans = nextTab->getPrev(secondAtt);
-			}
+				ansVec = nextTab->getPrev(secondAtt);
 		}
 	}
 	//Case 1st: 1, 2
@@ -146,24 +144,52 @@ vector<string> HandleST::handleNext(string &firstAtt, string &secondAtt) {
 		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
 			if (nextTab->getNext(firstAtt).size()) {
 				if (HUtility().getSymMean(secondAtt) == "assign") {
-					ans = HUtility().intersection(nextTab->getNext(firstAtt), HUtility().getAssignTable());
+					ansVec = HUtility().intersection(nextTab->getNext(firstAtt), HUtility().getAssignTable());
 				}
 				if (HUtility().getSymMean(secondAtt) == "if") {
-					ans = HUtility().intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("if"));
+					ansVec = HUtility().intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("if"));
 				}
 				if (HUtility().getSymMean(secondAtt) == "while") {
-					ans = HUtility().intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("while"));
+					ansVec = HUtility().intersection(nextTab->getNext(firstAtt), PKB::getProgLine()->getLinesOfType("while"));
 				}
 				if (HUtility().getSymMean(secondAtt) != "assign" && HUtility().getSymMean(secondAtt) != "if" && HUtility().getSymMean(secondAtt) != "while") {
-					ans = nextTab->getNext(firstAtt);
+					ansVec = nextTab->getNext(firstAtt);
 				}
 			}
 		}
 		else if (nextTab->isNext(firstAtt, secondAtt)) {
-			ans.push_back("true");
+			ansVec.push_back("true");
 		}
 	}
-	return ans;
+	return ansVec;
+}
+
+vector<string> HandleST::handleCalls(string firstAtt, string secondAtt) {
+	CallTable* callTab = PKB::getCallTable();
+	vector<string> ansVec;
+	//Case 1st: _/p
+	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "procedure") {
+		//Case 2nd: _/p
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "procedure") {
+			ansVec.push_back("all");
+		}
+		//Case 2nd: ABC
+		else {
+				ansVec = callTab->getCallers(secondAtt);
+		}
+	}
+	//Case 1st: ABC
+	else {
+		//Case 2nd: _/p
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "procedure") {
+			ansVec = callTab->getCallees(firstAtt);
+		}
+		//Case ABC
+		else if (callTab->isCall(firstAtt, secondAtt)) {
+			ansVec.push_back("true");
+		}
+	}
+	return ansVec;
 }
 
 bool HandleST::isFollowsS(string firstAtt, string secondAtt) {

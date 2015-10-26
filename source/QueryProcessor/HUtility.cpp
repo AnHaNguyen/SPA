@@ -18,8 +18,8 @@ vector<string> HUtility::getAssignTable() {
 void HUtility::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable) {
 	UseTable* UseTable = PKB::getUseTable();
 	useTab = UseTable->getTable();
-	userTable = toConvention(useTab, true);
-	usedTable = toConvention(useTab, 2);
+	userTable = getUseRelated(useTab, 1);
+	usedTable = getUseRelated(useTab, 2);
 }
 
 bool HUtility::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable,
@@ -31,13 +31,13 @@ bool HUtility::getParentTable(PreResultNode * result, string &firstAtt, vector<s
 		return false;
 	}
 	if (result->getResult().getSynonym() == firstAtt) {
-		parTable = HUtility().toConvention(parTab, 1);
+		parTable = getParentRelated(parTab, 1);
 	}
 	if (result->getResult().getSynonym() == secondAtt) {
-		nestTable = HUtility().toConvention(parTab, 2);
+		nestTable = getParentRelated(parTab, 2);
 	}
 	if (result->getResult().getSynonym() != firstAtt && result->getResult().getSynonym() != secondAtt) {
-		parTable = HUtility().toConvention(parTab, 1);
+		parTable = getParentRelated(parTab, 1);
 	}
 	return true;
 }
@@ -69,6 +69,16 @@ void HUtility::getNextTable(vector<pair<string, vector<string>>> &nextTable) {
 		temp.first = nextTab[i].lineNo;
 		temp.second = nextTab[i].nextStmts;
 		nextTable.push_back(temp);
+	}
+}
+
+void HUtility::getCallTable(vector<pair<string, vector<string>>> &callTable) {
+	vector<CallEntry_t> callTab = PKB::getCallTable()->getTable();
+	for (size_t i = 0; i < callTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = callTab[i].caller;
+		temp.second = callTab[i].callees;
+		callTable.push_back(temp);
 	}
 }
 
@@ -137,7 +147,7 @@ void HUtility::rmEString(vector<string> vec) {
 }
 
 //To convetion
-vector<string> HUtility::toConvention(vector<ParentEntry_t>  table, int x) {
+vector<string> HUtility::getParentRelated(vector<ParentEntry_t>  table, int x) {
 	vector<string> ansVec;
 	if (x == 1) {
 		for (size_t i = 0; i < table.size(); i++) {
@@ -153,31 +163,41 @@ vector<string> HUtility::toConvention(vector<ParentEntry_t>  table, int x) {
 	}
 	return ansVec;
 }
-vector<string> HUtility::toConvention(vector<UseEntry_t> table, bool x) {
+vector<string> HUtility::getUseRelated(vector<UseEntry_t> table, int x) {
 	vector<string> ansVec;
-	for (size_t i = 0; i < table.size(); i++) {
-		ansVec.push_back(table[i].userLine);
+	if (x == 1) {
+		for (size_t i = 0; i < table.size(); i++) {
+			ansVec.push_back(table[i].userLine);
+		}
+		return ansVec;
 	}
-	return ansVec;
-}
-vector<string> HUtility::toConvention(vector<UseEntry_t> table, int x) {
-	vector<string> ansVec;
-	for (size_t i = 0; i < table.size(); i++) {
-		for (size_t j = 0; j < table[i].usedVar.size(); j++) {
-			ansVec.push_back(table[i].usedVar[j]);
+	else {
+		for (size_t i = 0; i < table.size(); i++) {
+			for (size_t j = 0; j < table[i].usedVar.size(); j++) {
+				ansVec.push_back(table[i].usedVar[j]);
+			}
 		}
 	}
-	return ansVec;
 }
 
 //Implement intersection method (case pair (n1, v1) and select v or n
 vector<string> HUtility::intersection(vector<string> vec1, vector<string> vec2) {
 	vector<string> ansVec;
-	for (size_t i = 0; i < vec1.size(); i++) {
-		string current = vec1[i];
-		for (size_t j = 0; j < vec2.size(); j++) {
-			if (current == vec2[j]) {
-				ansVec.push_back(current);
+	if (vec1.size() > 0 && vec2.size()>0) {
+		if (vec1[0] == "true") {
+			ansVec = vec2;
+			return ansVec;
+		}
+		if (vec2[0] == "true") {
+			ansVec = vec1;
+			return ansVec;
+		}
+		for (size_t i = 0; i < vec1.size(); i++) {
+			string current = vec1[i];
+			for (size_t j = 0; j < vec2.size(); j++) {
+				if (current == vec2[j]) {
+					ansVec.push_back(current);
+				}
 			}
 		}
 	}
@@ -221,4 +241,18 @@ vector <string> HUtility::intersection(vector<string> vec1, vector < pair<string
 		}
 	}
 	return ansVec;
+}
+
+void HUtility::checkQuotation(pair<string, bool> &AttQ, string &Att) {
+
+	//Case "x"
+	if (Att.substr(0, 1) == "\"") {
+		AttQ.first = Att.substr(1, Att.size() - 2);
+		AttQ.second = true;
+	}
+	//Case v or _
+	else {
+		AttQ.first = Att;
+		AttQ.second = false;
+	}
 }

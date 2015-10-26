@@ -5,20 +5,20 @@
 #include "CallTable.h"
 
 using namespace std;
-typedef struct callSEntry_t {
+typedef struct CallSEntry_t {
 	string caller;
 	vector<string> callees;
-	callSEntry_t(string caller, string callee) {
-		callSEntry_t::caller = caller;
-		callSEntry_t::callees.push_back(callee);
+	CallSEntry_t(string caller, string callee) {
+		CallSEntry_t::caller = caller;
+		CallSEntry_t::callees.push_back(callee);
 	}
 } callSEntry;
 class CallSTable {
-	/*callEntry_t{
+	/*CallEntry_t{
 	string caller;
 	vector<string> callees;
 	}*/
-private: vector<callSEntry_t> callSTable;
+private: vector<CallSEntry_t> callSTable;
 public: CallSTable();
 		~CallSTable();
 		bool addToTable(string caller, string callee);
@@ -27,6 +27,6 @@ public: CallSTable();
 		int size();
 		bool isContained(string caller);
 		bool isCallS(string caller, string callee);
-		vector<callSEntry_t> getTable();
+		vector<CallSEntry_t> getTable();
 };
 #endif

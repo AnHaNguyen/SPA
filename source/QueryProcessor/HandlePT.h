@@ -15,7 +15,6 @@ public:
 		vector<string> &patVec, vector<string> &pvarVec, vector<string> &pconVec);
 
 	void checkUnderscore(pair<string, bool> &firstAttU, string &firstAtt);
-	void checkQuotation(pair<string, bool> &AttQ, string &Att);
 	bool containSign(string str);
 
 };

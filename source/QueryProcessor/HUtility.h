@@ -7,6 +7,7 @@
 #include "../FollowTable.h"
 #include "../ModifyTable.h"
 #include "../ParentTable.h"
+#include "../CallTable.h"
 #include "../ProgLine.h"
 
 #include <string>
@@ -38,16 +39,18 @@ public:
 	void getModifyTable(vector<pair<string, vector<string>>> &modTable);
 	void getFollowTable(vector<pair<string, string>> &folTable);
 	void getNextTable(vector<pair<string, vector<string>>> &nextTable);
+	void getCallTable(vector<pair<string, vector<string>>> &callTable);
 
 	//To convention
-	vector<string> toConvention(vector<ParentEntry_t>  table, int x);
-	vector<string> toConvention(vector<UseEntry_t> table, bool x);
-	vector<string> toConvention(vector<UseEntry_t> table, int x);
+	vector<string> getParentRelated(vector<ParentEntry_t>  table, int x);
+	vector<string> getUseRelated(vector<UseEntry_t> table, int x);
 
 	//Intersection
 	vector<string> intersection(vector<string> vec1, vector<pair<string, string>> vec2);
 	vector<string> intersection(vector<string> vec1, vector<string> vec2);
 	vector < pair<string, vector<string>>> intersection(vector<string> vec1, vector<pair<string, vector<string>>> vec2);
 	vector <string> intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check);
+
+	void checkQuotation(pair<string, bool> &AttQ, string &Att);
 };
 #endif

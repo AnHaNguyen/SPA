@@ -83,7 +83,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {
 			vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstU.first);
 			vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
-			vector<string> temp2 = HUtility().toConvention(useTable, true);
+			vector<string> temp2 = HUtility().getUseRelated(useTable, 1);
 			if (selType == "variable") {
 				vector<string> temp3 = HUtility().intersection(temp1, temp2);
 				for (size_t i = 0; i < temp3.size(); i++) {
@@ -216,19 +216,5 @@ void HandlePT::checkUnderscore(pair<string, bool> &AttU, string &Att) {
 			AttU.first = Att;
 			AttU.second = false;
 		}
-	}
-}
-
-void HandlePT::checkQuotation(pair<string, bool> &AttQ, string &Att) {
-
-	//Case "x"
-	if (Att.substr(0, 1) == "\"") {
-		AttQ.first = Att.substr(1, Att.size() - 2);
-		AttQ.second = true;
-	}
-	//Case v or _
-	else {
-		AttQ.first = Att;
-		AttQ.second = false;
 	}
 }

@@ -60,6 +60,9 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> nextVec;
 	vector<pair<string, vector<string>>>  nextTable;
 
+	vector<string> callVec;
+	vector <pair<string, vector<string>>> callTable;
+
 	if (query->getSuchThat()->getSynonym() != "") {
 		suchThat = query->getSuchThat();
 		ST = suchThat->getSynonym();
@@ -151,7 +154,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						while (!parQ.empty()) {
 							string temp = parQ.front();
 							parQ.pop();
-							int oldSize = parVec.size();
+							size_t oldSize = parVec.size();
 							//Case Parent*(1, s)
 							if (HUtility().isInt(stFirst)) {
 								HandleST().handleParent(temp, stSecond, parVec);
@@ -185,7 +188,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 		}
 
-		/*Handle affecs - next (next iteration)
+		/*Handle affects - next (next iteration)
 		if (ST == "affects") {
 		ansVec = getAffect(firstAtt, secondAtt);
 		}
@@ -193,6 +196,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		ansVec = getAffectS(firstAtt, secondAtt);
 		}
 		}*/
+
 		//Handle Next
 		if (ST == "Next") {
 			nextVec = HandleST().handleNext(stFirst, stSecond);
@@ -201,7 +205,16 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			}
 		}
 
-		for (int i = 0; i < 14; i++) {
+		//Handle Calls
+		if (ST == "Calls") {
+			callVec = HandleST().handleCalls(stFirst, stSecond);
+			if (callVec.size() > 0 && callVec.front() == "all") {
+				HUtility().getCallTable(callTable);
+			}
+		}
+
+
+		for (int i = 0; i < 16; i++) {
 			STCheck.push_back(0);
 		}
 		if (!folVec.empty() && folVec.front() != "na" && folVec.front() != "all") {
@@ -262,8 +275,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		pair<string, bool> ptFirstQ;
 		pair<string, bool> ptSecondQ;
-		HandlePT().checkQuotation(ptFirstQ, ptFirst);
-		HandlePT().checkQuotation(ptSecondQ, ptSecond);
+		HUtility().checkQuotation(ptFirstQ, ptFirst);
+		HUtility().checkQuotation(ptSecondQ, ptSecond);
 
 		if (pType == "assign") {
 			HandlePT().handleAssign(ptFirst, ptSecond, selType, rs, patVec, pvarVec, pconVec);
@@ -340,8 +353,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			if (HUtility().getPos(PTCheck) == 0) {
 				final = HUtility().intersection(folVec, patVec);
 				//final.push_back("hereeeee");
-				final.push_back(folVec.size() + " size " + patVec.size());
-				return final;
+				//final.push_back(to_string(folVec.size()) + " size " + to_string(patVec.size()));
+				//return final;
 			}
 			break;
 		case 1:
