@@ -44,7 +44,7 @@ bool HUtility::getParentTable(PreResultNode * result, string &firstAtt, vector<s
 
 void HUtility::getModifyTable(vector<pair<string, vector<string>>> &modTable) {
 	vector<ModifyEntry_t> modTab = PKB::getModifyTable()->getTable();
-	for (int i = 0; i < modTab.size(); i++) {
+	for (size_t i = 0; i < modTab.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = modTab[i].modifier;
 		temp.second = modTab[i].modifiedVar;
@@ -54,7 +54,7 @@ void HUtility::getModifyTable(vector<pair<string, vector<string>>> &modTable) {
 
 void HUtility::getFollowTable(vector<pair<string, string>> &folTable) {
 	vector<FollowEntry_t> folTab = PKB::getFollowTable()->getTable();
-	for (int i = 0; i < folTab.size(); i++) {
+	for (size_t i = 0; i < folTab.size(); i++) {
 		pair<string, string> temp;
 		temp.first = folTab[i].prev;
 		temp.second = folTab[i].next;
@@ -64,7 +64,7 @@ void HUtility::getFollowTable(vector<pair<string, string>> &folTable) {
 
 void HUtility::getNextTable(vector<pair<string, vector<string>>> &nextTable) {
 	vector<NextEntry_t> nextTab = PKB::getNextTable()->getTable();
-	for (int i = 0; i < nextTab.size(); i++) {
+	for (size_t i = 0; i < nextTab.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = nextTab[i].lineNo;
 		temp.second = nextTab[i].nextStmts;
@@ -75,7 +75,7 @@ void HUtility::getNextTable(vector<pair<string, vector<string>>> &nextTable) {
 vector<pair<string, vector<string>>> HUtility::getConstTable() {
 	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
 	vector<pair<string, vector<string>>> ansVec;
-	for (int i = 0; i < temp1.size(); i++) {
+	for (size_t i = 0; i < temp1.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = temp1[i].line;
 		temp.second = temp1[i].constants;
@@ -86,9 +86,9 @@ vector<pair<string, vector<string>>> HUtility::getConstTable() {
 
 //Other utilities
 string HUtility::getSymMean(string sym) {
-	for (int i = 0; i < symTable.size(); i++) {
+	for (size_t i = 0; i < symTable.size(); i++) {
 		vector<string> current = symTable[i];
-		for (int j = 0; j < current.size(); j++) {
+		for (size_t j = 0; j < current.size(); j++) {
 			if (current[j] == sym) {
 				return current[0];
 			}
@@ -98,7 +98,7 @@ string HUtility::getSymMean(string sym) {
 }
 
 int HUtility::getPos(vector<int> intVec) {
-	for (int i = 0; i < intVec.size(); i++) {
+	for (size_t i = 0; i < intVec.size(); i++) {
 		if (intVec[i] == 1) {
 			return i;
 		}
@@ -118,7 +118,7 @@ bool HUtility::isInt(string &secondAtt)
 }
 
 bool HUtility::contain(vector<string> vec, string str) {
-	for (int i = 0; i < vec.size(); i++) {
+	for (size_t i = 0; i < vec.size(); i++) {
 		if (find(begin(vec), end(vec), str) != end(vec)) {
 			return true;
 		}
@@ -128,7 +128,7 @@ bool HUtility::contain(vector<string> vec, string str) {
 
 void HUtility::rmEString(vector<string> vec) {
 	if (vec.size() > 0) {
-		for (int i = 0; i < vec.size(); i++) {
+		for (size_t i = 0; i < vec.size(); i++) {
 			if (vec[i] == "" || vec[i] == "na") {
 				vec.erase(vec.begin() + i);
 			}
@@ -140,13 +140,13 @@ void HUtility::rmEString(vector<string> vec) {
 vector<string> HUtility::toConvention(vector<ParentEntry_t>  table, int x) {
 	vector<string> ansVec;
 	if (x == 1) {
-		for (int i = 0; i < table.size(); i++) {
+		for (size_t i = 0; i < table.size(); i++) {
 			ansVec.push_back(table[i].lineNo);
 		}
 	}
 	else {
-		for (int i = 0; i < table.size(); i++) {
-			for (int j = 0; j < table[i].child.size(); j++) {
+		for (size_t i = 0; i < table.size(); i++) {
+			for (size_t j = 0; j < table[i].child.size(); j++) {
 				ansVec.push_back(table[i].child[j]);
 			}
 		}
@@ -155,15 +155,15 @@ vector<string> HUtility::toConvention(vector<ParentEntry_t>  table, int x) {
 }
 vector<string> HUtility::toConvention(vector<UseEntry_t> table, bool x) {
 	vector<string> ansVec;
-	for (int i = 0; i < table.size(); i++) {
+	for (size_t i = 0; i < table.size(); i++) {
 		ansVec.push_back(table[i].userLine);
 	}
 	return ansVec;
 }
 vector<string> HUtility::toConvention(vector<UseEntry_t> table, int x) {
 	vector<string> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		for (int j = 0; j < table[i].usedVar.size(); j++) {
+	for (size_t i = 0; i < table.size(); i++) {
+		for (size_t j = 0; j < table[i].usedVar.size(); j++) {
 			ansVec.push_back(table[i].usedVar[j]);
 		}
 	}
@@ -175,8 +175,10 @@ vector<string> HUtility::intersection(vector<string> vec1, vector<string> vec2) 
 	vector<string> ansVec;
 	for (size_t i = 0; i < vec1.size(); i++) {
 		string current = vec1[i];
-		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
-			ansVec.push_back(current);
+		for (size_t j = 0; j < vec2.size(); j++) {
+			if (current == vec2[j]) {
+				ansVec.push_back(current);
+			}
 		}
 	}
 	return ansVec;

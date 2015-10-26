@@ -25,9 +25,9 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			if (selType == "variable") {
 				vector<string> tempVec;
 				tempVec = HUtility().getAssignTable();
-				for (int i = 0; i < tempVec.size(); i++) {
+				for (size_t i = 0; i < tempVec.size(); i++) {
 					vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-					for (int j = 0; j < current.size(); j++) {
+					for (size_t j = 0; j < current.size(); j++) {
 						pvarVec.push_back(current[j]);
 					}
 				}
@@ -36,7 +36,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			else {
 				vector<string> tempVec;
 				tempVec = HUtility().getAssignTable();
-				for (int i = 0; i < tempVec.size(); i++) {
+				for (size_t i = 0; i < tempVec.size(); i++) {
 					vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
 					if (current.size() > 0) {
 						patVec.push_back("true");
@@ -52,7 +52,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 				vector<string> temp1 = HUtility().getAssignTable();
 				vector<pair<string, vector<string>>> temp2 = HUtility().getConstTable();
 				vector<pair<string, vector<string>>> ansVec = HUtility().intersection(temp1, temp2);
-				for (int i = 0; i < ansVec.size(); i++) {
+				for (size_t i = 0; i < ansVec.size(); i++) {
 					pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
 				}
 			}
@@ -86,8 +86,8 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			vector<string> temp2 = HUtility().toConvention(useTable, true);
 			if (selType == "variable") {
 				vector<string> temp3 = HUtility().intersection(temp1, temp2);
-				for (int i = 0; i < temp3.size(); i++) {
-					for (int j = 0; j < useTable.size(); j++) {
+				for (size_t i = 0; i < temp3.size(); i++) {
+					for (size_t j = 0; j < useTable.size(); j++) {
 						if (temp3[i] == useTable[j].userLine) {
 							for (int k = 0; k < useTable[j].usedVar.size(); k++) {
 								pvarVec.push_back(useTable[j].usedVar[k]);
@@ -107,7 +107,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 				vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
 				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
 				vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
-				for (int i = 0; i < temp3.size(); i++) {
+				for (size_t i = 0; i < temp3.size(); i++) {
 					pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 				}
 			}
@@ -124,7 +124,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 		if (ptSecondU.first == "_") {
 			if (selType == "variable") {
 				vector<string> temp1 = HUtility().getAssignTable();
-				for (int i = 0; i < temp1.size(); i++) {
+				for (size_t i = 0; i < temp1.size(); i++) {
 					pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
 				}
 			}
@@ -138,7 +138,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 				vector<string> temp1 = HUtility().getAssignTable();
 				vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
 				vector<string> temp3 = HUtility().intersection(temp1, temp2);
-				for (int i = 0; i < temp3.size(); i++) {
+				for (size_t i = 0; i < temp3.size(); i++) {
 					pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
 				}
 			}
@@ -153,13 +153,13 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			if (selType == "variable") {
 				vector<string> temp1 = HUtility().getAssignTable();
 				if (rs == ptFirst) {
-					for (int i = 0; i < temp1.size(); i++) {
+					for (size_t i = 0; i < temp1.size(); i++) {
 						pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
 					}
 				}
 				else {
-					for (int i = 0; i < temp1.size(); i++) {
-						for (int j = 0; j < PKB::getUseTable()->getUsed(temp1[i]).size(); j++) {
+					for (size_t i = 0; i < temp1.size(); i++) {
+						for (size_t j = 0; j < PKB::getUseTable()->getUsed(temp1[i]).size(); j++) {
 							pvarVec.push_back(PKB::getUseTable()->getUsed(temp1[i])[j]);
 						}
 					}
@@ -173,7 +173,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 				vector<string> temp2 = HUtility().getAssignTable();
 				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
 				vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
-				for (int i = 0; i < temp3.size(); i++) {
+				for (size_t i = 0; i < temp3.size(); i++) {
 					pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
 				}
 			}

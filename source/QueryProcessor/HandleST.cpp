@@ -88,7 +88,7 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 	else {
 		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
 			vector<string> temp = parTab->getChild(firstAtt);
-			for (int i = 0; i < temp.size(); i++) {
+			for (size_t i = 0; i < temp.size(); i++) {
 				if (!HUtility().contain(parVec, temp[i])) {
 					parVec.push_back(temp[i]);
 				}

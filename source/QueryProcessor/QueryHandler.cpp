@@ -145,7 +145,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 						HUtility().getParentTable(result, stFirst, parTable, stSecond, nestTable);
 					}
 					else {
-						for (int i = 0; i < parVec.size(); i++) {
+						for (size_t i = 0; i < parVec.size(); i++) {
 							parQ.push(parVec[i]);
 						}
 						while (!parQ.empty()) {
@@ -156,7 +156,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 							if (HUtility().isInt(stFirst)) {
 								HandleST().handleParent(temp, stSecond, parVec);
 								if (oldSize < parVec.size()) {
-									for (int i = oldSize; i < parVec.size(); i++) {
+									for (size_t i = oldSize; i < parVec.size(); i++) {
 										parQ.push(parVec[i]);
 									}
 								}
@@ -165,7 +165,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 							if (HUtility().isInt(stSecond)) {
 								HandleST().handleParent(stFirst, temp, parVec);
 								if (oldSize < parVec.size()) {
-									for (int i = oldSize; i < parVec.size(); i++) {
+									for (size_t i = oldSize; i < parVec.size(); i++) {
 										parQ.push(parVec[i]);
 									}
 								}
@@ -287,7 +287,6 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			PTCheck[2] = 1;
 		}
 	}
-	
 	//Check if pattern or such that is false
 	if (query->getSuchThat()->getSynonym() != "" && HUtility().getPos(STCheck) == -1) {
 		HUtility().rmEString(final);
@@ -309,8 +308,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 
 		if (selType == "constant") {
 			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
-			for (int i = 0; i < constTable.size(); i++) {
-				for (int j = 0; j < constTable[i].constants.size(); j++) {
+			for (size_t i = 0; i < constTable.size(); i++) {
+				for (size_t j = 0; j < constTable[i].constants.size(); j++) {
 					if (!HUtility().contain(final, constTable[i].constants[j])) {
 						final.push_back(constTable[i].constants[j]);
 					}
@@ -340,10 +339,13 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			final = folVec;
 			if (HUtility().getPos(PTCheck) == 0) {
 				final = HUtility().intersection(folVec, patVec);
+				//final.push_back("hereeeee");
+				final.push_back(folVec.size() + " size " + patVec.size());
+				return final;
 			}
 			break;
 		case 1:
-			for (int i = 0; i < folTable.size(); i++) {
+			for (size_t i = 0; i < folTable.size(); i++) {
 				if (rs == stFirst) {
 					//Check if stSecond is in FolTable
 					if (HandleRS().folAss(stSecond, stFirst, folTable, i)) {
@@ -387,12 +389,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			break;
 		case 4:
 			if (selType == "variable") {
-				for (int i = 0; i < modTable.size(); i++) {
+				for (size_t i = 0; i < modTable.size(); i++) {
 					final.insert(final.end(), modTable[i].second.begin(), modTable[i].second.end());
 				}
 			}
 			else {
-				for (int i = 0; i < modTable.size(); i++) {
+				for (size_t i = 0; i < modTable.size(); i++) {
 					final.push_back(modTable[i].first);
 				}
 			}
