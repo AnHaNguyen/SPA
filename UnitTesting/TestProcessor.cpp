@@ -309,7 +309,7 @@ namespace TestProcessor {
 
 			results = handler.queryRec(tree1);
 			Assert::AreEqual(10, int(results.size()));
-			/*Assert::AreEqual(string("2"), results[0]);
+			Assert::AreEqual(string("2"), results[0]);
 			Assert::AreEqual(string("3"), results[1]);
 			Assert::AreEqual(string("5"), results[2]);
 			Assert::AreEqual(string("7"), results[3]);
@@ -318,7 +318,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("13"), results[6]);
 			Assert::AreEqual(string("14"), results[7]);
 			Assert::AreEqual(string("15"), results[8]);
-			Assert::AreEqual(string("16"), results[9]);*/
+			Assert::AreEqual(string("16"), results[9]);
 
 
 
@@ -856,7 +856,7 @@ namespace TestProcessor {
 			// Missing :   ^          ^
 			results = handler.queryRec(tree3);
 			sort(results.begin(), results.end(), compareStringsAsNumbers);
-			/*Assert::AreEqual(9, int(results.size()));
+			Assert::AreEqual(9, int(results.size()));
 			Assert::AreEqual(string("3"), results[0]);
 			Assert::AreEqual(string("7"), results[1]);
 			Assert::AreEqual(string("8"), results[2]);
@@ -865,7 +865,7 @@ namespace TestProcessor {
 			Assert::AreEqual(string("20"), results[5]);
 			Assert::AreEqual(string("21"), results[6]);
 			Assert::AreEqual(string("22"), results[7]);
-			Assert::AreEqual(string("23"), results[8]);*/
+			Assert::AreEqual(string("23"), results[8]);
 
 
 
@@ -894,18 +894,19 @@ namespace TestProcessor {
 			// Missing:      ^
 			results = handler.queryRec(tree4);
 			sort(results.begin(), results.end(), compareStringsAsNumbers);
-			/*Assert::AreEqual(3, int(results.size()));
+			Assert::AreEqual(3, int(results.size()));
 			Assert::AreEqual(string("12"), results[0]);
 			Assert::AreEqual(string("17"), results[1]);
 			Assert::AreEqual(string("22"), results[2]);
-			Assert::AreEqual(string("23"), results[3]);*/
+			Assert::AreEqual(string("23"), results[3]);
 
 
 
 			/**
 			 *	variable v1;
-			 *	Select v1 such that Modifies(5, v1);
+			 *	
 			 */
+			/* Repeat on Modifies Test 2
 			QueryTree* tree5 = new QueryTree();
 
 			vector<string> declarations5;
@@ -925,6 +926,7 @@ namespace TestProcessor {
 			results = handler.queryRec(tree5);
 			Assert::AreEqual(1, int(results.size()));
 			Assert::AreEqual(string("b"), results[0]);
+			*/
 
 
 
@@ -963,7 +965,7 @@ namespace TestProcessor {
 			 *	variable v1;
 			 *	Select v1 such that Modifies(17, v1);
 			 *
-			 *	stmt# 8 is a while stmt with another nested call-stmt
+			 *	stmt# 17 is a while stmt with another nested call-stmt
 			 */
 			QueryTree* tree7 = new QueryTree();
 
@@ -1261,12 +1263,12 @@ namespace TestProcessor {
 			// See test5 for possible reason
 			results = handler.queryRec(tree4);
 			sort(results.begin(), results.end(), compareStringsAsNumbers);
-			/*Assert::AreEqual(5, int(results.size()));
+			Assert::AreEqual(5, int(results.size()));
 			Assert::AreEqual(string("7"), results[0]);
 			Assert::AreEqual(string("17"), results[1]);
 			Assert::AreEqual(string("19"), results[2]);
 			Assert::AreEqual(string("22"), results[3]);
-			Assert::AreEqual(string("23"), results[4]);*/
+			Assert::AreEqual(string("23"), results[4]);
 
 
 
@@ -1337,13 +1339,6 @@ namespace TestProcessor {
 				"a=(x*y)+(x*y);",		// 14
 				"b=(x*y)+(x*y);}",		// 15
 			};
-			/*ProcTable* pt;
-			pt->addProc("First");
-			PKB::setProcTable(pt);
-
-			ProgLine* pl;
-			pl->addToList(1, "", "First");*/
-
 
 			DesignExtractor ext = DesignExtractor(code);
 
