@@ -123,8 +123,6 @@ private:
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);
 
-	bool isConst(string var);
-
 	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
@@ -156,8 +154,6 @@ public:
 	ProgLine* getProgLine();
 	vector<AST*> getASTList();
 	AST* buildSubtree(string pattern);
-
-	string getRightSideText();
 };
 
 #endif
