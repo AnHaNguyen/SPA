@@ -21,7 +21,7 @@ Select s such that Follows*(21,s)
 5- v, f(v,c) none
 assign a;
 Select a such that Follows*(a, 32)
-none
+24,25
 5000
 6- v, f(v,c)
 assign a;

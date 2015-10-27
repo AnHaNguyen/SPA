@@ -19,14 +19,14 @@ Select s such that Parent*(26,s)
 27,28,29,30,31
 5000
 5- v, f(v,c) none
-assign a;
-Select a such that Parent*(a, 32)
-none
+stmt s;
+Select s such that Parent*(s, 32)
+22,23
 5000
 6- v, f(v,c)
 stmt s;
 Select s such that Parent*(s, 25)
-23
+23,22
 5000
 7-  v, f(c,c) none
 stmt s;
