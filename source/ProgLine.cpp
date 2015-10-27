@@ -17,7 +17,7 @@ bool ProgLine::addToList(int lineNo, string type, string procedure) {
 }
 
 string ProgLine::getType(string lineNo) {
-	int line = atoi(lineNo.c_str());
+	unsigned int line = atoi(lineNo.c_str());
 	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
@@ -25,7 +25,7 @@ string ProgLine::getType(string lineNo) {
 }
 
 string ProgLine::getProcedure(string lineNo) {
-	int line = atoi(lineNo.c_str());
+	unsigned int line = atoi(lineNo.c_str());
 	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
