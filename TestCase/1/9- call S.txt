@@ -1,0 +1,30 @@
+1 - assign, f(c,c)
+assign a;
+Select a such that Calls*("ABC", "XYZ")
+none
+5000
+2 - assign, f(c,c)
+procedure p;
+Select p such that Calls*("XYZ", "ABC")
+ABC, XYZ, CDE
+5000
+3 - stmt, f(p,c)
+procedure p;
+Select p such that Calls*(p, "ABC")
+XYZ, CDE
+5000
+4 - v, f(c,v) none
+procedure p;
+Select p such that Calls*("XYZ", p)
+ABC, CDE
+5000
+5 - 
+procedure p1, p2;
+Select p1 such that Calls*(p1,p2)
+XYZ,CDE
+5000
+6 - 
+procedure p1, p2;
+Select p2 such that Calls*(p1,p2)
+ABC,CDE
+5000
