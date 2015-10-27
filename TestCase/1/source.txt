@@ -1,0 +1,52 @@
+procedure ABC {
+ i=1;							
+ b=200 ;						
+  c= a   ;					
+  while a{
+      while beta {						
+           oSCar  = 1 + beta + tmp;			
+          while tmp{					
+               oSCar = I + k + j1k + chArlie; }	
+	    while x {					
+               x = x + 1;					
+               while left {					
+                     while right {					
+                          Romeo = Romeo + 1;				
+                          b = 0;					
+                          c = delta    + l  + width + Romeo ; }	
+                    while c {					
+                          c = c +1   	; } 			
+                x = x+ 1	; }}				
+           a=   2; }				
+      w = w+1  ;}}
+
+procedure XYZ{
+ k = 0;
+ while k {
+	while c {
+		c = c + 1;
+		beta = delta - 1;
+		if delta {
+			Romeo = k + c;
+			c = 2;}
+	else {
+			delta = 100;
+			a = a + 2;
+			x = a + c*beta + Romeo;}
+		delta = a + x;}
+	xx = xx + yy + 100;
+	call ABC;
+	b = b + 1;
+	if b {
+		prop = b - 1;
+		had = k*b + 100;
+		call ABC;}
+else {
+		call CDE;}}}
+
+procedure CDE{
+ if cd{
+ 	call ABC;
+	cc = cc + 1;}
+    else {
+	call ABC;}}
