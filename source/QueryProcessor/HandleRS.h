@@ -13,6 +13,7 @@ public:
 	~HandleRS();
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 	bool folAss(string att, string firstAtt, vector < pair<string, string>> folTable, int i);
+	void rmEString(vector<string> vec);
 
 };
 #endif

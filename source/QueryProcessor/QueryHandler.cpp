@@ -115,7 +115,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				}
 			}
 		}
-	
+
 		//Handle modifies
 		if (ST == "Modifies") {
 			HandleST().handleModifies(stFirst, stSecond, modVec, mvarVec);
@@ -211,8 +211,8 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 			if (callVec.size() > 0 && callVec.front() == "all") {
 				HUtility().getCallTable(callTable);
 			}
+			return callVec;
 		}
-
 
 		for (int i = 0; i < 16; i++) {
 			STCheck.push_back(0);
@@ -259,6 +259,12 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (!nextTable.empty()) {
 			STCheck[13] = 1;
 		}
+		if (!callVec.empty() && callVec.front() != "na" && callVec.front() != "all") {
+			STCheck[14] = 1;
+		}
+		if (!callTable.empty()) {
+			STCheck[15] = 1;
+		}
 	}
 	//Handle pattern (this iteration only assign pattern)
 	vector<string> patVec;
@@ -302,11 +308,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	}
 	//Check if pattern or such that is false
 	if (query->getSuchThat()->getSynonym() != "" && HUtility().getPos(STCheck) == -1) {
-		HUtility().rmEString(final);
+		HandleRS().rmEString(final);
 		return final;
 	}
 	if (query->getPattern()->getSynonym() != "" && HUtility().getPos(PTCheck) == -1) {
-		HUtility().rmEString(final);
+		HandleRS().rmEString(final);
 		return final;
 	}
 
@@ -341,7 +347,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		if (selType == "if") {
 			final = PKB::getProgLine()->getLinesOfType("if");
 		}
-		HUtility().rmEString(final);
+		HandleRS().rmEString(final);
 		return final;
 	}
 
@@ -403,7 +409,11 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 		case 4:
 			if (selType == "variable") {
 				for (size_t i = 0; i < modTable.size(); i++) {
-					final.insert(final.end(), modTable[i].second.begin(), modTable[i].second.end());
+					for (size_t j = 0; j < modTable[i].second.size(); j++) {
+						if (!HUtility().contain(final, modTable[i].second[j])) {
+							final.push_back(modTable[i].second[j]);
+						}
+					}
 				}
 			}
 			else {
@@ -466,6 +476,47 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 				final = HUtility().intersection(usedTable, pconVec);
 			}
 			break;
+		case 12:
+			final = nextVec;
+			if (HUtility().getPos(PTCheck) == 0) {
+				final = HUtility().intersection(nextVec, patVec);
+			}
+			break;
+		case 13:
+			if (rs == stFirst) {
+				for (size_t i = 0; i < nextTable.size(); i++) {
+					final.push_back(nextTable[i].first);
+				}
+			}
+			if (rs == stSecond) {
+				for (size_t i = 0; i < nextTable.size(); i++) {
+					for (size_t j = 0; j < nextTable[i].second.size(); j++) {
+						if (!HUtility().contain(final, nextTable[i].second[j])) {
+							final.push_back(nextTable[i].second[j]);
+						}
+					}
+				}
+			}
+			break;
+		case 14:
+			final = callVec;
+			break;
+		case 15:
+			if (rs == stFirst) {
+				for (size_t i = 0; i < nextTable.size(); i++) {
+					final.push_back(nextTable[i].first);
+				}
+			}
+			if (rs == stSecond) {
+				for (size_t i = 0; i < callTable.size(); i++) {
+					for (size_t j = 0; j < callTable[i].second.size(); j++) {
+						if (!HUtility().contain(final, callTable[i].second[j])) {
+							final.push_back(callTable[i].second[j]);
+						}
+					}
+				}
+			}
+			break;
 		}
 	}
 	else if (HUtility().getPos(PTCheck) != -1) {
@@ -496,7 +547,7 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	if (selType == "procedure") {
 		final = HUtility().intersection(final, PKB::getProgLine()->getLinesOfType("procedure"));
 	}
-	HUtility().rmEString(final);
+	HandleRS().rmEString(final);
 	//final.push_back(to_string(HUtility().getPos(STCheck))+" " +to_string(HUtility().getPos(PTCheck)));
 	return final;
 }

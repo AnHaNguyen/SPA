@@ -41,7 +41,7 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	return ansVec;
 }
 
-void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec) {	
+void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec) {
 	ModifyTable* modTab = PKB::getModifyTable();
 	//Case 1st: all possible syms
 	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign"
@@ -136,7 +136,7 @@ vector<string> HandleST::handleNext(string &firstAtt, string &secondAtt) {
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
-				ansVec = nextTab->getPrev(secondAtt);
+			ansVec = nextTab->getPrev(secondAtt);
 		}
 	}
 	//Case 1st: 1, 2
@@ -167,6 +167,11 @@ vector<string> HandleST::handleNext(string &firstAtt, string &secondAtt) {
 vector<string> HandleST::handleCalls(string firstAtt, string secondAtt) {
 	CallTable* callTab = PKB::getCallTable();
 	vector<string> ansVec;
+	pair<string, bool> firstAttQ;
+	pair<string, bool> secondAttQ;
+	HUtility().checkQuotation(firstAttQ, firstAtt);
+	HUtility().checkQuotation(secondAttQ, secondAtt);
+
 	//Case 1st: _/p
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "procedure") {
 		//Case 2nd: _/p
@@ -175,14 +180,16 @@ vector<string> HandleST::handleCalls(string firstAtt, string secondAtt) {
 		}
 		//Case 2nd: ABC
 		else {
-				ansVec = callTab->getCallers(secondAtt);
+			ansVec.push_back(secondAttQ.first+ " in calls");
+			ansVec = callTab->getCallers(secondAttQ.first);
+			return ansVec;
 		}
 	}
 	//Case 1st: ABC
 	else {
 		//Case 2nd: _/p
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "procedure") {
-			ansVec = callTab->getCallees(firstAtt);
+			ansVec = callTab->getCallees(firstAttQ.first);
 		}
 		//Case ABC
 		else if (callTab->isCall(firstAtt, secondAtt)) {

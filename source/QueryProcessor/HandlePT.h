@@ -13,7 +13,6 @@ public:
 
 	void handleAssign(string ptFirst, string ptSecond, string selType, string rs,
 		vector<string> &patVec, vector<string> &pvarVec, vector<string> &pconVec);
-
 	void checkUnderscore(pair<string, bool> &firstAttU, string &firstAtt);
 	bool containSign(string str);
 

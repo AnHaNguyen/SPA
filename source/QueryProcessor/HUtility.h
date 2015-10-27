@@ -26,7 +26,6 @@ public:
 	int getPos(vector<int> intVec);
 	bool isInt(string &secondAtt);
 	bool contain(vector<string> vec, string str);
-	void rmEString(vector<string> vec);
 	
 	//Set symTable
 	void setSymTable(vector<vector<string>> symbolTable);

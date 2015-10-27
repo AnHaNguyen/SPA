@@ -136,16 +136,6 @@ bool HUtility::contain(vector<string> vec, string str) {
 	return false;
 }
 
-void HUtility::rmEString(vector<string> vec) {
-	if (vec.size() > 0) {
-		for (size_t i = 0; i < vec.size(); i++) {
-			if (vec[i] == "" || vec[i] == "na") {
-				vec.erase(vec.begin() + i);
-			}
-		}
-	}
-}
-
 //To convetion
 vector<string> HUtility::getParentRelated(vector<ParentEntry_t>  table, int x) {
 	vector<string> ansVec;
