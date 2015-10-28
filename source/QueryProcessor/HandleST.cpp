@@ -180,9 +180,7 @@ vector<string> HandleST::handleCalls(string firstAtt, string secondAtt) {
 		}
 		//Case 2nd: ABC
 		else {
-			ansVec.push_back(secondAttQ.first+ " in calls");
 			ansVec = callTab->getCallers(secondAttQ.first);
-			return ansVec;
 		}
 	}
 	//Case 1st: ABC

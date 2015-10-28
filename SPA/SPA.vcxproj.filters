@@ -70,5 +70,6 @@
     <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
     <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
     <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
   </ItemGroup>
 </Project>

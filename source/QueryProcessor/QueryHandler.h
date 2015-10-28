@@ -7,6 +7,7 @@
 #include "../QueryProcessor/HandleST.h"
 #include "../QueryProcessor/HandlePT.h"
 #include "../QueryProcessor/HUtility.h"
+#include "../QueryProcessor/HandlerStruct.h"
 #include "../FollowTable.h"
 #include "../ModifyTable.h"
 #include "../ParentTable.h"

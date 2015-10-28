@@ -3,6 +3,7 @@
 #include "../Preprocessor/QueryTree.h"
 #include "../Preprocessor/AttrRef.h"
 #include "../QueryProcessor/HUtility.h"
+#include "../QueryProcessor/HandlerStruct.h"
 #include <string>
 #include <vector>
 using namespace std;

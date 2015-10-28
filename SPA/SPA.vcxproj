@@ -173,6 +173,7 @@
     <ClInclude Include="..\source\ProgLine.h" />
     <ClInclude Include="..\source\QueryProcessor\HandlePT.h" />
     <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
     <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
     <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
