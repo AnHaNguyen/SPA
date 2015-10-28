@@ -1,0 +1,19 @@
+procedure First {
+  a = 1;
+  b = 2;
+  c = 3;
+  call Second;
+  if a then {
+    x = a + b;
+    y = a + b + c;}
+  else {
+    z = 1;}}
+procedure Second {
+  while b {
+    b = b - 1;
+    if b then {
+      a = b; }
+    else {
+      while c {
+        c = c - 1;}}
+    a = a + 1;}}
