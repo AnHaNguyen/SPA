@@ -26,6 +26,5 @@ public: FollowTable();
 		bool isContained(string prev);		//check if table contains a prev stmt
 		vector<FollowEntry_t> getTable();		//return table
 		bool isFollows(string prev, string next);	//check if next follows prev
-		FollowSTable* generateFollowSTable();
 };
 #endif

@@ -36,7 +36,7 @@ namespace UnitTesting
 			Assert::AreEqual(parTable.isParent("1", "2"), false);
 			Assert::AreEqual(parTable.isParent("2", "0"), false);
 		}
-		TEST_METHOD(TestGenerateParentSTable) {
+		/*TEST_METHOD(TestGenerateParentSTable) {
 			ParentTable parentTable;
 			parentTable.addToTable("0", "1");
 			parentTable.addToTable("0", "2");
@@ -84,6 +84,6 @@ namespace UnitTesting
 			Assert::AreEqual(pTable->getTable().at(6).lineNo, (string)"11");
 			Assert::AreEqual(pTable->getTable().at(6).child.size(), (unsigned)1);
 			Assert::AreEqual(pTable->getTable().at(6).child.at(0), (string)"12");
-		}
+		}*/
 	};
 }

@@ -126,7 +126,7 @@ namespace UnitTesting
 			Assert::AreEqual(useTable->isUsed("Third", "r"), true);
 		}
 
-		/*TEST_METHOD(DEModUseTable2) {
+		TEST_METHOD(DEModUseTable_Complicated) {
 			vector<string>code2 = { "procedureABC{","i=1;","b=200;","c=a;",
 				"ifathen{","whilebeta{","oSCar=1*beta+tmp;","whiletmp{",
 				"oSCar=I-(k+j1k*chArlie);}}","whilex{","x=x+1;",
@@ -144,8 +144,34 @@ namespace UnitTesting
 			ModifyTable* modTable = ext.getModTable();
 			UseTable* useTable = ext.getUseTable();
 
+			// Test ModifyTable
+			Assert::AreEqual(modTable->isModified("8", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("7", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("5", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("4", "oSCar"), true);
+			Assert::AreEqual(modTable->isModified("ABC", "oSCar"), true);
 
-		}*/
+			Assert::AreEqual(modTable->isModified("37", "x1"), true);
+			Assert::AreEqual(modTable->isModified("36", "x1"), true);
+			Assert::AreEqual(modTable->isModified("Init", "x1"), true);
+
+			Assert::AreEqual(modTable->isModified("22", "x1"), true);
+			Assert::AreEqual(modTable->isModified("17", "x1"), true);
+			Assert::AreEqual(modTable->isModified("13", "x1"), true);
+			Assert::AreEqual(modTable->isModified("11", "x1"), true);
+			Assert::AreEqual(modTable->isModified("9", "x1"), true);
+			Assert::AreEqual(modTable->isModified("4", "x1"), true);
+
+			Assert::AreEqual(modTable->isModified("ABC", "x1"), true);
+
+			//-----------------------Test Use Table--------------------------//
+			Assert::AreEqual(useTable->isUsed("36", "a"), true);
+			Assert::AreEqual(useTable->isUsed("Init", "a"), true);
+			Assert::AreEqual(useTable->isUsed("4", "a"), true);
+			Assert::AreEqual(useTable->isUsed("11", "a"), true);
+			Assert::AreEqual(useTable->isUsed("17", "a"), true);
+			Assert::AreEqual(useTable->isUsed("13", "a"), true);
+		}
 
 		TEST_METHOD(DEProcTable)
 		{
@@ -262,99 +288,6 @@ namespace UnitTesting
 			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getValue(), (string) "1");
 			Assert::AreEqual(proc1->getTree().at(14)->getChildList().at(1)->getType(), CONSTANT);
 		}
-		
-		/*TEST_METHOD(TestExtBuildASTWTimesAndBracket) {
-			vector<string> code = { "procedureFirst{", "x=c+(a*b+(m*(t+a)-(10+y))-c*(y+t))-(10*e);}" };
-			DesignExtractor ext = DesignExtractor(code);
-
-			vector<AST*> astList = ext.getASTList();
-			AST* astProc1 = astList.at(0);
-
-			Assert::AreEqual(astProc1->getTree().at(3)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(3)->getValue(), (string) "x");
-			Assert::AreEqual(astProc1->getTree().at(3)->getParent()->getType(), ASSIGN);
-
-			Assert::AreEqual(astProc1->getTree().at(4)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(4)->getValue(), (string) "c");
-
-			Assert::AreEqual(astProc1->getTree().at(5)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(5)->getValue(), (string) "c");
-			Assert::AreEqual(astProc1->getTree().at(5)->getParent()->getType(), PLUS_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(6)->getType(), TIMES_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(6)->getParent()->getType(), PLUS_TEXT);
-			
-			Assert::AreEqual(astProc1->getTree().at(7)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(7)->getValue(), (string) "a");
-
-			Assert::AreEqual(astProc1->getTree().at(9)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(9)->getValue(), (string) "b");
-
-			Assert::AreEqual(astProc1->getTree().at(8)->getType(), PLUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(8)->getChildList().at(1)->getChildList().at(1)->getType(), PLUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(8)->getChildList().at(1)->getChildList().at(0)->getType(), TIMES_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(15)->getParent()->getType(), PLUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(8)->getChildList().at(0)->getType(), TIMES_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(7)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(7)->getValue(), (string) "a");
-
-			Assert::AreEqual(astProc1->getTree().at(10)->getType(), TIMES_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(11)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(11)->getValue(), (string) "m");
-
-			Assert::AreEqual(astProc1->getTree().at(12)->getType(), PLUS_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(13)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(13)->getValue(), (string) "t");
-
-			Assert::AreEqual(astProc1->getTree().at(14)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(14)->getValue(), (string) "a");
-
-			Assert::AreEqual(astProc1->getTree().at(15)->getType(), MINUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(16)->getType(), PLUS_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(17)->getType(), CONSTANT);
-			Assert::AreEqual(astProc1->getTree().at(17)->getValue(), (string) "10");
-
-			Assert::AreEqual(astProc1->getTree().at(18)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(18)->getValue(), (string) "y");
-
-			Assert::AreEqual(astProc1->getTree().at(19)->getType(), MINUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(19)->getParent()->getType(), PLUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(19)->getChildList().at(1)->getType(), TIMES_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(19)->getChildList().at(0)->getType(), PLUS_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(20)->getType(), TIMES_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(20)->getChildList().at(0)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(20)->getChildList().at(0)->getValue(), (string) "c");
-			Assert::AreEqual(astProc1->getTree().at(20)->getParent()->getType(), MINUS_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(21)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(21)->getValue(), (string) "c");
-
-			Assert::AreEqual(astProc1->getTree().at(22)->getType(), PLUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(22)->getParent()->getType(), TIMES_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(22)->getChildList().size(), (size_t) 2);
-			Assert::AreEqual(astProc1->getTree().at(22)->getChildList().at(0)->getValue(), (string) "y");
-			Assert::AreEqual(astProc1->getTree().at(22)->getChildList().at(1)->getValue(), (string) "t");
-
-			Assert::AreEqual(astProc1->getTree().at(23)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(23)->getValue(), (string) "y");
-
-			Assert::AreEqual(astProc1->getTree().at(24)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(24)->getValue(), (string) "t");
-
-			Assert::AreEqual(astProc1->getTree().at(25)->getType(), MINUS_TEXT);
-			Assert::AreEqual(astProc1->getTree().at(26)->getType(), TIMES_TEXT);
-
-			Assert::AreEqual(astProc1->getTree().at(27)->getType(), CONSTANT);
-			Assert::AreEqual(astProc1->getTree().at(27)->getValue(), (string) "10");
-
-			Assert::AreEqual(astProc1->getTree().at(28)->getType(), VARIABLE);
-			Assert::AreEqual(astProc1->getTree().at(28)->getValue(), (string) "e");
-		}*/
 
 		TEST_METHOD(TestExtBuildAST2) {
 			vector<string> code = { "procedureFirst{", "x=c+1;}" };
@@ -482,7 +415,6 @@ namespace UnitTesting
 
 			DesignExtractor ext = DesignExtractor(code);
 			vector<AST*> astList = ext.getASTList();
-			string rightside = ext.getRightSideText();
 
 			AST* ast = astList.at(0);
 
@@ -619,6 +551,7 @@ namespace UnitTesting
 			Assert::AreEqual(ast1->getTree().at(9)->getChildList().at(1)->getValue(), (string) "r");
 			Assert::AreEqual(ast1->getTree().at(10)->getValue(), (string) "r");
 		}
+
 		//-------------------------------------------------------------------------------------//
 
 		TEST_METHOD(DEParentTable) {

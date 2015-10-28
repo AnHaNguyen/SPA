@@ -1,0 +1,50 @@
+1 - assign, f(c,c)
+assign a;
+Select a such that Follows*(3, 4)
+1, 2, 3, 6, 8, 10, 13, 14, 15, 17, 18, 19, 20, 21, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 37, 38, 43
+5000
+2 - stmt, f(c,c)
+stmt s;
+Select s such that Follows*(3, 4)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44
+5000
+3 - v, f(c,v) none
+assign a;
+Select a such that Follows*(3, a)
+none
+5000
+4 - v, f(c,v)
+stmt s;
+Select s such that Follows*(21,s)
+22
+5000
+5- v, f(v,c) none
+assign a;
+Select a such that Follows*(a, 32)
+24,25
+5000
+6- v, f(v,c)
+assign a;
+Select a such that Follows*(a, 25)
+24
+5000
+7-  v, f(c,c) none
+assign a;
+Select a such that Follows*(43,44)
+none
+5000
+8- v, f(v,v2)
+stmt s1,s2;
+Select s1 such that Follows*(s1,s2)
+1,2,3,5,6,7,9,10,12,13,14,16,21,23,24,25,26,27,29,30,33,34,35,37,38,42
+5000
+9- v, f(v2,v)
+assign a1,a2;
+Select a1 such that Follows*(a2,a1)
+2,3,14,15,25,28,30,31,38
+5000
+10- call, f(s,if)
+stmt s, if ifstat;
+Select ifstat such that Follows*(s,ifstat)
+26,36
+5000
