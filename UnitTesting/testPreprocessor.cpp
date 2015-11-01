@@ -147,11 +147,11 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree6->getValidity());
 		}
 
-		TEST_METHOD(pattern_attr_not_appear_in_declaration)
+		TEST_METHOD(pattern_attr_not_variable)
 		{
 			QueryPreprocessor pro7;
 			string declare7 = "assign a1, a2, a3; while w; stmt s1, s2;variable v1;";
-			string input7 = "Select w such that Modifies(a1, v1) pattern a2(a4, _\"x\"_)";
+			string input7 = "Select w such that Modifies(a1, v1) pattern a2(a1, _\"x\"_)";
 			QueryTree* tree7 = pro7.startProcess(declare7, input7);
 			Assert::AreEqual(false, tree7->getValidity());
 		}
@@ -760,6 +760,108 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"Parent*(1,2)", pro61.getSuchThatTable()[4]);
 			Assert::AreEqual((string)"Next(1,2)", pro61.getSuchThatTable()[5]);
 			Assert::AreEqual((string)"Next(20,a1)", pro61.getSuchThatTable()[6]);
+		}
+
+		TEST_METHOD(such_that_affects) {
+			QueryPreprocessor pro62;
+			string declare62 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input62 = "Select a1 such that Affects(a2,a1)";
+			QueryTree* tree62 = pro62.startProcess(declare62, input62);
+			Assert::AreEqual(true, tree62->getValidity());
+			Assert::AreEqual((string)"Affects", tree62->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"a2", tree62->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"a1", tree62->getSuchThat()->getSecondAttr());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_1) {
+			QueryPreprocessor pro63;
+			string declare63 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input63 = "Select a1 pattern a1(_, \"+y\")";
+			QueryTree* tree63 = pro63.startProcess(declare63, input63);
+			Assert::AreEqual(false, tree63->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_2) {
+			QueryPreprocessor pro64;
+			string declare64 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input64 = "Select a1 pattern a1(_, \"x+y=j\")";
+			QueryTree* tree64 = pro64.startProcess(declare64, input64);
+			Assert::AreEqual(false, tree64->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_3) {
+			QueryPreprocessor pro65;
+			string declare65 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input65 = "Select a1 pattern a1(_, \"(x+y)+(6+8\")";
+			QueryTree* tree65 = pro65.startProcess(declare65, input65);
+			Assert::AreEqual(false, tree65->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_4) {
+			QueryPreprocessor pro66;
+			string declare66 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input66 = "Select a1 pattern a1(_, \"2(x+y)\")";
+			QueryTree* tree66 = pro66.startProcess(declare66, input66);
+			Assert::AreEqual(false, tree66->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_5) {
+			QueryPreprocessor pro67;
+			string declare67 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input67 = "Select a1 pattern a1(_, \"(+5)\")";
+			QueryTree* tree67 = pro67.startProcess(declare67, input67);
+			Assert::AreEqual(false, tree67->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_6) {
+			QueryPreprocessor pro68;
+			string declare68 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input68 = "Select a1 pattern a1(_, \"(4+)\")";
+			QueryTree* tree68 = pro68.startProcess(declare68, input68);
+			Assert::AreEqual(false, tree68->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_7) {
+			QueryPreprocessor pro69;
+			string declare69 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input69 = "Select a1 pattern a1(_, \"(x+y)6\")";
+			QueryTree* tree69 = pro69.startProcess(declare69, input69);
+			Assert::AreEqual(false, tree69->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_8) {
+			QueryPreprocessor pro70;
+			string declare70 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input70 = "Select a1 pattern a1(_, \"(3*+y)\")";
+			QueryTree* tree70 = pro70.startProcess(declare70, input70);
+			Assert::AreEqual(false, tree70->getValidity());
+		}
+
+		TEST_METHOD(pattern_invalid_expr_9) {
+			QueryPreprocessor pro71;
+			string declare71 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input71 = "Select a1 pattern a1(_, \"(x+y)(8+4)\")";
+			QueryTree* tree71 = pro71.startProcess(declare71, input71);
+			Assert::AreEqual(false, tree71->getValidity());
+		}
+
+		TEST_METHOD(pattern_expr_full) {
+			QueryPreprocessor pro72;
+			string declare72 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input72 = "Select a1 pattern a1(_, \"(x+y*(7+6))*((zz-y)+83+4)-big+(3*good-654)-2\")";
+			QueryTree* tree72 = pro72.startProcess(declare72, input72);
+			Assert::AreEqual(true, tree72->getValidity());
+			Assert::AreEqual((string)"a1", tree72->getPattern()->getSynonym());
+			Assert::AreEqual((string)"_", tree72->getPattern()->getFirstAttr());
+			Assert::AreEqual((string)"\"(x+y*(7+6))*((zz-y)+83+4)-big+(3*good-654)-2\"", tree72->getPattern()->getSecondAttr());
+		}
+
+		TEST_METHOD(pattern_invalid_format_lack_underscore) {
+			QueryPreprocessor pro73;
+			string declare73 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input73 = "Select a1 pattern a1(_, _\"x\")";
+			QueryTree* tree73 = pro73.startProcess(declare73, input73);
+			Assert::AreEqual(false, tree73->getValidity());
 		}
 	};
 }
