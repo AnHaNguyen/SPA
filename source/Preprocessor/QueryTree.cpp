@@ -810,7 +810,12 @@ bool QueryTree::isValidBracket(string str) {
 			brackets.push_back("(");
 		}
 		if (str.at(i) == ')') {
-			brackets.pop_back();
+			if (brackets.size() == 0) {
+				return false;
+			}
+			else {
+				brackets.pop_back();
+			}
 		}
 	}
 	if (brackets.size() == 0) {

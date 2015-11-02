@@ -863,5 +863,13 @@ namespace TestPreprocessor
 			QueryTree* tree73 = pro73.startProcess(declare73, input73);
 			Assert::AreEqual(false, tree73->getValidity());
 		}
+
+		TEST_METHOD(pattern_invalid_expr_lack_right_bracket) {
+			QueryPreprocessor pro74;
+			string declare74 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
+			string input74 = "Select a1 pattern a1(_, _\"x\")";
+			QueryTree* tree74 = pro74.startProcess(declare74, input74);
+			Assert::AreEqual(false, tree74->getValidity());
+		}
 	};
 }
