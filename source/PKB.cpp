@@ -223,8 +223,8 @@ void PKB::setParentSTable(ParentSTable* parentSTable) {
 	PKB::parentSTable = parentSTable;
 }
 
-bool PKB::checkExistMod(string start, string end, string modVar) {
-	vector<string> modifier = modifyTable->getModifier(modVar);
+bool PKB::checkExistMod(string start, string end, string modVar,vector<string> processed) {
+	/*vector<string> modifier = modifyTable->getModifier(modVar);
 	queue<string> q;
 	q.push(start);
 	while (!q.empty()) {
@@ -245,7 +245,34 @@ bool PKB::checkExistMod(string start, string end, string modVar) {
 			}
 		}
 	}
-	return false;
+	return false;*/
+	vector<string> nextStmts = nextTable->getNext(start);
+	if (nextStmts.size() == 0) {
+		return false;
+	}
+	vector<bool> nextAns;
+	for (unsigned i = 0; i < nextStmts.size(); i++) {
+		string nextLine = nextStmts.at(i);
+		if (nextLine == end) {
+			return true;
+		}
+		else if (find(processed.begin(), processed.end(), nextLine) != processed.end()) {
+			nextAns.push_back(false);
+		}
+		else if (progLine->getType(nextLine) == "assign" && 
+						modifyTable->isModified(nextLine,modVar)) {
+			nextAns.push_back(false);
+		}
+		else {
+			processed.push_back(nextLine);
+			nextAns.push_back(checkExistMod(nextLine, end, modVar, processed));
+		}
+	}
+	bool finalAns = false;
+	for (unsigned i = 0; i < nextAns.size(); i++) {
+		finalAns = (finalAns || nextAns.at(i));
+	}
+	return finalAns;
 }
 
 vector<pair<string,string>> PKB::patternIf() {
@@ -254,10 +281,10 @@ vector<pair<string,string>> PKB::patternIf() {
 		vector<TNode*> ast = astList.at(i)->getTree();
 		for (unsigned j = 0; j < ast.size(); j++) {
 			if (ast.at(j)->getType() == "if") {
-				pair<string, string> pair;
-				pair.first = ast.at(j)->getLine();
-				pair.second = ast.at(j)->getChildList().at(0)->getValue();
-				returnList.push_back(pair);
+				pair<string, string> pr;
+				pr.first = ast.at(j)->getLine();
+				pr.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pr);
 			}
 		}
 	}
@@ -270,12 +297,93 @@ vector<pair<string, string>> PKB::patternWhile() {
 		vector<TNode*> ast = astList.at(i)->getTree();
 		for (unsigned j = 0; j < ast.size(); j++) {
 			if (ast.at(j)->getType() == "while") {
-				pair<string, string> pair;
-				pair.first = ast.at(j)->getLine();
-				pair.second = ast.at(j)->getChildList().at(0)->getValue();
-				returnList.push_back(pair);
+				pair<string, string> pr;
+				pr.first = ast.at(j)->getLine();
+				pr.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pr);
 			}
 		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::affect(string n1, string n2) {
+	vector<string> returnList;
+	vector<string> processed;
+	if (n1 != "_" && n2 != "_") {	//affect (1,2)
+	//	return true or false;
+		if (progLine->getType(n1) != "assign" || progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		string modVar = modifyTable->getModified(n1).at(0);
+		if (!useTable->isUsed(n2, modVar)) {
+			returnList.push_back("false");
+			return returnList;
+		}
+
+		if (checkExistMod(n1, n2, modVar, processed)) {
+			returnList.push_back("true");
+		}
+		else {
+			returnList.push_back("false");
+		}
+		return returnList;
+	}
+	else if (n1 != "_" && n2 == "_") {	//affect(1,n2)
+		if (progLine->getType(n1) != "assign") {
+			return returnList;
+		}
+		string modVar = modifyTable->getModified(n1).at(0);
+		
+		// for all assign in this procedure
+		//		if (isUsed(assign, modVar) && exist...(n1,assign, var)
+		//			add assign
+		string curProc = progLine->getProcedure(n1);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned i = 0; i < assignList.size(); i++) {
+			if (useTable->isUsed(assignList.at(i), modVar) &&
+				checkExistMod(n1, assignList.at(i), modVar,processed)) {
+				returnList.push_back(assignList.at(i));
+			}
+		}
+		return returnList;
+		//find all assignments 1->as and no modify of modVar in that path and as uses modVar
+	}
+	else if (n2 != "_" && n1 == "_") {	//affect(n1,2)
+		if (progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		vector<string> usedVar = useTable->getUsed(n2);
+		string curProc = progLine->getProcedure(n2);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned i = 0; i < assignList.size(); i++) {
+			for (unsigned j = 0; j < usedVar.size(); j++) {
+				if (modifyTable->isModified(assignList.at(i),usedVar.at(j)) &&
+					checkExistMod(assignList.at(i), n2, usedVar.at(j),processed)) {
+					returnList.push_back(assignList.at(i));
+				}
+			}
+		}
+		return returnList;
+		// for all assign in this procedure
+		//		for each var in usedVar
+		//			if (isMod(assign, var) && exist...(assign,n2,var)
+		//				add assign
+		
+		//find all assignments as->1 and as mod var and no modify of var in that path
+	}
+	return returnList;
+}
+
+vector<pair<string, vector<string>>> PKB::affect() {
+	vector<pair<string, vector<string>>> returnList;
+	vector<string> assignList = progLine->getLinesOfType("assign");
+	for (unsigned i = 0; i < assignList.size(); i++) {
+		vector<string> affectList = affect(assignList.at(i), "_");
+		pair<string, vector<string>> pr;
+		pr.first = assignList.at(i);
+		pr.second = affectList;
+		returnList.push_back(pr);
 	}
 	return returnList;
 }

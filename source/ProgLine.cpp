@@ -71,3 +71,22 @@ vector<string> ProgLine::getLinesOfType(string type){
 vector<stmt_t> ProgLine::getTable() {
 	return progLine;
 }
+
+vector<string> ProgLine::getAssignsOfProc(string procedure) {
+	vector<string> returnList;
+	for (unsigned i = 1; i <= progLine.size(); i++) {
+		if (getProcedure(to_string(i)) == procedure && 
+					getType(to_string(i)) == "assign") {
+			returnList.push_back(to_string(i));
+			int j = i + 1;
+			while (getProcedure(to_string(j)) == procedure) {
+				if (getType(to_string(j)) == "assign") {
+					returnList.push_back(to_string(j));
+				}
+				j++;
+			}
+			break;
+		}
+	}
+	return returnList;
+}
