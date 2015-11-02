@@ -3,11 +3,16 @@ HandlePT::HandlePT() {}
 HandlePT::~HandlePT() {}
 
 void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, string rs,
-	vector<string> &patVec, vector<string> &pvarVec, vector<string> &pconVec) {
+	vector<string> &patVec, vector<pair<string, vector<string>>> patTable, vector<asgPat_t> asgPat) {
 	pair<string, bool> ptFirstU;
 	pair<string, bool> ptSecondU;
 	HandlePT().checkUnderscore(ptFirstU, ptFirst);
 	HandlePT().checkUnderscore(ptSecondU, ptSecond);
+
+	vector<string> asgTable = HUtility().getAssignTable();
+	UseTable* useTable = PKB::getUseTable();
+	ModifyTable* modTable = PKB::getModifyTable();
+
 
 	//Case 1st att = _
 	if (ptFirstU.first == "_") {
@@ -20,48 +25,20 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			patVec = PKB::checkAssign(ptSecondU.first, ptSecondU.second);
 		}
 		//Case 2nd att = v
-		if (HUtility().getSymMean(ptSecond) == "variable") {
-			//Select type = variable
-			if (selType == "variable") {
-				vector<string> tempVec;
-				tempVec = HUtility().getAssignTable();
-				for (size_t i = 0; i < tempVec.size(); i++) {
-					vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-					for (size_t j = 0; j < current.size(); j++) {
-						pvarVec.push_back(current[j]);
-					}
+		/*if (HUtility().getSymMean(ptSecond) == "variable") {
+			for (size_t i = 0; i < asgTable.size(); i++) {
+				pair<string, vector<string>> temp;
+				if (useTable->getUsed(asgTable[i]).size()>0) {
+					temp.first = asgTable[i];
+					temp.second = useTable->getUsed(asgTable[i]);
 				}
+				patTable.push_back(temp);
 			}
-			//Select type = assign or not found
-			else {
-				vector<string> tempVec;
-				tempVec = HUtility().getAssignTable();
-				for (size_t i = 0; i < tempVec.size(); i++) {
-					vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-					if (current.size() > 0) {
-						patVec.push_back("true");
-						break;
-					}
-				}
-			}
-		}
+		}*/
 		//Case 2nd att = c
-		if (HUtility().getSymMean(ptSecond) == "constant") {
-			//Seltype = constant
-			if (selType == "constant") {
-				vector<string> temp1 = HUtility().getAssignTable();
-				vector<pair<string, vector<string>>> temp2 = HUtility().getConstTable();
-				vector<pair<string, vector<string>>> ansVec = HUtility().intersection(temp1, temp2);
-				for (size_t i = 0; i < ansVec.size(); i++) {
-					pconVec.insert(pconVec.end(), temp2[i].second.begin(), temp2[i].second.end());
-				}
-			}
-			else {
-				vector<string> temp2 = HUtility().getAssignTable();
-				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
-				patVec = HUtility().intersection(temp2, temp1, true);
-			}
-		}
+		//if (HUtility().getSymMean(ptSecond) == "constant") {
+		//
+		//}
 	}
 
 	//Case 1st att = "x123"
@@ -80,7 +57,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 
 		}
 		//Case 2nd att = v
-		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {
+		/*if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {
 			vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstU.first);
 			vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
 			vector<string> temp2 = HUtility().getUseRelated(useTable, 1);
@@ -99,57 +76,54 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 			else {
 				patVec = HUtility().intersection(temp1, temp2);
 			}
-		}
+		}*/
 		//Case 2nd att = c
-		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "constant") {
-			//Seltype = constant
-			if (selType == "constant") {
-				vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
-				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
-				vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
-				for (size_t i = 0; i < temp3.size(); i++) {
-					pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
-				}
-			}
-			else {
-				vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
-				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
-				patVec = HUtility().intersection(temp2, temp1, true);
-			}
-		}
+		//if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "constant") {
+		//	//Seltype = constant
+		//	if (selType == "constant") {
+		//		vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+		//		vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
+		//		vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
+		//		for (size_t i = 0; i < temp3.size(); i++) {
+		//			pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+		//		}
+		//	}
+		//	else {
+		//		vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstU.first);
+		//		vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
+		//		patVec = HUtility().intersection(temp2, temp1, true);
+		//	}
+		//}
 	}
 	//Case 1st att = v 
 	if (HUtility().getSymMean(ptFirst) == "variable") {
 		//Case 2nd att = _
 		if (ptSecondU.first == "_") {
-			if (selType == "variable") {
-				vector<string> temp1 = HUtility().getAssignTable();
-				for (size_t i = 0; i < temp1.size(); i++) {
-					pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
+			for (size_t i = 0; i < asgTable.size(); i++) {
+				pair<string, vector<string>> temp;
+				if (modTable->getModified(asgTable[i]).size()>0) {
+					temp.first = asgTable[i];
+					temp.second = modTable->getModified(asgTable[i]);
 				}
-			}
-			else {
-				patVec = HUtility().getAssignTable();
+				patTable.push_back(temp);
 			}
 		}
 		//Case 2nd att = "x123"
 		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "") {
-			if (selType == "variable") {
-				vector<string> temp1 = HUtility().getAssignTable();
-				vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
-				vector<string> temp3 = HUtility().intersection(temp1, temp2);
-				for (size_t i = 0; i < temp3.size(); i++) {
-					pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
+			vector<string> temp1 = HUtility().getAssignTable();
+			vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
+			vector<string> temp3 = HUtility().intersection(temp1, temp2);
+			for (size_t i = 0; i < temp3.size(); i++) {
+				pair<string, vector<string>> temp;
+				if (modTable->getModified(temp3[i]).size()>0) {
+					temp.first = asgTable[i];
+					temp.second = modTable->getModified(temp3[i]);
 				}
-			}
-			else {
-				vector<string> temp1 = HUtility().getAssignTable();
-				vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
-				patVec = HUtility().intersection(temp1, temp2);
+				patTable.push_back(temp);
 			}
 		}
 		//Case 2nd att = v
-		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {
+	/*	if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {
 			if (selType == "variable") {
 				vector<string> temp1 = HUtility().getAssignTable();
 				if (rs == ptFirst) {
@@ -165,24 +139,24 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 					}
 				}
 			}
-		}
+		}*/
 		//Case 2nd att = c
-		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "constant") {
-			//Seltype = constant
-			if (selType == "constant") {
-				vector<string> temp2 = HUtility().getAssignTable();
-				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
-				vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
-				for (size_t i = 0; i < temp3.size(); i++) {
-					pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
-				}
-			}
-			else {
-				vector<string> temp2 = HUtility().getAssignTable();
-				vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
-				patVec = HUtility().intersection(temp2, temp1, true);
-			}
-		}
+		//if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "constant") {
+		//	//Seltype = constant
+		//	if (selType == "constant") {
+		//		vector<string> temp2 = HUtility().getAssignTable();
+		//		vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
+		//		vector < pair<string, vector<string>>> temp3 = HUtility().intersection(temp2, temp1);
+		//		for (size_t i = 0; i < temp3.size(); i++) {
+		//			pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
+		//		}
+		//	}
+		//	else {
+		//		vector<string> temp2 = HUtility().getAssignTable();
+		//		vector<pair<string, vector<string>>> temp1 = HUtility().getConstTable();
+		//		patVec = HUtility().intersection(temp2, temp1, true);
+		//	}
+		//}
 	}
 }
 

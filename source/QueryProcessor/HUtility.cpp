@@ -3,6 +3,7 @@
 HUtility::HUtility() {}
 HUtility::~HUtility() {}
 static vector <vector<string>> symTable;
+
 //Set symbol table
 void HUtility::setSymTable(vector<vector<string>> symbolTable) {
 	symTable = symbolTable;
@@ -22,24 +23,14 @@ void HUtility::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable
 	usedTable = getUseRelated(useTab, 2);
 }
 
-bool HUtility::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable,
-	string &secondAtt, vector<string> &nestTable) {
-	vector<ParentEntry_t> parTab;
-	ParentTable* ParentTable = PKB::getParentTable();
-	parTab = ParentTable->getTable();
-	if (parTab.empty()) {
-		return false;
+void HUtility::getParentTable(vector<pair<string, vector<string>>> &parTable) {
+	vector<ParentEntry_t> parTab = PKB::getParentTable()->getTable();
+	for (size_t i = 0; i < parTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = parTab[i].lineNo;
+		temp.second = parTab[i].child;
+		parTable.push_back(temp);
 	}
-	if (result->getResult().getSynonym() == firstAtt) {
-		parTable = getParentRelated(parTab, 1);
-	}
-	if (result->getResult().getSynonym() == secondAtt) {
-		nestTable = getParentRelated(parTab, 2);
-	}
-	if (result->getResult().getSynonym() != firstAtt && result->getResult().getSynonym() != secondAtt) {
-		parTable = getParentRelated(parTab, 1);
-	}
-	return true;
 }
 
 void HUtility::getModifyTable(vector<pair<string, vector<string>>> &modTable) {
@@ -116,10 +107,10 @@ int HUtility::getPos(vector<int> intVec) {
 	return -1;
 }
 
-bool HUtility::isInt(string &secondAtt)
+bool HUtility::isInt(string att)
 {
 	try {
-		int number = stoi(secondAtt);
+		int number = stoi(att);
 		return true;
 	}
 	catch (exception e) {
@@ -252,6 +243,33 @@ vector <string> HUtility::intersection(vector<string> vec1, vector < pair<string
 		}
 	}
 	return ansVec;
+}
+
+int HUtility::intersectionSS(vector<string> &vec1, vector<string> &vec2, int check) {
+	vector<string> ansVec;
+	if (vec1.size() > 0 && vec2.size()>0) {
+		if (vec1[0] == "true") {
+			return 0;
+		}
+		if (vec2[0] == "true") {
+			return 0;
+		}
+		for (size_t i = 0; i < vec1.size(); i++) {
+			string current = vec1[i];
+			for (size_t j = 0; j < vec2.size(); j++) {
+				if (current == vec2[j]) {
+					ansVec.push_back(current);
+					break;
+				}
+			}
+		}
+	}
+	if (vec1.size() == ansVec.size() && vec2.size() == ansVec.size()) {
+		return 0;
+	}
+	vec1 = ansVec;
+	vec2 = ansVec;
+	return 1;
 }
 
 int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>> &vec2, int check) {
@@ -396,7 +414,7 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 		for (size_t i = 0; i < vec1.size(); i++) {
 			bool added = 0;
 			for (size_t j = 0; j < vec2.size(); j++) {
-				if (find(vec2[j].second.begin(), vec2[j].second.end(), vec1[i].first)!= vec2[j].second.end()) {
+				if (find(vec2[j].second.begin(), vec2[j].second.end(), vec1[i].first) != vec2[j].second.end()) {
 					ansVec2.push_back(vec2[j]);
 					added = 1;
 				}
@@ -442,6 +460,7 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2) {
 	vector<pair<string, vector<string>>> ansVec1;
 	vector<pair<string, vector<string>>> ansVec2;
+
 	if (att1 == 1 && att2 == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec2.size(); j++) {
@@ -467,6 +486,7 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 			}
 		}
 	}
+
 	if (att1 == 2 && att2 == 1) {
 		for (size_t i = 0; i < vec2.size(); i++) {
 			bool added = 0;
@@ -481,9 +501,13 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 			}
 		}
 	}
+
 	if (att1 == 2 && att2 == 2) {
 		vector<string> total1;
 		vector<string> total2;
+		ansVec1 = vec1;
+		ansVec2 = vec2;
+		int temp;
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec1[i].second.size(); j++) {
 				if (!HUtility().contain(total1, vec1[i].second[j])) {
@@ -493,17 +517,17 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 		}
 		for (size_t i = 0; i < vec2.size(); i++) {
 			for (size_t j = 0; j < vec2[i].second.size(); j++) {
-				if (!HUtility().contain(total1, vec2[i].second[j])) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
 					total2.push_back(vec2[i].second[j]);
 				}
 			}
 		}
-		total1 = HUtility().intersection(total1, total2);
-		total2 = total1;
+
+		HUtility().intersectionSS(total1, total2, 1);
 		size_t i = 0;
 		size_t j = 0;
-		while (vec1.size()>0 && i<vec1.size()) {
-			while (vec1.size()>0 && j<vec1.size()) {
+		while (vec1.size() > 0 && i < vec1.size()) {
+			while (vec1[i].second.size() > 0 && j < vec1[i].second.size()) {
 				if (!HUtility().contain(total1, vec1[i].second[j])) {
 					vec1[i].second.erase(vec1[i].second.begin() + j);
 				}
@@ -517,11 +541,12 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 			else {
 				i++;
 			}
+			temp = i;
 		}
 		i = 0;
 		j = 0;
-		while (vec2.size()>0 && i<vec2.size()) {
-			while (vec2.size()>0 && j<vec2.size()) {
+		while (vec2.size() > 0 && i < vec2.size()) {
+			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
 				if (!HUtility().contain(total1, vec2[i].second[j])) {
 					vec2[i].second.erase(vec2[i].second.begin() + j);
 				}
@@ -540,8 +565,10 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 	if (vec1.size() == ansVec1.size() && vec2.size() == ansVec2.size()) {
 		return 0;
 	}
-	vec1 = ansVec1;
-	vec2 = ansVec2;
+	if (att1 !=2 || att2!=2) {
+		vec1 = ansVec1;
+		vec2 = ansVec2;
+	}
 	return 1;
 }
 

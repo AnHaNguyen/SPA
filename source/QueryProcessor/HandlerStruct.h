@@ -19,4 +19,10 @@ typedef struct attEntry_t {
 	vector<int> reAtt;
 	vector<int> reClause;
 } attEntry;
+
+typedef struct asgPat_t {
+	string line;
+	string modVar;
+	vector<string> useVar;
+} asgPat;
 #endif

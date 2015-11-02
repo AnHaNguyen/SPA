@@ -22,14 +22,14 @@ class HUtility {
 public:
 	HUtility();
 	~HUtility();
-	
+
 	string getSymMean(string sym);
 	int getPos(vector<int> intVec);
-	bool isInt(string &secondAtt);
+	bool isInt(string att);
 	bool contain(vector<string> vec, string str);
 	bool contain(vector<int> vec, int str);
 	int contain(vector<attEntry_t> vec, string str);
-	
+
 	//Set symTable
 	void setSymTable(vector<vector<string>> symbolTable);
 
@@ -37,7 +37,7 @@ public:
 	vector<string> getAssignTable();
 	void getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable);
 	vector<pair<string, vector<string>>>  getConstTable();
-	bool getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable, string &secondAtt, vector<string> &nestTable);
+	void getParentTable(vector<pair<string, vector<string>>> &parTable);
 	void getModifyTable(vector<pair<string, vector<string>>> &modTable);
 	void getFollowTable(vector<pair<string, string>> &folTable);
 	void getNextTable(vector<pair<string, vector<string>>> &nextTable);
@@ -52,6 +52,7 @@ public:
 	vector<string> intersection(vector<string> vec1, vector<string> vec2);
 	vector < pair<string, vector<string>>> intersection(vector<string> vec1, vector<pair<string, vector<string>>> vec2);
 	vector <string> intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check);
+	int intersectionSS(vector<string> &vec1, vector<string> &vec2, int check);
 	int intersectionPSS(vector<string> &vec1, vector<pair<string, string>> &vec2, int check);
 	int intersectionPSV(vector<string> &vec1, vector<pair<string, vector<string>>> &vec2, int check);
 	int intersectionPPSS(vector<pair<string, string>> &vec1, vector<pair<string, string>> &vec2, int att1, int att2);

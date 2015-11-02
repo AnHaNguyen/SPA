@@ -9,8 +9,10 @@
 #include "../QueryProcessor/HUtility.h"
 #include "../QueryProcessor/HandlerStruct.h"
 #include "../FollowTable.h"
+#include "../FollowSTable.h"
 #include "../ModifyTable.h"
 #include "../ParentTable.h"
+#include "../ParentSTable.h"
 #include "../ProgLine.h"
 
 #include <string>

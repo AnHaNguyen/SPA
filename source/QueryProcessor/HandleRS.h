@@ -14,6 +14,9 @@ public:
 	~HandleRS();
 	string handleSelect(QueryTree * query, PreResultNode * &result);
 	bool folAss(string att, string firstAtt, vector < pair<string, string>> folTable, int i);
+	void checkSS(vector<string> &vec, string firstAtt, string secondAtt);
+	void checkPSS(vector<pair<string, string>> &vec, string firstAtt, string secondAtt);
+	void HandleRS::checkPSV(vector<pair<string, vector<string>>> &vec, string firstAtt, string secondAtt);
 	void rmEString(vector<string> vec);
 
 };

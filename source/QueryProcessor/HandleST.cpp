@@ -10,7 +10,7 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 		|| HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
-			|| HUtility().getSymMean(secondAtt) == "assign") {
+			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
 			ansVec = "all";
 		}
 		//Case 2nd: 1, 2...
@@ -24,14 +24,7 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	else {
 		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
 			if (folTab->getNext(firstAtt) != "") {
-				if (HUtility().getSymMean(secondAtt) == "assign") {
-					if (HUtility().contain(HUtility().getAssignTable(), folTab->getNext(firstAtt))) {
-						ansVec = folTab->getNext(firstAtt);
-					}
-				}
-				else {
-					ansVec = folTab->getNext(firstAtt);
-				}
+				ansVec = folTab->getNext(firstAtt);
 			}
 		}
 		else if (folTab->isFollows(firstAtt, secondAtt)) {
