@@ -26,7 +26,7 @@ procedure XYZ{
 	while c {
 		c = c + 1;
 		beta = delta - 1;
-		if delta {
+		if delta then {
 			Romeo = k + c;
 			c = 2;}
 	else {
@@ -37,7 +37,7 @@ procedure XYZ{
 	xx = xx + yy + 100;
 	call ABC;
 	b = b + 1;
-	if b {
+	if b then {
 		prop = b - 1;
 		had = k*b + 100;
 		call ABC;}
@@ -45,7 +45,7 @@ else {
 		call CDE;}}}
 
 procedure CDE{
- if cd{
+ if cd then{
  	call ABC;
 	cc = cc + 1;}
     else {

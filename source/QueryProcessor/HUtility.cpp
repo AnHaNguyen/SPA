@@ -25,6 +25,9 @@ void HUtility::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable
 
 void HUtility::getParentTable(vector<pair<string, vector<string>>> &parTable) {
 	vector<ParentEntry_t> parTab = PKB::getParentTable()->getTable();
+	pair<string, vector<string>> temp;
+	temp.first = "wtf";
+	parTable.push_back(temp);
 	for (size_t i = 0; i < parTab.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = parTab[i].lineNo;
@@ -275,6 +278,11 @@ int HUtility::intersectionSS(vector<string> &vec1, vector<string> &vec2, int che
 int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>> &vec2, int check) {
 	vector<string> ansVec1;
 	vector<pair<string, string>> ansVec2;
+	if (vec1.size() > 0 && vec2.size() > 0) {
+		if (vec1[0] == "true") {
+			return 0;
+		}
+	}
 	if (check == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec2.size(); j++) {
@@ -308,6 +316,11 @@ int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>>
 int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<string>>> &vec2, int check) {
 	vector<string> ansVec1;
 	vector < pair<string, vector<string>>> ansVec2;
+	if (vec1.size() > 0 && vec2.size() > 0) {
+		if (vec1[0] == "true") {
+			return 0;
+		}
+	}
 	if (check == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec2.size(); j++) {

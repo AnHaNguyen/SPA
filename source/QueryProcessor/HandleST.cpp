@@ -4,19 +4,19 @@ HandleST::~HandleST() {}
 
 string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	FollowTable* folTab = PKB::getFollowTable();
-	string ansVec = "na";
+	string ans = "na";
 	//Case 1st: n/s
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
 		|| HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
-			ansVec = "all";
+			ans = "all";
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
 			if (folTab->getPrev(secondAtt) != "") {
-				ansVec = folTab->getPrev(secondAtt);
+				ans = folTab->getPrev(secondAtt);
 			}
 		}
 	}
@@ -24,14 +24,14 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	else {
 		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
 			if (folTab->getNext(firstAtt) != "") {
-				ansVec = folTab->getNext(firstAtt);
+				ans = folTab->getNext(firstAtt);
 			}
 		}
 		else if (folTab->isFollows(firstAtt, secondAtt)) {
-			ansVec = "true";
+			ans = "true";
 		}
 	}
-	return ansVec;
+	return ans;
 }
 
 void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec) {
@@ -63,10 +63,10 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 	ParentTable* parTab = PKB::getParentTable();
 	//Case 1st: n/a/if/while
 	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
-		|| HUtility().getSymMean(firstAtt) == "while" || HUtility().getSymMean(firstAtt) == "if") {
+		|| HUtility().getSymMean(firstAtt) == "while" || HUtility().getSymMean(firstAtt) == "if" || HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a/if/while
 		if (HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
-			|| HUtility().getSymMean(secondAtt) == "while" || HUtility().getSymMean(secondAtt) == "if") {
+			|| HUtility().getSymMean(secondAtt) == "while" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "assign") {
 			parVec.push_back("all");
 		}
 		//Case 2nd: 1,2

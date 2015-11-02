@@ -2,8 +2,8 @@
 HandlePT::HandlePT() {}
 HandlePT::~HandlePT() {}
 
-void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, string rs,
-	vector<string> &patVec, vector<pair<string, vector<string>>> patTable, vector<asgPat_t> asgPat) {
+void HandlePT::handleAssign(string ptFirst, string ptSecond,
+	vector<string> &patVec, vector<pair<string, vector<string>>> &patAsgTable, vector<asgPat_t> asgPat) {
 	pair<string, bool> ptFirstU;
 	pair<string, bool> ptSecondU;
 	HandlePT().checkUnderscore(ptFirstU, ptFirst);
@@ -105,21 +105,22 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 					temp.first = asgTable[i];
 					temp.second = modTable->getModified(asgTable[i]);
 				}
-				patTable.push_back(temp);
+				patAsgTable.push_back(temp);
 			}
 		}
 		//Case 2nd att = "x123"
-		if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "") {
-			vector<string> temp1 = HUtility().getAssignTable();
-			vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondU.first);
-			vector<string> temp3 = HUtility().intersection(temp1, temp2);
-			for (size_t i = 0; i < temp3.size(); i++) {
+		if (ptSecondU.first != "_" && HUtility().getSymMean(ptSecond) == "") {
+			vector<string> useVec = PKB::checkAssign(ptSecondU.first, ptSecondU.second);
+			vector<string> tempVec = HUtility().intersection(asgTable, useVec);
+			//patVec = useVec;
+			//patVec.push_back(ptSecondU.first);*/
+			for (size_t i = 0; i < tempVec.size(); i++) {
 				pair<string, vector<string>> temp;
-				if (modTable->getModified(temp3[i]).size()>0) {
-					temp.first = asgTable[i];
-					temp.second = modTable->getModified(temp3[i]);
+				if (modTable->getModified(tempVec[i]).size()>0) {
+					temp.first = tempVec[i];
+					temp.second = modTable->getModified(tempVec[i]);
 				}
-				patTable.push_back(temp);
+				patAsgTable.push_back(temp);
 			}
 		}
 		//Case 2nd att = v
@@ -160,7 +161,34 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond, string selType, str
 	}
 }
 
+void HandlePT::handleIf(string ptFirst, string ptSecond, 
+	vector<string> &patVec, vector<pair<string, string>> &ifTable) {
+	pair<string, bool> ptFirstQ;
+	pair<string, bool> ptSecondQ;
+	HUtility().checkQuotation(ptFirstQ, ptFirst);
+	HUtility().checkQuotation(ptSecondQ, ptSecond);
+	if (HUtility().getSymMean(ptFirst) == "") {
+		patVec = PKB::patternIf(ptFirstQ.first, ptFirstQ.second);
+	}
+	else if (HUtility().getSymMean(ptFirst) == "variable") {
+		ifTable = PKB::patternIf();
+	}
+	//patVec.push_back(ptFirst /*ptFirstQ.first/* + to_string(ptFirstQ.second)*/);
+}
 
+void HandlePT::handleWhile(string ptFirst, string ptSecond, 
+	vector<string> &patVec, vector<pair<string, string>> &whileTable) {
+	pair<string, bool> ptFirstQ;
+	pair<string, bool> ptSecondQ;
+	HUtility().checkQuotation(ptFirstQ, ptFirst);
+	HUtility().checkQuotation(ptSecondQ, ptSecond);
+	if (HUtility().getSymMean(ptFirst) == "") {
+		patVec = PKB::patternWhile(ptFirstQ.first, ptFirstQ.second);
+	}
+	else if (HUtility().getSymMean(ptFirst) == "variable") {
+		whileTable = PKB::patternWhile();
+	}
+}
 
 bool HandlePT::containSign(string str) {
 	if (str.find("+") != string::npos || str.find("-") != string::npos || str.find("*") != string::npos) {

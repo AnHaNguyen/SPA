@@ -11,7 +11,7 @@ typedef struct RSEntry_t {
 	int synCount;
 	vector<string> vec;
 	vector < pair<string, vector<string>>> table;
-	vector <pair<string, string>> folTable;
+	vector <pair<string, string>> ssTable;
 } RSEntry;
 
 typedef struct attEntry_t {

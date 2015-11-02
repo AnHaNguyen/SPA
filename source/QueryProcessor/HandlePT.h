@@ -13,8 +13,12 @@ public:
 	HandlePT();
 	~HandlePT();
 
-	void handleAssign(string ptFirst, string ptSecond, string selType, string rs,
-		vector<string> &patVec, vector<pair<string, vector<string>>> patTable, vector<asgPat_t> asgPat);
+	void handleAssign(string ptFirst, string ptSecond, 
+		vector<string> &patVec, vector<pair<string, vector<string>>> &patTable, vector<asgPat_t> asgPat);
+	void HandlePT::handleIf(string ptFirst, string ptSecond, 
+		vector<string> &patVec, vector<pair<string, string>> &ifTable);
+	void HandlePT::handleWhile(string ptFirst, string ptSecond, 
+		vector<string> &patVec, vector<pair<string, string>> &whileTable);
 	void checkUnderscore(pair<string, bool> &firstAttU, string &firstAtt);
 	bool containSign(string str);
 
