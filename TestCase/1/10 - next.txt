@@ -1,0 +1,65 @@
+1-
+stmt s;
+Select s such that Next(3,4)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44
+5000
+2-
+stmt s;
+Select s such that Next(2,1)
+none
+5000
+3-
+assign a;
+Select a such that Next(3,4)
+1, 2, 3, 6, 8, 10, 13, 14, 15, 17, 18, 19, 20, 21, 24, 25, 27, 28, 29, 30, 31, 32, 33, 35, 37, 38, 43
+5000
+4-
+stmt s;
+Select s such that Next(5,s)
+6,20
+5000
+5-
+stmt s;
+Select s such that Next(s,9)
+7,11
+5000
+6-
+assign a;
+Select a such that Next(a,2)
+1
+5000
+7-
+assign a;
+Select a such that Next(a,9)
+none
+5000
+8-
+assign a;
+Select a such that Next(a,1)
+none
+5000
+9- v, f(v,v2)
+stmt s1,s2;
+Select s1 such that Next(s1,s2)
+1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42
+5000
+10- v, f(v2,v)
+stmt s1,s2;
+Select s1 such that Next(s2,s1)
+2,3,4,5,6,7,8,9,10,,11,12,13,14,15,16,17,18,19,20,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,42,43,44
+5000
+11- call, f(s,if)
+stmt s, if ifstat;
+Select ifstat such that Next(s,ifstat)
+26,36
+5000
+12- v, f(v,v2)
+stmt s2; assign a1;
+Select s2 such that Next(a1,s2)
+2,3,4,5,7,9,11,12,14,15,16,22,23,25,26,28,30,31,34,36,38,39
+5000
+13- v, f(v2,v)
+stmt s1; assign a2;
+Select a2 such that Next(s1,a2)
+2,3,6,8,10,13,14,15,17,18,19,20,24,25,27,28,29,30,31,32,33,35,37,38,43
+5000

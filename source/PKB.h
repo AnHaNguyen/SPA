@@ -75,7 +75,8 @@ public:
 		 static vector<string> patternWhile(string controlVar, bool containsQ);			
 															//to check pattern While
 		 static bool checkExistMod(string start, string end, string var);
-
+		 static vector<pair<string, string>> patternIf();
+		 static vector<pair<string, string>> patternWhile();
 };
 
 #endif

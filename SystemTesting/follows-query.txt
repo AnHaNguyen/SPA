@@ -1,0 +1,30 @@
+1 -
+stmt s1,s2;
+Select s1 such that Follows(s1, s2);
+1, 2, 3, 4, 6, 10, 11
+5000
+2 -
+stmt s1,s2;
+Select s2 such that Follows(s1, s2);
+2, 3, 4, 5, 7, 11, 15
+5000
+3 -
+stmt s1;
+Select s1 such that Follows(3, s1);
+4
+5000
+4 -
+stmt s1;
+Select s1 such that Follows(7, s1);
+
+5000
+5 -
+stmt s1;
+Select s1 such that Follows(s1, 5);
+4
+5000
+6 -
+stmt s1;
+Select s1 such that Follows(s1, 8);
+
+5000

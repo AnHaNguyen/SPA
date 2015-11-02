@@ -27,6 +27,8 @@ public: NextTable();
 		vector<string> getPrevS(string next);					//return all stmt that next can be exct after
 		vector<string> getNextS(string prev);
 		bool isNextS(string prev, string next);
+		vector<NextEntry_t> getNextSTable();
+		void addListToTable(string line, vector<string> list);
 };
 
 #endif

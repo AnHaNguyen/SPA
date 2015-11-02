@@ -247,3 +247,35 @@ bool PKB::checkExistMod(string start, string end, string modVar) {
 	}
 	return false;
 }
+
+vector<pair<string,string>> PKB::patternIf() {
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> ast = astList.at(i)->getTree();
+		for (unsigned j = 0; j < ast.size(); j++) {
+			if (ast.at(j)->getType() == "if") {
+				pair<string, string> pair;
+				pair.first = ast.at(j)->getLine();
+				pair.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pair);
+			}
+		}
+	}
+	return returnList;
+}
+
+vector<pair<string, string>> PKB::patternWhile() {
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> ast = astList.at(i)->getTree();
+		for (unsigned j = 0; j < ast.size(); j++) {
+			if (ast.at(j)->getType() == "while") {
+				pair<string, string> pair;
+				pair.first = ast.at(j)->getLine();
+				pair.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pair);
+			}
+		}
+	}
+	return returnList;
+}

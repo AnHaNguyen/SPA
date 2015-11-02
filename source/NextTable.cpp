@@ -127,3 +127,25 @@ bool NextTable::isNextS(string prev, string next) {
 	}
 	return false;
 }
+
+vector<NextEntry_t> NextTable::getNextSTable() {
+	NextTable* nextSTable = new NextTable();
+	for (unsigned i = 0; i < nextTable.size(); i++) {
+		string line = nextTable.at(i).lineNo;
+		vector<string> nextStmts = getNextS(line);
+		nextSTable->addListToTable(line, nextStmts);
+	}
+	return nextSTable->getTable();
+}
+
+void NextTable::addListToTable(string line, vector<string> list) {
+	if (list.size() == 0) {
+		return;
+	}
+	unsigned index = nextTable.size();
+	NextEntry_t newEntry = NextEntry_t(line, list.at(0));
+	nextTable.push_back(newEntry);
+	for (unsigned i = 1; i < list.size(); i++) {
+		nextTable.at(index).nextStmts.push_back(list.at(i));
+	}
+}

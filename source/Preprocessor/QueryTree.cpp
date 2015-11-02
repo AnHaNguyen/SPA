@@ -135,8 +135,10 @@ void QueryTree::setPattern(vector<string> table){
 			vector<string> attributes = stringToVector(words[1], ",");
 			string first = trim(attributes[0]);
 
-			vector<string> remain = stringToVector(attributes[1], ")");
-			string second = trim(remain[0]);
+			int commaIndex = str.find(",");
+			string remain = str.substr(commaIndex+1, str.size()-commaIndex);
+			int endIndex = remain.rfind(")");
+			string second = remain.substr(0, endIndex);
 			string third = "";
 
 			if (isValidPatternAttribute(syn, first, second, third) && (isAssign(syn) || isWhile(syn))) {
@@ -491,9 +493,29 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 		return true;
 	}
 
+	if (syn == "Affects" || syn == "Affects*") {
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
+			return false;
+		}
+		if (first != "_" && !isInteger(first)) {
+			if (firstType != "assign") {
+				return false;
+			}
+		}
+		if (second != "_" && !isInteger(second)) {
+			if (secondType != "assign") {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 bool QueryTree::isValidPatternAttribute(string syn, string first, string second, string third) {
+	if (!isValidQuotation(first) || !isValidQuotation(second)) {
+		return false;
+	}
+
 	if (isAssign(syn)) {
 		if (!isValidEntRef(symbolTable, first)) {
 			return false;
@@ -534,7 +556,6 @@ bool QueryTree::isValidPatternAttribute(string syn, string first, string second,
 		}
 
 		else if (isValidSynonym(symbolTable, first) && !isVariable(first)) {
-			cout << "pattern while not variable" << endl;
 			return false;
 		}
 
@@ -570,6 +591,15 @@ string QueryTree::getRefType(string str) {
 		return "INTEGER";
 	}
 	return "";
+}
+
+bool QueryTree::isValidQuotation(string str) {
+	if (str.find("\"") != string::npos){
+		if (countWords(str, "\"") != 3) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool QueryTree::isValidRef(string str) {
@@ -653,7 +683,7 @@ bool QueryTree::isValidName(string str) {
 		return false;
 	}
 	for (unsigned int i = 0; i<str.size(); i++) {
-		if (!isalnum(str.at(i))) {
+		if (!isalnum(str.at(i)) && str.at(i) != '#') {
 			return false;
 		}
 	}
@@ -705,27 +735,129 @@ bool QueryTree::isValidExpressionSpec(string str) {
 		return true;
 	}
 
+	string insideQuotes = str;
+	bool isValidFormat = false;
+
 	if (str.at(0)=='\"' && str.at(str.size()-1)=='\"') {
-		string insideQuotes = str.substr(1, str.size() - 2);
-		if (insideQuotes.find("_") == string::npos) {
-			return true;
+		isValidFormat = true;
+		insideQuotes = str.substr(1, str.size() - 2);
+	}
+	if (str.at(0) == '_'&& str.at(1) == '\"' && str.at(str.size() - 1) == '_' && str.at(str.size() - 2) == '\"') {
+		isValidFormat = true;
+		insideQuotes = str.substr(2, str.size() - 4);
+	}
+
+	if (isValidFormat == false) {
+		return false;
+	}
+
+	insideQuotes = removeSpace(insideQuotes);
+	vector<string> expr = toExprVector(insideQuotes);
+	if (isOperation(expr[0]) || isOperation(expr[expr.size() - 1])) {
+		return false;
+	}
+	if (!isValidChar(expr)) {
+		return false;
+	}
+	if (!isValidBracket(str)) {
+		return false;
+	}
+
+	for (int i = 0; i<expr.size(); i++) {
+		int last = expr.size() - 1;
+
+		if (expr[i] == "(") {
+			if (i != 0 && !(expr[i - 1] == "(" || isOperation(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == "(" || isValidName(expr[i + 1]) || isInteger(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (expr[i] == ")") {
+			if (i != 0 && !(expr[i - 1] == ")" || isValidName(expr[i - 1]) || isInteger(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == ")" || isOperation(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (isOperation(expr[i])) {
+			if (i != 0 && !(expr[i - 1] == ")" || isValidName(expr[i - 1]) || isInteger(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == "(" || isValidName(expr[i + 1]) || isInteger(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (isValidName(expr[i]) || isInteger(expr[i])) {
+			if (i != 0 && !(expr[i - 1] == "(" || isOperation(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == ")" || isOperation(expr[i + 1]))) {
+				return false;
+			}
 		}
 	}
 
-	if (str.size() <= 4) {
-		return false;
-	}
+	return true;
+}
 
-	if (!(str.at(0) == '_'&& str.at(1) == '\"' && str.at(str.size() - 1) == '_' && str.at(str.size() - 2) == '\"')) {
-		return false;
+bool QueryTree::isValidBracket(string str) {
+	vector<string> brackets;
+	for (int i = 0; i<str.size(); i++) {
+		if (str.at(i) == '(') {
+			brackets.push_back("(");
+		}
+		if (str.at(i) == ')') {
+			if (brackets.size() == 0) {
+				return false;
+			}
+			else {
+				brackets.pop_back();
+			}
+		}
 	}
-
-	string insideQuotes = str.substr(2, str.size() - 4);
-	if (isValidName(insideQuotes) || isInteger(insideQuotes)) {
+	if (brackets.size() == 0) {
 		return true;
 	}
+	return false;
+}
 
+bool QueryTree::isValidChar(vector<string> vec) {
+	for (int i = 0; i<vec.size(); i++) {
+		if (!isValidName(vec[i]) && !isOperation(vec[i]) && !isInteger(vec[i]) && vec[i] != "(" && vec[i] != ")") {
+			return false;
+		}
+	}
 	return true;
+}
+
+bool QueryTree::isOperation(string str) {
+	if (str == "*" || str == "+" || str == "-") {
+		return true;
+	}
+	return false;
+}
+
+vector<string> QueryTree::toExprVector(string str) {
+	vector<string> expr;
+	for (int i = 0; i<str.size(); i++) {
+		if (!isalnum(str.at(i))) {
+			string symbol = "";
+			symbol = symbol + str.at(i);
+			expr.push_back(symbol);
+		}
+		else {
+			string num_var = "";
+			for (int k = i; k<str.size() && isalnum(str.at(k)); k++) {
+				num_var = num_var + str.at(k);
+				i = k;
+			}
+			expr.push_back(num_var);
+		}
+	}
+	return expr;
 }
 
 bool QueryTree::isInteger(string str) {
