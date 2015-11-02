@@ -30,12 +30,16 @@ bool HandleRS::folAss(string att, string firstAtt, vector<pair<string, string>> 
 //Check conditions before result
 void HandleRS::checkSS(vector<string> &vec, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
+	if (utility.getSymMean(firstAtt) == "prog_line" || utility.getSymMean(secondAtt) == "prog_line") {
+		utility.intersectionSS(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
+	if (utility.getSymMean(firstAtt) == "stmt" || utility.getSymMean(secondAtt) == "stmt") {
+		utility.intersectionSS(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
 	if (utility.getSymMean(firstAtt) == "assign" || utility.getSymMean(secondAtt) == "assign") {
 		utility.intersectionSS(utility.getAssignTable(), vec, 1);
 	}
 	if (utility.getSymMean(firstAtt) == "if" || utility.getSymMean(secondAtt) == "if") {
-		ProgLine* progLine = PKB::getProgLine();
-
 		utility.intersectionSS(progLine->getLinesOfType("if"), vec, 1);
 	}
 	if (utility.getSymMean(firstAtt) == "while" || utility.getSymMean(secondAtt) == "while") {
@@ -52,7 +56,18 @@ void HandleRS::checkSS(vector<string> &vec, string firstAtt, string secondAtt) {
 
 void HandleRS::checkPSS(vector<pair<string, string>> &vec, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
-
+	if (utility.getSymMean(firstAtt) == "prog_line") {
+		utility.intersectionPSS(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
+	if (utility.getSymMean(secondAtt) == "prog_line") {
+		utility.intersectionPSS(progLine->getLinesOfType("prog_line"), vec, 2);
+	}
+	if (utility.getSymMean(firstAtt) == "stmt") {
+		utility.intersectionPSS(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
+	if (utility.getSymMean(secondAtt) == "stmt") {
+		utility.intersectionPSS(progLine->getLinesOfType("prog_line"), vec, 2);
+	}
 	if (utility.getSymMean(firstAtt) == "assign") {
 		utility.intersectionPSS(utility.getAssignTable(), vec, 1);
 	}
@@ -87,7 +102,18 @@ void HandleRS::checkPSS(vector<pair<string, string>> &vec, string firstAtt, stri
 
 void HandleRS::checkPSV(vector<pair<string, vector<string>>> &vec, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
-
+	if (utility.getSymMean(firstAtt) == "prog_line") {
+		utility.intersectionPSV(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
+	if (utility.getSymMean(secondAtt) == "prog_line") {
+		utility.intersectionPSV(progLine->getLinesOfType("prog_line"), vec, 2);
+	}
+	if (utility.getSymMean(firstAtt) == "stmt") {
+		utility.intersectionPSV(progLine->getLinesOfType("prog_line"), vec, 1);
+	}
+	if (utility.getSymMean(secondAtt) == "stmt") {
+		utility.intersectionPSV(progLine->getLinesOfType("prog_line"), vec, 2);
+	}
 	if (utility.getSymMean(firstAtt) == "assign") {
 		utility.intersectionPSV(utility.getAssignTable(), vec, 1);
 	}

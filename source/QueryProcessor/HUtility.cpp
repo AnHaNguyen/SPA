@@ -16,18 +16,18 @@ vector<string> HUtility::getAssignTable() {
 	return ansVec;
 }
 
-void HUtility::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable) {
-	UseTable* UseTable = PKB::getUseTable();
-	useTab = UseTable->getTable();
-	userTable = getUseRelated(useTab, 1);
-	usedTable = getUseRelated(useTab, 2);
+void HUtility::getUseTable(vector<pair<string, vector<string>>> &useTable) {
+	vector<UseEntry_t> useTab = PKB::getUseTable() ->getTable();
+	for (size_t i = 0; i < useTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = useTab[i].userLine;
+		temp.second = useTab[i].usedVar;
+		useTable.push_back(temp);
+	}
 }
 
 void HUtility::getParentTable(vector<pair<string, vector<string>>> &parTable) {
 	vector<ParentEntry_t> parTab = PKB::getParentTable()->getTable();
-	pair<string, vector<string>> temp;
-	temp.first = "wtf";
-	parTable.push_back(temp);
 	for (size_t i = 0; i < parTab.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = parTab[i].lineNo;

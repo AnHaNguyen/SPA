@@ -61,7 +61,7 @@ Select w pattern w("c", _)
 13 - assign, pat(c,_pat) 
 assign a; 
 Select a pattern a("c", _"1+width"_)
-31
+none
 5000
 14- if , pat(c)
 if ifstat; 

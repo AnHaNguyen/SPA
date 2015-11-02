@@ -15,7 +15,7 @@ public:
 	string handleFollows(string &firstAtt, string &secondAtt);
 	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &varVec);
 	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
-	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec);
+	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec);
 	vector<string> handleNext(string &firstAtt, string &secondAtt);
 	vector<string> handleCalls(string firstAtt, string secondAtt);
 

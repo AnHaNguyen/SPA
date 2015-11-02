@@ -54,7 +54,6 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond,
 			if (HUtility().intersection(temp1, temp2).size() > 0) {
 				patVec = HUtility().intersection(temp1, temp2);
 			}
-
 		}
 		//Case 2nd att = v
 		/*if (HandlePT().containSign(ptSecondU.first) == false && HUtility().getSymMean(ptSecond) == "variable") {

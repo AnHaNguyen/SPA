@@ -93,7 +93,7 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 	}
 }
 
-void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec) {
+void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec) {
 	UseTable* useTab = PKB::getUseTable();
 	//Case 
 	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign"
@@ -108,7 +108,7 @@ void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &u
 	}
 	else {
 		if (HUtility().isInt(firstAtt) && HUtility().getSymMean(secondAtt) != "") {
-			uvarVec = useTab->getUsed(firstAtt);
+			useVec = useTab->getUsed(firstAtt);
 		}
 		else if (useTab->isUsed(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
 			useVec.push_back("true");

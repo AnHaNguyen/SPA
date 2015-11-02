@@ -298,7 +298,7 @@ vector<pair<string, string>> PKB::patternWhile() {
 		for (unsigned j = 0; j < ast.size(); j++) {
 			if (ast.at(j)->getType() == "while") {
 				pair<string, string> pr;
-				pr.first = ast.at(j)->getLine();
+				pr.first = to_string(ast.at(j)->getLine());
 				pr.second = ast.at(j)->getChildList().at(0)->getValue();
 				returnList.push_back(pr);
 			}

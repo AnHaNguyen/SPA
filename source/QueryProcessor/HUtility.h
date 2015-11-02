@@ -35,7 +35,7 @@ public:
 
 	//Get tables
 	vector<string> getAssignTable();
-	void getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable);
+	void HUtility::getUseTable(vector<pair<string, vector<string>>> &useTable);
 	vector<pair<string, vector<string>>>  getConstTable();
 	void getParentTable(vector<pair<string, vector<string>>> &parTable);
 	void getModifyTable(vector<pair<string, vector<string>>> &modTable);
