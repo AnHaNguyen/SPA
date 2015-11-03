@@ -356,7 +356,7 @@ int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<s
 		size_t j = 0;
 		while (vec1.size() > 0 && i < vec1.size()) {
 			if (!HUtility().contain(total1, vec1[i])) {
-				vec1[i].erase(vec1[i].begin() + i);
+				vec1.erase(vec1.begin() + i);
 			}
 			else {
 				i++;
