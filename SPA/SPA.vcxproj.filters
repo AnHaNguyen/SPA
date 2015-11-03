@@ -31,6 +31,10 @@
     <ClCompile Include="..\source\ParentSTable.cpp" />
     <ClCompile Include="..\source\FollowSTable.cpp" />
     <ClCompile Include="..\source\CallSTable.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandlePT.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleRS.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleST.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -62,5 +66,10 @@
     <ClInclude Include="..\source\ParentSTable.h" />
     <ClInclude Include="..\source\FollowSTable.h" />
     <ClInclude Include="..\source\CallSTable.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlePT.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
+    <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
   </ItemGroup>
 </Project>

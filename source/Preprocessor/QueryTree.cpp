@@ -75,7 +75,7 @@ void QueryTree::setResult(vector<string> table){
 		}
 
 		else {
-			cout << "wrong result TREE" << endl;
+			cout << "wrong result TREE: " << str << endl;
 			isValid = false;
 			return;
 		}
@@ -109,7 +109,7 @@ void QueryTree::setSuchThat(vector<string> table){
 			suchThatPtr->setSecondAttr(second);
 		}
 		else {
-			cout << "wrong such that TREE:  " << str << endl;
+			cout << "wrong such that TREE: " << str << endl;
 			isValid = false;
 		}
 
@@ -147,7 +147,7 @@ void QueryTree::setPattern(vector<string> table){
 				patternPtr->setSecondAttr(second);
 			}
 			else {
-				cout << "wrong pattern TREE_1" << endl;
+				cout << "wrong pattern TREE_1: " << str << endl;
 				isValid = false;
 			}
 		}
@@ -167,7 +167,7 @@ void QueryTree::setPattern(vector<string> table){
 				patternPtr->setThirdAttr(third);
 			}
 			else {
-				cout << "wrong pattern TREE_2" << endl;
+				cout << "wrong pattern TREE_2: " << str << endl;
 				isValid = false;
 			}
 		}
@@ -215,7 +215,7 @@ void QueryTree::setWith(vector<string> table) {
 			}
 		}
 		else {
-			cout << "wrong with TREE" << endl;
+			cout << "wrong with TREE: " << str << endl;
 			isValid = false;
 		}
 
@@ -385,7 +385,8 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line" && firstType != "procedure") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
+				&& firstType != "prog_line" && firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
 			}
 		}
@@ -405,7 +406,8 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line" &&  firstType != "procedure") {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
+				&& firstType != "prog_line" &&  firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
 			}
 		}
@@ -430,7 +432,8 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			}
 		}		
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line" && secondType != "if" && secondType != "while" 
+				&& secondType != "call") {
 				return false;
 			}
 		}
@@ -442,12 +445,14 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line") {
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line" && firstType != "if" && firstType != "while"
+				&& firstType != "call") {
 				return false;
 			}
 		}
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line"&& secondType != "if" && secondType != "while"
+				&& secondType != "call") {
 				return false;
 			}
 		}
@@ -459,12 +464,14 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line") {
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line" && firstType != "if" && firstType != "while"
+				&& firstType != "call") {
 				return false;
 			}
 		}
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line") {
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line" && secondType != "if" && secondType != "while"
+				&& secondType != "call") {
 				return false;
 			}
 		}
@@ -498,12 +505,12 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign") {
+			if (firstType != "assign" && firstType != "prog_line" && firstType != "stmt") {
 				return false;
 			}
 		}
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "assign") {
+			if (secondType != "assign" && secondType != "prog_line" && secondType != "stmt") {
 				return false;
 			}
 		}
@@ -513,19 +520,23 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 
 bool QueryTree::isValidPatternAttribute(string syn, string first, string second, string third) {
 	if (!isValidQuotation(first) || !isValidQuotation(second)) {
+		//cout << "516" << endl;
 		return false;
 	}
 
 	if (isAssign(syn)) {
 		if (!isValidEntRef(symbolTable, first)) {
+			//cout << "522" << endl;
 			return false;
 		}
 
 		else if (isValidSynonym(symbolTable, first) && !isVariable(first)) {
+			//cout << "527" << endl;
 			return false;
 		}
 		
 		if (!isValidExpressionSpec(second)) {
+			//cout << "532" << endl;
 			return false;
 		}
 		return true;

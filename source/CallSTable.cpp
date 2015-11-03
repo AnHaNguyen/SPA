@@ -8,7 +8,7 @@ CallSTable::~CallSTable() {  }
 
 bool CallSTable::addToTable(string caller, string callee) {
 	if (isContained(caller) == false) {
-		callSEntry_t *entry = new callSEntry_t(caller, callee);
+		CallSEntry_t *entry = new CallSEntry_t(caller, callee);
 		callSTable.push_back(*entry);
 		return true;
 	}
@@ -62,7 +62,7 @@ bool CallSTable::isContained(string line) {
 	return false;
 }
 
-vector<callSEntry_t> CallSTable::getTable() {
+vector<CallSEntry_t> CallSTable::getTable() {
 	return callSTable;
 }
 
