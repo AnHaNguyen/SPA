@@ -28,13 +28,12 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	vector<int> STCheck;
 	vector<string> final;
 
-
 	//check validity
 	if (queryTree->getValidity() == false) {
 		return final;
 	}
-	/*final.push_back("valid");
-	return final;*/
+	//final.push_back("valid");
+	//return final;
 
 	//Initialize symtable for HUtility
 	if (queryTree->getSymbolTable().empty()) {
@@ -128,7 +127,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					utility.getModifyTable(modTable);
 					handleRS.checkPSV(modTable, stFirst, stSecond);
 				}
-				handleRS.checkSS(modVec, stFirst, stSecond);
+				else if (modVec.size() > 0 && modVec.front() != "true") {
+					handleRS.checkSS(modVec, stFirst, stSecond);
+				}
 			}
 
 			//Handle parent
@@ -136,31 +137,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				handleST.handleParent(stFirst, stSecond, parVec);
 				if (parVec.size() > 0 && parVec.front() == "all") {
 					utility.getParentTable(parTable);
-					//int test = 0;
-					/*for (size_t i = 0; i < parTable.size(); i++) {
-						for (size_t j = 0; j < parTable[i].second.size(); j++) {
-							if (!HUtility().contain(final, parTable[i].second[j])) {
-								final.push_back(parTable[i].second[j]);
-							}
-						}
-					}*/
-					//final.push_back("before " + to_string(test));
 					handleRS.checkPSV(parTable, stFirst, stSecond);
-					//vector<string> temp2 = utility.getAssignTable();
-					//test = utility.intersectionPSV(temp2, parTable, 2);
-					//for (size_t i = 0; i < parTable.size(); i++) {
-					//	/*for (size_t j = 0; j < parTable[i].second.size(); j++) {
-					//		if (!HUtility().contain(final, parTable[i].second[j])) {
-					//			final.push_back(parTable[i].second[j]);
-					//		}
-					//	}*/
-					//	//final.push_back(parTable[i].first);
-					//}
-					/*final.push_back("after " + to_string(test));
-					final = temp2;
-					return final;*/
 				}
-				else {
+				else if (parVec.size() > 0 && parVec.front() != "true") {
 					handleRS.checkSS(parVec, stFirst, stSecond);
 				}
 				/*final.push_back(to_string(parTable.size()));
@@ -169,9 +148,10 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Handle parent*
 			if (ST == "Parent*") {
+				ParentSTable* parTab = PKB::getParentSTable();
 				//Check case Parent*(1, 2)
 				if (utility.isInt(stFirst) && utility.isInt(stSecond)) {
-					if (handleST.isParentS(stFirst, stSecond)) {
+					if (parTab->isParentS(stFirst, stSecond)) {
 						parVec.push_back("true");
 					}
 				}
@@ -183,7 +163,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							handleRS.checkPSV(parTable, stFirst, stSecond);
 						}
 						else {
-							ParentSTable* parTab = PKB::getParentSTable();
 							//Case Parent*(1, s)
 							if (utility.isInt(stFirst)) {
 								parVec = parTab->getChildS(stFirst);
@@ -206,7 +185,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					utility.getUseTable(useTable);
 					handleRS.checkPSV(useTable, stFirst, "");
 				}
-				else {
+				else if (useVec.size() > 0 && useVec.front() != "true") {
 					handleRS.checkSS(useVec, stFirst, "");
 				}
 				/*for (size_t i = 0; i < useTable.size(); i++) {
@@ -229,6 +208,42 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				nextVec = handleST.handleNext(stFirst, stSecond);
 				if (nextVec.size() > 0 && nextVec.front() == "all") {
 					utility.getNextTable(nextTable);
+					handleRS.checkPSV(nextTable, stFirst, stSecond);
+					/*final = nextVec;
+					return final;*/
+				}
+				else if (nextVec.size() > 0 && nextVec.front() != "true") {
+					handleRS.checkSS(nextVec, stFirst, stSecond);
+				}
+			}
+			//Handle Next*
+			if (ST == "Next*") {
+				NextTable* nextTab = PKB::getNextTable();
+				//Check case Next*(1, 2)
+				if (utility.isInt(stFirst) && utility.isInt(stSecond)) {
+					if (nextTab->isNextS(stFirst, stSecond)) {
+						nextVec.push_back("true");
+					}
+				}
+				else {
+					nextVec = handleST.handleNext(stFirst, stSecond);
+					if (!nextVec.empty()) {
+						if (nextVec.size() > 0 && nextVec.front() == "all") {
+							utility.getNextTable(nextTable);
+							handleRS.checkPSV(nextTable, stFirst, stSecond);
+						}
+						else {
+							//Case Next*(1, s)
+							if (utility.isInt(stFirst)) {
+								nextVec = nextTab->getNextS(stFirst);
+							}
+							if (utility.isInt(stSecond)) {
+								nextVec = nextTab->getPrevS(stSecond);
+							}
+							//return nextVec;
+							handleRS.checkSS(nextVec, stFirst, stSecond);
+						}
+					}
 				}
 			}
 
@@ -239,7 +254,42 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					utility.getCallTable(callTable);
 				}
 			}
-			for (int i = 0; i < 13; i++) {
+			//Handle Calls*
+			if (ST == "Calls*") {
+				CallSTable* callSTab = PKB::getCallSTable();
+				pair<string, bool> firstAttQ;
+				pair<string, bool> secondAttQ;
+				HUtility().checkQuotation(firstAttQ, stFirst);
+				HUtility().checkQuotation(secondAttQ, stSecond);
+
+				//Check case Calls*("ABC", "DEF")
+				if (utility.getSymMean(stFirst) =="" && utility.getSymMean(stSecond)=="") {
+					if (callSTab->isCallS(firstAttQ.first, secondAttQ.first)) {
+						callVec.push_back("true");
+					}
+				}
+				else {
+					callVec = handleST.handleCalls(stFirst, stSecond);
+					if (!callVec.empty()) {
+						if (callVec.size() > 0 && callVec.front() == "all") {
+							utility.getCallTable(callTable);
+							handleRS.checkPSV(callTable, stFirst, stSecond);
+						}
+						else {
+							//Case Call*(1, s)
+							if (utility.isInt(stFirst)) {
+								callVec = callSTab->getCalleeS(stFirst);
+							}
+							if (utility.isInt(stSecond)) {
+								callVec = callSTab->getCallerS(stSecond);
+							}
+						}
+					}
+				}
+			}
+
+
+			for (int i = 0; i < 12; i++) {
 				STCheck.push_back(0);
 			}
 			RSEntry_t currentRS;
@@ -267,48 +317,44 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				STCheck[1] = 1;
 				currentRS.ssTable = folTable;
 			}
-			if (!mvarVec.empty()) {
-				STCheck[2] = 1;
-				currentRS.vec = mvarVec;
-			}
 			if (!modVec.empty() && modVec.front() != "all") {
-				STCheck[3] = 1;
+				STCheck[2] = 1;
 				currentRS.vec = modVec;
 			}
 			if (!modTable.empty()) {
-				STCheck[4] = 1;
+				STCheck[3] = 1;
 				currentRS.table = modTable;
 			}
 			if (!parVec.empty() && parVec.front() != "all") {
-				STCheck[5] = 1;
+				STCheck[4] = 1;
 				currentRS.vec = parVec;
 			}
 			if (!parTable.empty()) {
-				STCheck[6] = 1;
+				STCheck[5] = 1;
 				currentRS.table = parTable;
 			}
 			if (!useVec.empty() && useVec.front() != "all") {
-				STCheck[7] = 1;
+				STCheck[6] = 1;
 				currentRS.vec = useVec;
 			}
 			if (!useTable.empty()) {
-				STCheck[8] = 1;
+				STCheck[7] = 1;
 				currentRS.table = useTable;
 			}
 			if (!nextVec.empty() && nextVec.front() != "all") {
-				STCheck[9] = 1;
+				STCheck[8] = 1;
 				currentRS.vec = nextVec;
 			}
 			if (!nextTable.empty()) {
-				STCheck[10] = 1;
+				STCheck[9] = 1;
 				currentRS.table = nextTable;
 			}
 			if (!callVec.empty() && callVec.front() != "all") {
-				STCheck[11] = 1;
+				STCheck[10] = 1;
 				currentRS.vec = callVec;
 			}
 			if (!callTable.empty()) {
-				STCheck[12] = 1;
+				STCheck[11] = 1;
 				currentRS.table = callTable;
 			}
 			if (utility.getPos(STCheck) == -1) {
@@ -343,9 +389,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			if (pType == "assign") {
 				handlePT.handleAssign(ptFirst, ptSecond, patVec, patAsgTable, asgPat);
-				/*final = patVec;
-				final.push_back("wtf " + to_string(patVec.size()));
-				return final;*/
+				//final = patVec;
+				//final.push_back("wtf " + to_string(patVec.size()));
+				//return final;
 			}
 			if (pType == "if") {
 				handlePT.handleIf(ptFirst, ptSecond, patVec, patIfTable);

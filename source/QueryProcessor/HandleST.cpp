@@ -50,7 +50,7 @@ void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string
 	//Case 1st: 1, 2
 	else {
 		if (HUtility().isInt(firstAtt) && HUtility().getSymMean(secondAtt) != "") {
-			mvarVec = modTab->getModified(firstAtt);
+			modVec = modTab->getModified(firstAtt);
 		}
 		else if (modTab->isModified(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
 			modVec.push_back("true");
@@ -183,7 +183,7 @@ vector<string> HandleST::handleCalls(string firstAtt, string secondAtt) {
 			ansVec = callTab->getCallees(firstAttQ.first);
 		}
 		//Case ABC
-		else if (callTab->isCall(firstAtt, secondAtt)) {
+		else if (callTab->isCall(firstAttQ.first, secondAttQ.first)) {
 			ansVec.push_back("true");
 		}
 	}
