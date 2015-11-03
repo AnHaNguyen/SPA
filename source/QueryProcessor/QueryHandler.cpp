@@ -10,16 +10,20 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	PreResultNode* result;
 	PreSuchThatNode* queryST;
 	PrePatternNode* queryPT;
+	PreWithNode* queryWith;
 	string stFirst;
 	string stSecond;
 	string ptFirst;
 	string ptSecond;
+	string withFirst;
+	string withSecond;
 	string ST;
 	string PT;
 	vector<RSEntry_t> queryRS;
 	HandleRS handleRS = HandleRS();
 	HandleST handleST = HandleST();
 	HandlePT handlePT = HandlePT();
+	HandleWith handleWith = HandleWith();
 	HUtility utility = HUtility();
 	ProgLine* progLine = PKB::getProgLine();
 
@@ -43,21 +47,13 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		utility.setSymTable(queryTree->getSymbolTable());
 	}
 
-	//Handle select
-	string selType = HandleRS().handleSelect(queryTree, result);
-	if (selType == "") {
-		return final;
-	}
-	string rs = result->getResult().getSynonym();
-
+	
 	//Handle suchThat
-
 	queryST = queryTree->getSuchThat();
 	while (true) {
 		vector<string> folVec;
 		vector<pair<string, string>>  folTable;
 
-		vector<string> mvarVec;
 		vector<string> modVec;
 		vector<pair<string, vector<string>>>  modTable;
 
@@ -122,7 +118,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Handle modifies
 			if (ST == "Modifies") {
-				handleST.handleModifies(stFirst, stSecond, modVec, mvarVec);
+				handleST.handleModifies(stFirst, stSecond, modVec);
 				if (modVec.size() > 0 && modVec.front() == "all") {
 					utility.getModifyTable(modTable);
 					handleRS.checkPSV(modTable, stFirst, stSecond);
@@ -142,8 +138,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				else if (parVec.size() > 0 && parVec.front() != "true") {
 					handleRS.checkSS(parVec, stFirst, stSecond);
 				}
-				/*final.push_back(to_string(parTable.size()));
-				return final;*/
 			}
 
 			//Handle parent*
@@ -188,10 +182,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				else if (useVec.size() > 0 && useVec.front() != "true") {
 					handleRS.checkSS(useVec, stFirst, "");
 				}
-				/*for (size_t i = 0; i < useTable.size(); i++) {
-					final.push_back(useTable[i].first);
-				}
-				return final;*/
 			}
 
 			/*Handle affects - next (next iteration)
@@ -216,6 +206,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					handleRS.checkSS(nextVec, stFirst, stSecond);
 				}
 			}
+
 			//Handle Next*
 			if (ST == "Next*") {
 				NextTable* nextTab = PKB::getNextTable();
@@ -240,7 +231,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								nextVec = nextTab->getPrevS(stSecond);
 							}
-							//return nextVec;
 							handleRS.checkSS(nextVec, stFirst, stSecond);
 						}
 					}
@@ -254,6 +244,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					utility.getCallTable(callTable);
 				}
 			}
+
 			//Handle Calls*
 			if (ST == "Calls*") {
 				CallSTable* callSTab = PKB::getCallSTable();
@@ -288,7 +279,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 
-
+			//Populate queryRS
 			for (int i = 0; i < 12; i++) {
 				STCheck.push_back(0);
 			}
@@ -371,6 +362,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			break;
 		}
 	}
+
+
 	//Handle pattern
 	queryPT = queryTree->getPattern();
 	while (true) {
@@ -389,30 +382,18 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			if (pType == "assign") {
 				handlePT.handleAssign(ptFirst, ptSecond, patVec, patAsgTable, asgPat);
-				//final = patVec;
-				//final.push_back("wtf " + to_string(patVec.size()));
-				//return final;
 			}
 			if (pType == "if") {
 				handlePT.handleIf(ptFirst, ptSecond, patVec, patIfTable);
-				/*final.push_back("wtf " + to_string(patIfTable.size()));
-				return final;*/
-				/*for (size_t i = 0; i < patIfTable.size(); i++) {
-					final.push_back(patIfTable[i].first);
-				}
-				return final;*/
 			}
 			if (pType == "while") {
 				handlePT.handleWhile(ptFirst, ptSecond, patVec, patWhileTable);
-				/*	for (size_t i = 0; i < patWhileTable.size(); i++) {
-					final.push_back(patWhileTable[i].first);
-					}
-					return final;*/
 			}
 			for (int i = 0; i < 4; i++) {
 				PTCheck.push_back(0);
 			}
 
+			//Populate QueryRS
 			RSEntry_t currentRS;
 			currentRS.synCount = 0;
 			if (utility.getSymMean(ptFirst) != "") {
@@ -422,13 +403,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			else {
 				currentRS.firstAtt = "";
 			}
-			/*if (utility.getSymMean(stSecond) != "") {
-				currentRS.secondAtt = stSecond;
-				currentRS.synCount++;
-			}
-			else {
-				currentRS.secondAtt = "";
-			}*/
+		
 			currentRS.firstAtt = PT;
 			currentRS.synCount++;
 
@@ -463,7 +438,57 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		}
 	}
 
-	//Return function normal case
+
+	//Handle with
+	queryWith = queryTree->getWith();
+	while (true) {
+		vector<string> withVec;
+
+		if (queryWith->getLeftType() != "") {
+			withFirst = queryWith->getLeftType();
+		}
+		else {
+			withFirst = queryWith->getLeftAttrRef().getSynonym();
+		}
+		if (queryWith->getRightType() != "") {
+			withFirst = queryWith->getRightType();
+		}
+		else {
+			withFirst = queryWith->getRightAttrRef().getSynonym();
+		}
+
+		handleWith.handleWith(withVec, withFirst, withSecond);
+		if (withVec.empty()) {
+			return final;
+		}
+
+		//Populate queryRS
+		RSEntry_t currentRS;
+		currentRS.synCount = 0;
+		if (utility.getSymMean(withFirst) != "") {
+			currentRS.firstAtt = withFirst;
+			currentRS.synCount=1;
+		}
+		else {
+			currentRS.firstAtt = "";
+		}
+		if (utility.getSymMean(withSecond) != "") {
+			currentRS.secondAtt = withSecond;
+			currentRS.synCount=1;
+		}
+		else {
+			currentRS.secondAtt = "";
+		}
+		currentRS.vec = withVec;
+		if (queryWith->getNext() != NULL) {
+			queryWith = queryWith->getNext();
+		}
+		else {
+			break;
+		}
+	}
+
+
 	//Find all dependency of syn and clauses
 	//Populate attList's atts and reClause
 	vector <attEntry_t> attList;
@@ -493,6 +518,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
+
 	//Populate attList's reAtt
 	for (size_t i = 0; i < attList.size(); i++) {
 		vector<int> temp;
@@ -577,12 +603,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 						}
 						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
 							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
-							//final.push_back("old size " + to_string(queryRS[pos[j]].table.size()));
 							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 2);
-							/*int temp = utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 2);
-							final.push_back("new size " + to_string(queryRS[pos[j]].table.size()));
-							final.push_back("temp " + to_string(temp));
-							return final;*/
 						}
 
 						//Case foltable vs foltable
@@ -650,6 +671,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
+
 	//Check if any intersection results in empty vector
 	for (size_t i = 0; i < queryRS.size(); i++) {
 		if (queryRS[i].vec.empty() && queryRS[i].table.empty() && queryRS[i].ssTable.empty()) {
@@ -657,130 +679,124 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		}
 	}
 
-	//Check case select not equal to each attribute
-	bool checkRS = false;
-	for (size_t i = 0; i < queryRS.size(); i++) {
-		if (queryRS[i].firstAtt == rs || queryRS[i].secondAtt == rs) {
-			checkRS = true;
-			break;
-		}
-		//final.push_back(rs + " " + queryRS[i].firstAtt + " " + queryRS[i].secondAtt);
-	}
-	/*final.push_back(rs);
-	return final;*/
 
-	if (!checkRS) {
-		if (selType == "prog_line" || selType == "stmt") {
-			final = progLine->getLinesOfType("prog_line");
+	//Handle select
+	string selType = HandleRS().handleSelect(queryTree, result);
+	if (selType == "") {
+		return final;
+	}
+	vector<vector<string>> finalVec;
+
+	while (true) {
+		string rs = result->getResult().getSynonym();
+		vector<string> finalPart;
+		//Check case select not equal to each attribute
+		bool checkRS = false;
+		for (size_t i = 0; i < queryRS.size(); i++) {
+			if (queryRS[i].firstAtt == rs || queryRS[i].secondAtt == rs) {
+				checkRS = true;
+				break;
+			}
 		}
-		if (selType == "variable") {
-			final = PKB::getVarTable()->getTable();
-		}
-		if (selType == "constant") {
-			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
-			for (size_t i = 0; i < constTable.size(); i++) {
-				for (size_t j = 0; j < constTable[i].constants.size(); j++) {
-					if (!utility.contain(final, constTable[i].constants[j])) {
-						final.push_back(constTable[i].constants[j]);
+
+		if (!checkRS) {
+			if (selType == "prog_line" || selType == "stmt") {
+				finalPart = progLine->getLinesOfType("prog_line");
+			}
+			if (selType == "variable") {
+				finalPart = PKB::getVarTable()->getTable();
+			}
+			if (selType == "constant") {
+				vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
+				for (size_t i = 0; i < constTable.size(); i++) {
+					for (size_t j = 0; j < constTable[i].constants.size(); j++) {
+						if (!utility.contain(finalPart, constTable[i].constants[j])) {
+							finalPart.push_back(constTable[i].constants[j]);
+						}
 					}
 				}
 			}
-		}
-		if (selType == "procedure") {
-			final = PKB::getProcTable()->getTable();
-		}
-		if (selType == "assign") {
-			final = progLine->getLinesOfType("assign");
-		}
-		if (selType == "while") {
-			final = progLine->getLinesOfType("while");
-		}
-		if (selType == "if") {
-			final = progLine->getLinesOfType("if");
-		}
-		handleRS.rmEString(final);
-		return final;
-	}
-	//if (queryRS.size() > 0) {
-	//	//final = queryRS[0].vec;
-	//	final.push_back("after " + to_string(queryRS[0].ssTable.size()));
-	//}
-	//return final;
-
-	//Case select within any clause (at this point no more empty vector)
-	for (size_t i = 0; i < attList.size(); i++) {
-		if (rs == attList[i].att) {
-			//Case at least 1 1syn clause is the rs
-			bool found = false;
-			for (size_t j = 0; j < attList[i].reClause.size(); j++) {
-				if (queryRS[attList[i].reClause[j]].synCount == 1) {
-					final = queryRS[attList[i].reClause[j]].vec;
-					found = true;
-				}
-				break;
+			if (selType == "procedure") {
+				finalPart = PKB::getProcTable()->getTable();
 			}
+			if (selType == "assign") {
+				finalPart = progLine->getLinesOfType("assign");
+			}
+			if (selType == "while") {
+				finalPart = progLine->getLinesOfType("while");
+			}
+			if (selType == "if") {
+				finalPart = progLine->getLinesOfType("if");
+			}
+			handleRS.rmEString(finalPart);
+			return finalPart;
+		}
 
-			//Case select from 2 syn
-
-			if (!found) {
+		//Return function normal case
+		//Case select within any clause (at this point no more empty vector)
+		for (size_t i = 0; i < attList.size(); i++) {
+			if (rs == attList[i].att) {
+				//Case at least 1 1syn clause is the rs
+				bool found = false;
 				for (size_t j = 0; j < attList[i].reClause.size(); j++) {
-					if (queryRS[attList[i].reClause[j]].synCount == 2) {
-						if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+					if (queryRS[attList[i].reClause[j]].synCount == 1) {
+						finalPart = queryRS[attList[i].reClause[j]].vec;
+						found = true;
+					}
+					break;
+				}
 
-							for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
-								final.push_back(queryRS[attList[i].reClause[j]].table[k].first);
+				//Case select from 2 syn
+				if (!found) {
+					for (size_t j = 0; j < attList[i].reClause.size(); j++) {
+						if (queryRS[attList[i].reClause[j]].synCount == 2) {
+							if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+
+								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+									finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].first);
+								}
 							}
-						}
-						/*if (queryRS[attList[i].reClause[j]].table.size()>0) {
-							final.push_back(queryRS[attList[i].reClause[j]].firstAtt);
-							return final;
-						}*/
-						if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
-							/*final.push_back("wtf "+to_string(queryRS[attList[i].reClause[j]].table.size()));
-							return final;*/
-							for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
-								for (size_t h = 0; h < queryRS[attList[i].reClause[j]].table[k].second.size(); h++) {
-									if (!utility.contain(final, queryRS[attList[i].reClause[j]].table[k].second[h])) {
-										final.push_back(queryRS[attList[i].reClause[j]].table[k].second[h]);
+							if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+									for (size_t h = 0; h < queryRS[attList[i].reClause[j]].table[k].second.size(); h++) {
+										if (!utility.contain(finalPart, queryRS[attList[i].reClause[j]].table[k].second[h])) {
+											finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].second[h]);
+										}
 									}
 								}
 							}
-							//return final;
-						}
-						if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
-							/*	final.push_back(queryRS[attList[i].reClause[j]].firstAtt + " " + rs);
-								return final;*/
-							for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
-								final.push_back(queryRS[attList[i].reClause[j]].ssTable[k].first);
+							if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+									finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].first);
+								}
 							}
-							return final;
-						}
-						if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
-							for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
-								final.push_back(queryRS[attList[i].reClause[j]].ssTable[k].second);
+							if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+									finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].second);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+		finalVec.push_back(finalPart);
+		if (result->getNext() != NULL) {
+			result = result->getNext();
+		}
+		else {
+			break;
+		}
 	}
-
-	/*if (final.size() > 0 && selType == "assign") {
-		final = utility.intersection(final, utility.getAssignTable());
+	if(finalVec.size()==1) {
+		final = finalVec[0];
 	}
-	if (selType == "prog_line" || selType == "stmt") {
-		final = utility.intersection(final, progLine->getLinesOfType("prog_line"));
+	if (finalVec.size() == 2) {
+		for (size_t i = 0; i < finalVec[0].size(); i++) {
+			for (size_t j = 0; j < finalVec[1].size(); j++) {
+				final.push_back(finalVec[0][i] + " " + finalVec[1][j]);
+			}
+		}
 	}
-	if (selType == "while") {
-		final = utility.intersection(final, progLine->getLinesOfType("while"));
-	}
-	if (selType == "if") {
-		final = utility.intersection(final, progLine->getLinesOfType("if"));
-	}
-	if (selType == "procedure") {
-		final = utility.intersection(final, progLine->getLinesOfType("procedure"));
-	}*/
-	//handleRS.rmEString(final);
 	return final;
 }

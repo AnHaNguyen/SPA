@@ -1,6 +1,5 @@
 #ifndef HandleRS_H
 #define HandleRS_H
-#include "../Preprocessor/QueryTree.h"
 #include "../Preprocessor/AttrRef.h"
 #include "../QueryProcessor/HUtility.h"
 #include "../QueryProcessor/HandlerStruct.h"

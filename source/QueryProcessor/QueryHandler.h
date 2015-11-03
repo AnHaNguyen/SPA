@@ -6,6 +6,7 @@
 #include "../QueryProcessor/HandleRS.h"
 #include "../QueryProcessor/HandleST.h"
 #include "../QueryProcessor/HandlePT.h"
+#include "../QueryProcessor/HandleWith.h"
 #include "../QueryProcessor/HUtility.h"
 #include "../QueryProcessor/HandlerStruct.h"
 #include "../FollowTable.h"

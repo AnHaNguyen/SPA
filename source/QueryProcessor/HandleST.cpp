@@ -34,7 +34,7 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	return ans;
 }
 
-void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec) {
+void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec) {
 	ModifyTable* modTab = PKB::getModifyTable();
 	//Case 1st: all possible syms
 	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign"
