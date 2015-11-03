@@ -307,6 +307,8 @@ namespace TestProcessor {
 
 			tree2->setPattern(emptyVector);
 
+			// For Tue
+			// This seems to be returning the stmt for s1, not s2.
 			results = handler.queryRec(tree1);
 			Assert::AreEqual(10, int(results.size()));
 			Assert::AreEqual(string("2"), results[0]);
@@ -1877,6 +1879,10 @@ namespace TestProcessor {
             Assert::AreEqual(string("BE"), results[9]);
             Assert::AreEqual(string("BF"), results[10]);
         }
+
+
+
+
 
 
 
