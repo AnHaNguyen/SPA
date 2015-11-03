@@ -171,6 +171,11 @@
     <ClInclude Include="..\Source\Preprocessor\QueryTree.h" />
     <ClInclude Include="..\Source\ProcTable.h" />
     <ClInclude Include="..\source\ProgLine.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlePT.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
+    <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
     <ClInclude Include="..\Source\TNode.h" />
     <ClInclude Include="..\Source\UseTable.h" />
@@ -203,6 +208,10 @@
     <ClCompile Include="..\Source\Preprocessor\QueryTree.cpp" />
     <ClCompile Include="..\Source\ProcTable.cpp" />
     <ClCompile Include="..\source\ProgLine.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandlePT.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleRS.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleST.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HUtility.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />
     <ClCompile Include="..\Source\UseTable.cpp" />

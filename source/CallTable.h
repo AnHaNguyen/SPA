@@ -7,17 +7,17 @@
 #include <queue>
 
 using namespace std;
-typedef struct callEntry_t {
+typedef struct CallEntry_t {
 	string caller;
 	vector<string> callees;
-	callEntry_t(string caller, string callee) {
-		callEntry_t::caller = caller;
-		callEntry_t::callees.push_back(callee);
+	CallEntry_t(string caller, string callee) {
+		CallEntry_t::caller = caller;
+		CallEntry_t::callees.push_back(callee);
 	}
 } callEntry;
 
 class CallTable {
-private: vector<callEntry_t> callTable;
+private: vector<CallEntry_t> callTable;
 		 bool checkRecurDFS(string caller, vector<string> callees,vector<string> processed);
 
 public: 
@@ -29,7 +29,7 @@ public:
 	vector<string> getCallers(string callee);		//Calls(P1,"First")
 	int size();
 	bool isContained(string caller);
-	vector<callEntry_t> getTable();			//return whole table as vector
+	vector<CallEntry_t> getTable();			//return whole table as vector
 	bool isContainedRecur();
 	bool isCall(string caller, string callee);		//check Calls(p1,p2);
 };

@@ -26,6 +26,7 @@ public:
 		vector<string> getLinesOfProc(string procedure);		//get all stmt of a proc
 		vector<string> getLinesOfType(string type);	//get all stmt of a type
 		vector<stmt_t> getTable();
+		vector<string> getAssignsOfProc(string procedure);
 };
 
 #endif
