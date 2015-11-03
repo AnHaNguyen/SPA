@@ -1542,23 +1542,23 @@ namespace TestProcessor {
              *
              *  "BA" has 3 call-stmts inside containers
              */
-            QueryTree* tree7 = new QueryTree();
+            QueryTree* tree6 = new QueryTree();
 
-            vector<string> declarations7;
-            declarations7.push_back("procedure p1,p2");
-            tree7->setSymbolTable(declarations7);
+            vector<string> declarations6;
+            declarations6.push_back("procedure p1,p2");
+            tree6->setSymbolTable(declarations6);
 
-            vector<string> selections7;
-            selections7.push_back("p2");
-            tree1->setResult(selections7);
+            vector<string> selections6;
+            selections6.push_back("p2");
+            tree1->setResult(selections6);
 
-            vector<string> relations7;
-            relations7.push_back("Calls(\"BA\", p2)");
-            tree7->setSuchThat(relations7);
+            vector<string> relations6;
+            relations6.push_back("Calls(\"BA\", p2)");
+            tree6->setSuchThat(relations6);
 
-            tree7->setPattern(emptyVector);
+            tree6->setPattern(emptyVector);
 
-            results = handler.queryRec(tree7);
+            results = handler.queryRec(tree6);
             sort(results.begin(), results.end());
             Assert::AreEqual(3, int(results.size()));
             Assert::AreEqual(string("BB"), results[0]);
@@ -1593,6 +1593,289 @@ namespace TestProcessor {
             sort(results.begin(), results.end());
             Assert::AreEqual(1, int(results.size()));
             Assert::AreEqual(string("AE"), results[0]);\
+        }
+
+
+
+        TEST_METHOD(Processor_CallsStar) {
+        	vector<string> code = {
+        	    "procedure AA{",
+        	    "a=1;",             // 1
+        	    "b=2;",             // 2
+        	    "call AB;",         // 3
+        	    "call BA;}",        // 4
+
+        	    "procedure AB{",
+        	    "call AC;}",        // 5
+
+        	    "procedure AC{",
+        	    "call AD;}",        // 1
+
+        	    "procedure AD{",
+        	    "call AE;}",        // 7
+
+        	    "procedure AE{",
+        	    "call AF;}",        // 8
+
+        	    "procedure AF{",
+        	    "b=10;}",           // 9
+
+        	    "procedure BA{",
+        	    "if a then{",       // 10
+        	    "call BB;}",        // 11
+        	    "else{",
+        	    "call BC;}",        // 12
+        	    "while b{",         // 13
+        	    "call BD;}}",       // 14
+
+        	    "procedure BB{",
+        	    "c=a-1;}",          // 15
+
+        	    "procedure BC{",
+        	    "d=b-1;}",          // 11
+
+        	    "procedure BD{",
+        	    "while a{",         // 17
+        	    "call BE;}}"        // 18
+
+        	    "procedure BE{",
+        	    "if a then{",       // 19
+        	    "a=a-1;}",          // 20
+        	    "else{",
+        	    "call BF;}}",       // 21
+
+        	    "procedure BF{",
+        	    "f=a+b+c+d+e;"      // 22
+        	    "call AE;}"         // 23
+        	};
+
+        	DesignExtractor ext = DesignExtractor(code);
+
+        	// Variables that will be reused in different queries
+        	QueryHandler handler;
+        	vector<string> results;
+        	vector<string> emptyVector;
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p1 such that Calls*(p1, p2);
+             *
+             *	Basic case
+             */
+            QueryTree* tree1 = new QueryTree();
+
+            vector<string> declarations1;
+            declarations1.push_back("procedure p1,p2");
+            tree1->setSymbolTable(declarations1);
+
+            vector<string> selections1;
+            selections1.push_back("p1");
+            tree1->setResult(selections1);
+
+            vector<string> relations1;
+            relations1.push_back("Calls*(p1, p2)");
+            tree1->setSuchThat(relations1);
+
+            tree1->setPattern(emptyVector);
+
+            results = handler.queryRec(tree1);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(9, int(results.size()));
+            Assert::AreEqual(string("AA"), results[0]);
+            Assert::AreEqual(string("AB"), results[1]);
+            Assert::AreEqual(string("AC"), results[2]);
+            Assert::AreEqual(string("AD"), results[3]);
+            Assert::AreEqual(string("AE"), results[4]);
+            Assert::AreEqual(string("BA"), results[5]);
+            Assert::AreEqual(string("BD"), results[2]);
+            Assert::AreEqual(string("BE"), results[7]);
+            Assert::AreEqual(string("BF"), results[8]);
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p2 such that Calls*(p1, p2);
+             *
+             *	Basic case
+             */
+            QueryTree* tree2 = new QueryTree();
+
+            vector<string> declarations2;
+            declarations2.push_back("procedure p1,p2");
+            tree2->setSymbolTable(declarations2);
+
+            vector<string> selections2;
+            selections2.push_back("p2");
+            tree1->setResult(selections2);
+
+            vector<string> relations2;
+            relations2.push_back("Calls*(p1, p2)");
+            tree2->setSuchThat(relations2);
+
+            tree2->setPattern(emptyVector);
+
+            results = handler.queryRec(tree2);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(11, int(results.size()));
+            Assert::AreEqual(string("AB"), results[0]);
+            Assert::AreEqual(string("AC"), results[1]);
+            Assert::AreEqual(string("AD"), results[2]);
+            Assert::AreEqual(string("AE"), results[3]);
+            Assert::AreEqual(string("AF"), results[4]);
+            Assert::AreEqual(string("BA"), results[5]);
+            Assert::AreEqual(string("BB"), results[3]);
+            Assert::AreEqual(string("BC"), results[7]);
+            Assert::AreEqual(string("BD"), results[8]);
+            Assert::AreEqual(string("BE"), results[9]);
+            Assert::AreEqual(string("BF"), results[10]);
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p1 such that Calls*("AB", p2);
+             *
+             *	Basic case on nested call-stmts
+             */
+            QueryTree* tree3 = new QueryTree();
+
+            vector<string> declarations3;
+            declarations3.push_back("procedure p1,p2");
+            tree3->setSymbolTable(declarations3);
+
+            vector<string> selections3;
+            selections3.push_back("p2");
+            tree1->setResult(selections3);
+
+            vector<string> relations3;
+            relations3.push_back("Calls(\"AB\", p2)");
+            tree3->setSuchThat(relations3);
+
+            tree3->setPattern(emptyVector);
+
+            results = handler.queryRec(tree3);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(4, int(results.size()));
+            Assert::AreEqual(string("AC"), results[0]);
+            Assert::AreEqual(string("AD"), results[1]);
+            Assert::AreEqual(string("AE"), results[2]);
+            Assert::AreEqual(string("AF"), results[3]);
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p1 such that Calls*("BA", p2);
+             *
+             *	Basic case on nested container stmts
+             */
+            QueryTree* tree4 = new QueryTree();
+
+            vector<string> declarations4;
+            declarations4.push_back("procedure p1,p2");
+            tree4->setSymbolTable(declarations4);
+
+            vector<string> selections4;
+            selections4.push_back("p2");
+            tree1->setResult(selections4);
+
+            vector<string> relations4;
+            relations4.push_back("Calls(\"BA\", p2)");
+            tree4->setSuchThat(relations4);
+
+            tree4->setPattern(emptyVector);
+
+            results = handler.queryRec(tree4);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(7, int(results.size()));
+            Assert::AreEqual(string("BB"), results[0]);
+            Assert::AreEqual(string("BC"), results[1]);
+            Assert::AreEqual(string("BD"), results[2]);
+            Assert::AreEqual(string("BE"), results[3]);
+            Assert::AreEqual(string("BF"), results[4]);
+            Assert::AreEqual(string("AE"), results[5]);
+            Assert::AreEqual(string("AF"), results[6]);
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p1 such that Calls*("AA", p2);
+             *
+             * 	Entire code tree
+             */
+            QueryTree* tree5 = new QueryTree();
+
+            vector<string> declarations5;
+            declarations5.push_back("procedure p1,p2");
+            tree5->setSymbolTable(declarations5);
+
+            vector<string> selections5;
+            selections5.push_back("p2");
+            tree1->setResult(selections5);
+
+            vector<string> relations5;
+            relations5.push_back("Calls(\"AA\", p2)");
+            tree5->setSuchThat(relations5);
+
+            tree5->setPattern(emptyVector);
+
+            results = handler.queryRec(tree5);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(11, int(results.size()));
+            Assert::AreEqual(string("AB"), results[0]);
+            Assert::AreEqual(string("AC"), results[1]);
+            Assert::AreEqual(string("AD"), results[2]);
+            Assert::AreEqual(string("AE"), results[3]);
+            Assert::AreEqual(string("AF"), results[4]);
+            Assert::AreEqual(string("BA"), results[5]);
+            Assert::AreEqual(string("BB"), results[6]);
+            Assert::AreEqual(string("BC"), results[7]);
+            Assert::AreEqual(string("BD"), results[8]);
+            Assert::AreEqual(string("BE"), results[9]);
+            Assert::AreEqual(string("BF"), results[10]);
+
+
+
+            /**
+             *  procedure p1, p2;
+             *  Select p1 such that Calls*(p1, "AF");
+             *
+             *	Entire code tree from the other side
+             */
+            QueryTree* tree6 = new QueryTree();
+
+            vector<string> declarations6;
+            declarations6.push_back("procedure p1,p2");
+            tree6->setSymbolTable(declarations6);
+
+            vector<string> selections6;
+            selections6.push_back("p1");
+            tree1->setResult(selections6);
+
+            vector<string> relations6;
+            relations6.push_back("Calls(p1, \"AF\")");
+            tree6->setSuchThat(relations6);
+
+            tree6->setPattern(emptyVector);
+
+            results = handler.queryRec(tree6);
+            sort(results.begin(), results.end());
+            Assert::AreEqual(11, int(results.size()));
+            Assert::AreEqual(string("AA"), results[0]);
+            Assert::AreEqual(string("AB"), results[1]);
+            Assert::AreEqual(string("AC"), results[2]);
+            Assert::AreEqual(string("AD"), results[3]);
+            Assert::AreEqual(string("AE"), results[4]);
+            Assert::AreEqual(string("BA"), results[5]);
+            Assert::AreEqual(string("BB"), results[6]);
+            Assert::AreEqual(string("BC"), results[7]);
+            Assert::AreEqual(string("BD"), results[8]);
+            Assert::AreEqual(string("BE"), results[9]);
+            Assert::AreEqual(string("BF"), results[10]);
         }
 
 
