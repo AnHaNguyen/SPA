@@ -1882,7 +1882,256 @@ namespace TestProcessor {
 
 
 
+        TEST_METHOD(Processor_Next) {
+			vector<string> code = {
+				"procedure First{",
+				"a=1;",				// 1
+				"b=1;",				// 2
+				"if a then{",		// 3
+				"a=a-1;}",			// 4
+				"else{",
+				"a=2;}",			// 5
+				"c=3;",				// 6
+				"while c{",			// 7
+				"while c{",			// 8
+				"while c{",			// 9
+				"c=c-1;",			// 10
+				"call Second;}}}",	// 11
+				"a=a+c;",			// 12
+				"Procedure Second{",
+				"a=a+1;}"			// 13
+			};
 
+
+            DesignExtractor ext = DesignExtractor(code);
+
+            // Variables that will be reused in different queries
+            QueryHandler handler;
+            vector<string> results;
+            vector<string> emptyVector;
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(n1, n2);
+             *
+             *	Basic case
+             */
+            QueryTree* tree1 = new QueryTree();
+
+            vector<string> declarations1;
+            declarations1.push_back("prog_line n1,n2");
+            tree1->setSymbolTable(declarations1);
+
+            vector<string> selections1;
+            selections1.push_back("n1");
+            tree1->setResult(selections1);
+
+            vector<string> relations1;
+            relations1.push_back("Next(n1, n2)");
+            tree1->setSuchThat(relations1);
+
+            tree1->setPattern(emptyVector);
+
+            results = handler.queryRec(tree1);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(11, int(results.size()));
+            Assert::AreEqual(string("1"), results[0]);
+            Assert::AreEqual(string("2"), results[1]);
+            Assert::AreEqual(string("3"), results[2]);
+            Assert::AreEqual(string("4"), results[3]);
+            Assert::AreEqual(string("5"), results[4]);
+            Assert::AreEqual(string("6"), results[5]);
+            Assert::AreEqual(string("7"), results[6]);
+            Assert::AreEqual(string("8"), results[7]);
+            Assert::AreEqual(string("9"), results[8]);
+            Assert::AreEqual(string("10"), results[9]);
+            Assert::AreEqual(string("11"), results[10]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n2 such that Next(n1, n2);
+             *
+             *	Basic case
+             */
+            QueryTree* tree2 = new QueryTree();
+
+            vector<string> declarations2;
+            declarations2.push_back("prog_line n1,n2");
+            tree2->setSymbolTable(declarations2);
+
+            vector<string> selections2;
+            selections2.push_back("n2");
+            tree1->setResult(selections2);
+
+            vector<string> relations2;
+            relations2.push_back("Next(n1, n2)");
+            tree2->setSuchThat(relations2);
+
+            tree2->setPattern(emptyVector);
+
+            results = handler.queryRec(tree2);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(10, int(results.size()));
+            Assert::AreEqual(string("2"), results[0]);
+            Assert::AreEqual(string("3"), results[1]);
+            Assert::AreEqual(string("4"), results[2]);
+            Assert::AreEqual(string("5"), results[3]);
+            Assert::AreEqual(string("6"), results[4]);
+            Assert::AreEqual(string("7"), results[5]);
+            Assert::AreEqual(string("8"), results[6]);
+            Assert::AreEqual(string("9"), results[7]);
+            Assert::AreEqual(string("10"), results[8]);
+            Assert::AreEqual(string("11"), results[9]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(3, n2);
+             *
+             *	stmt# 3 is a if-stmt
+             */
+            QueryTree* tree3 = new QueryTree();
+
+            vector<string> declarations3;
+            declarations3.push_back("prog_line n1,n2");
+            tree3->setSymbolTable(declarations3);
+
+            vector<string> selections3;
+            selections3.push_back("n2");
+            tree1->setResult(selections3);
+
+            vector<string> relations3;
+            relations3.push_back("Next(3, n2)");
+            tree3->setSuchThat(relations3);
+
+            tree3->setPattern(emptyVector);
+
+            results = handler.queryRec(tree3);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(2, int(results.size()));
+            Assert::AreEqual(string("4"), results[0]);
+            Assert::AreEqual(string("5"), results[1]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(n1, 6);
+             *
+             *	stmt# 6 is the first stmt after a if-else
+             */
+            QueryTree* tree4 = new QueryTree();
+
+            vector<string> declarations4;
+            declarations4.push_back("prog_line n1,n2");
+            tree4->setSymbolTable(declarations4);
+
+            vector<string> selections4;
+            selections4.push_back("n1");
+            tree1->setResult(selections4);
+
+            vector<string> relations4;
+            relations4.push_back("Next(n1, 6)");
+            tree4->setSuchThat(relations4);
+
+            tree4->setPattern(emptyVector);
+
+            results = handler.queryRec(tree4);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(2, int(results.size()));
+            Assert::AreEqual(string("4"), results[0]);
+            Assert::AreEqual(string("5"), results[1]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(7, n2);
+             *
+             *	stmt# 7 is the first of a series of nested-whiles
+             */
+            QueryTree* tree5 = new QueryTree();
+
+            vector<string> declarations5;
+            declarations5.push_back("prog_line n1,n2");
+            tree5->setSymbolTable(declarations5);
+
+            vector<string> selections5;
+            selections5.push_back("n1");
+            tree1->setResult(selections5);
+
+            vector<string> relations5;
+            relations5.push_back("Next(7, n2)");
+            tree5->setSuchThat(relations5);
+
+            tree5->setPattern(emptyVector);
+
+            results = handler.queryRec(tree5);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(1, int(results.size()));
+            Assert::AreEqual(string("8"), results[0]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(11, n2);
+             *
+             *	stmt# 11 is a call-stmt
+             */
+            QueryTree* tree6 = new QueryTree();
+
+            vector<string> declarations6;
+            declarations6.push_back("prog_line n1,n2");
+            tree6->setSymbolTable(declarations6);
+
+            vector<string> selections6;
+            selections6.push_back("n2");
+            tree1->setResult(selections6);
+
+            vector<string> relations6;
+            relations6.push_back("Next(11, n2)");
+            tree6->setSuchThat(relations6);
+
+            tree6->setPattern(emptyVector);
+
+            results = handler.queryRec(tree6);
+            sort(results.begin(), results.end(), compareStringsAsNumbers);
+            Assert::AreEqual(1, int(results.size()));
+            Assert::AreEqual(string("12"), results[0]);
+
+
+
+            /**
+             *  prog_line n1, n2;
+             *  Select n1 such that Next(12, n2);
+             *
+             *	stmt# 12 is the last stmt
+             */
+            QueryTree* tree7 = new QueryTree();
+
+            vector<string> declarations7;
+            declarations7.push_back("prog_line n1,n2");
+            tree7->setSymbolTable(declarations7);
+
+            vector<string> selections7;
+            selections7.push_back("n2");
+            tree1->setResult(selections7);
+
+            vector<string> relations7;
+            relations7.push_back("Next(12, n2)");
+            tree7->setSuchThat(relations7);
+
+            tree7->setPattern(emptyVector);
+
+            results = handler.queryRec(tree7);
+            Assert::AreEqual(0, int(results.size()));
+		}
 
 
 
