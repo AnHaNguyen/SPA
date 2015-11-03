@@ -44,7 +44,7 @@ Select a1 such that Follows*(a2,a1)
 2,3,14,15,25,28,30,31,38
 5000
 10- call, f(s,if)
-stmt s, if ifstat;
+stmt s; if ifstat;
 Select ifstat such that Follows*(s,ifstat)
 26,36
 5000

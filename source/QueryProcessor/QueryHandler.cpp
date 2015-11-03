@@ -136,7 +136,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				handleST.handleParent(stFirst, stSecond, parVec);
 				if (parVec.size() > 0 && parVec.front() == "all") {
 					utility.getParentTable(parTable);
-					int test = 0;
+					//int test = 0;
 					/*for (size_t i = 0; i < parTable.size(); i++) {
 						for (size_t j = 0; j < parTable[i].second.size(); j++) {
 							if (!HUtility().contain(final, parTable[i].second[j])) {
@@ -145,17 +145,20 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 						}
 					}*/
 					//final.push_back("before " + to_string(test));
-					//handleRS.checkPSV(parTable, stFirst, stSecond);
-					utility.intersectionPSV(utility.getAssignTable(), parTable, 2);
-					for (size_t i = 0; i < parTable.size(); i++) {
-						for (size_t j = 0; j < parTable[i].second.size(); j++) {
-							if (!HUtility().contain(final, parTable[i].second[j])) {
-								final.push_back(parTable[i].second[j]);
-							}
-						}
-					}
-					//final.push_back("after " + to_string(test));
-					return final;
+					handleRS.checkPSV(parTable, stFirst, stSecond);
+					//vector<string> temp2 = utility.getAssignTable();
+					//test = utility.intersectionPSV(temp2, parTable, 2);
+					//for (size_t i = 0; i < parTable.size(); i++) {
+					//	/*for (size_t j = 0; j < parTable[i].second.size(); j++) {
+					//		if (!HUtility().contain(final, parTable[i].second[j])) {
+					//			final.push_back(parTable[i].second[j]);
+					//		}
+					//	}*/
+					//	//final.push_back(parTable[i].first);
+					//}
+					/*final.push_back("after " + to_string(test));
+					final = temp2;
+					return final;*/
 				}
 				else {
 					handleRS.checkSS(parVec, stFirst, stSecond);
