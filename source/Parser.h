@@ -20,7 +20,7 @@ public:
 	Parser();
 	~Parser();
 
-	void parseInput(string fName);
+	vector<string> parseInput(string fName);
 	vector<string> result(string fName);
 
 	vector<string> processFile(string fName);
@@ -43,6 +43,7 @@ public:
 	bool isName(string name);
 	bool isNameOrConstant(string expr);
 	bool isExpression(string expr);
+	string replaceAll(string str, const string& from, const string& to);
 
 	vector<string> removeAllSpaces(vector<string> stringList);
 	string removeLineSpaces(string line);
@@ -55,6 +56,7 @@ public:
 
 	vector<string> trimmedList(vector <string> list);
 	vector<string> moveCloseCurlyBracket(vector<string> list);
+	vector<string> moveOpenCurlyBracket(vector<string> list);
 	bool checkNotEmptyLine(string line);
 	string trim(string str);
 
