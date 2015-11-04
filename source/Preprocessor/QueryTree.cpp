@@ -665,6 +665,15 @@ bool QueryTree::isValidAttrRef(string str) {
 		if (getSynType(symbolTable, first) == "call" && second == "procName") {
 			return true;
 		}
+		if (getSynType(symbolTable, first) == "call" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "while" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "if" && second == "stmt#") {
+			return true;
+		}
 	}
 	return false;
 }
