@@ -53,6 +53,7 @@ void QueryTree::setResult(vector<string> table){
     if(table.size()==0) return;
 	
 	PreResultNode* resultPtr = result;
+	PreResultNode* prevPtr = resultPtr;
 	for (int i = 0; i < table.size(); i++) {
 		string str = table[i];
 		string synonym, attr;
@@ -80,9 +81,11 @@ void QueryTree::setResult(vector<string> table){
 			return;
 		}
 		PreResultNode* nextNode = new PreResultNode();
+		prevPtr = resultPtr;
 		resultPtr->setNext(nextNode);
 		resultPtr = resultPtr->getNext();
 	}
+	prevPtr->setNext(NULL);
 }
 
 void QueryTree::setSuchThat(vector<string> table){
@@ -90,6 +93,7 @@ void QueryTree::setSuchThat(vector<string> table){
     if(table.size()==0) return; 
 
 	PreSuchThatNode* suchThatPtr = suchThat;
+	PreSuchThatNode* prevPtr = suchThatPtr;
 	for (int i = 0; i<table.size(); i++) {
 		string str = table[i];
 		str = removeSpace(str);
@@ -114,9 +118,11 @@ void QueryTree::setSuchThat(vector<string> table){
 		}
 
 		PreSuchThatNode* nextNode = new PreSuchThatNode();
+		prevPtr = suchThatPtr;
 		suchThatPtr->setNext(nextNode);
 		suchThatPtr = suchThatPtr->getNext();
 	}
+	prevPtr->setNext(NULL);
 }
 
 void QueryTree::setPattern(vector<string> table){
@@ -124,6 +130,7 @@ void QueryTree::setPattern(vector<string> table){
 	if (table.size()==0) return;
 
 	PrePatternNode* patternPtr = pattern;
+	PrePatternNode* prevPtr = patternPtr;
 	for (int i = 0; i < table.size(); i++) {
 		string str = table[i];
 		str = removeSpace(str);
@@ -173,9 +180,11 @@ void QueryTree::setPattern(vector<string> table){
 		}
 
 		PrePatternNode* nextNode = new PrePatternNode();
+		prevPtr = patternPtr;
 		patternPtr->setNext(nextNode);
 		patternPtr = patternPtr->getNext();
 	}
+	prevPtr->setNext(NULL);
 }
 
 void QueryTree::setWith(vector<string> table) {

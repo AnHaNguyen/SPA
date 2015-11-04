@@ -26,7 +26,7 @@ vector<string> QueryPreprocessor::start(string line) {
 	}
 	QueryTree* tree = startProcess(declare, input);
 	if (tree->getValidity() == false) {
-		cout << "============= Invalid QueryTree ================" << endl;
+		cout << "================== Invalid QueryTree ===================" << endl;
 	}
 	//vector<string> result;
 	//return result;
