@@ -1318,28 +1318,28 @@ namespace TestProcessor {
 
 		TEST_METHOD(Processor_Calls) {
             vector<string> code = {
-                "procedure AA{",
+                "procedureAA{",
                 "a=1;",             // 1
                 "b=2;",             // 2
                 "call AB;",         // 3
                 "call BA;}",        // 4
 
-                "procedure AB{",
+                "procedureAB{",
                 "call AC;}",        // 5
 
-                "procedure AC{",
-                "call AD;}",        // 1
+                "procedureAC{",
+                "call AD;}",        // 6
 
-                "procedure AD{",
+                "procedureAD{",
                 "call AE;}",        // 7
 
-                "procedure AE{",
+                "procedureAE{",
                 "call AF;}",        // 8
 
-                "procedure AF{",
+                "procedureAF{",
                 "b=10;}",           // 9
 
-                "procedure BA{",
+                "procedureBA{",
                 "if a then{",       // 10
                 "call BB;}",        // 11
                 "else{",
@@ -1347,24 +1347,24 @@ namespace TestProcessor {
                 "while b{",         // 13
                 "call BD;}}",       // 14
 
-                "procedure BB{",
+                "procedureBB{",
                 "c=a-1;}",          // 15
 
-                "procedure BC{",
+                "procedureBC{",
                 "d=b-1;}",          // 11
 
-                "procedure BD{",
+                "procedureBD{",
                 "while a{",         // 17
-                "call BE;}}"        // 18
+                "call BE;}}",       // 18
 
-                "procedure BE{",
+                "procedureBE{",
                 "if a then{",       // 19
                 "a=a-1;}",          // 20
                 "else{",
                 "call BF;}}",       // 21
 
-                "procedure BF{",
-                "f=a+b+c+d+e;"      // 22
+                "procedureBF{",
+                "f=a+b+c+d+e;",     // 22
                 "call AE;}"         // 23
             };
 
@@ -1406,7 +1406,7 @@ namespace TestProcessor {
             Assert::AreEqual(string("AD"), results[3]);
             Assert::AreEqual(string("AE"), results[4]);
             Assert::AreEqual(string("BA"), results[5]);
-            Assert::AreEqual(string("BD"), results[2]);
+            Assert::AreEqual(string("BD"), results[6]);
             Assert::AreEqual(string("BE"), results[7]);
             Assert::AreEqual(string("BF"), results[8]);
 
@@ -1594,7 +1594,7 @@ namespace TestProcessor {
             results = handler.queryRec(tree7);
             sort(results.begin(), results.end());
             Assert::AreEqual(1, int(results.size()));
-            Assert::AreEqual(string("AE"), results[0]);\
+            Assert::AreEqual(string("AE"), results[0]);
         }
 
 
@@ -1638,7 +1638,7 @@ namespace TestProcessor {
 
         	    "procedure BD{",
         	    "while a{",         // 17
-        	    "call BE;}}"        // 18
+        	    "call BE;}}",        // 18
 
         	    "procedure BE{",
         	    "if a then{",       // 19
@@ -1647,7 +1647,7 @@ namespace TestProcessor {
         	    "call BF;}}",       // 21
 
         	    "procedure BF{",
-        	    "f=a+b+c+d+e;"      // 22
+        	    "f=a+b+c+d+e;",     // 22
         	    "call AE;}"         // 23
         	};
 
@@ -1691,7 +1691,7 @@ namespace TestProcessor {
             Assert::AreEqual(string("AD"), results[3]);
             Assert::AreEqual(string("AE"), results[4]);
             Assert::AreEqual(string("BA"), results[5]);
-            Assert::AreEqual(string("BD"), results[2]);
+            Assert::AreEqual(string("BD"), results[6]);
             Assert::AreEqual(string("BE"), results[7]);
             Assert::AreEqual(string("BF"), results[8]);
 
@@ -1728,7 +1728,7 @@ namespace TestProcessor {
             Assert::AreEqual(string("AE"), results[3]);
             Assert::AreEqual(string("AF"), results[4]);
             Assert::AreEqual(string("BA"), results[5]);
-            Assert::AreEqual(string("BB"), results[3]);
+            Assert::AreEqual(string("BB"), results[6]);
             Assert::AreEqual(string("BC"), results[7]);
             Assert::AreEqual(string("BD"), results[8]);
             Assert::AreEqual(string("BE"), results[9]);
@@ -1753,7 +1753,7 @@ namespace TestProcessor {
             tree1->setResult(selections3);
 
             vector<string> relations3;
-            relations3.push_back("Calls(\"AB\", p2)");
+            relations3.push_back("Calls*(\"AB\", p2)");
             tree3->setSuchThat(relations3);
 
             tree3->setPattern(emptyVector);
@@ -1785,7 +1785,7 @@ namespace TestProcessor {
             tree1->setResult(selections4);
 
             vector<string> relations4;
-            relations4.push_back("Calls(\"BA\", p2)");
+            relations4.push_back("Calls*(\"BA\", p2)");
             tree4->setSuchThat(relations4);
 
             tree4->setPattern(emptyVector);
@@ -1820,7 +1820,7 @@ namespace TestProcessor {
             tree1->setResult(selections5);
 
             vector<string> relations5;
-            relations5.push_back("Calls(\"AA\", p2)");
+            relations5.push_back("Calls*(\"AA\", p2)");
             tree5->setSuchThat(relations5);
 
             tree5->setPattern(emptyVector);
@@ -1859,7 +1859,7 @@ namespace TestProcessor {
             tree1->setResult(selections6);
 
             vector<string> relations6;
-            relations6.push_back("Calls(p1, \"AF\")");
+            relations6.push_back("Calls*(p1, \"AF\")");
             tree6->setSuchThat(relations6);
 
             tree6->setPattern(emptyVector);
