@@ -46,6 +46,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond,
 		//Case 2nd att = _
 		if (ptSecondU.first == "_") {
 			patVec = PKB::getModifyTable()->getModifier(ptFirstU.first);
+			HUtility().intersectionSS(HUtility().getAssignTable(), patVec, 1);
 		}
 		//Case 2nd att = "x123" or _"x+123"_
 		if (HUtility().getSymMean(ptSecond) == "" && ptSecondU.first != "_") {
@@ -53,6 +54,7 @@ void HandlePT::handleAssign(string ptFirst, string ptSecond,
 			vector<string> temp2 = PKB::checkAssign(ptSecondU.first, ptSecondU.second);
 			if (HUtility().intersection(temp1, temp2).size() > 0) {
 				patVec = HUtility().intersection(temp1, temp2);
+				//patVec = temp2;
 			}
 		}
 		//Case 2nd att = v

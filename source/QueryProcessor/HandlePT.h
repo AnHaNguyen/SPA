@@ -1,7 +1,6 @@
 #ifndef HandlePT_H
 #define HandlePT_H
 #include "../PKB.h"
-#include "../Preprocessor/QueryTree.h"
 #include "../QueryProcessor/HUtility.h"
 #include "../QueryProcessor/HandlerStruct.h"
 #include <string>

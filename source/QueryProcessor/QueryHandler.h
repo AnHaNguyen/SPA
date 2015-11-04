@@ -6,6 +6,7 @@
 #include "../QueryProcessor/HandleRS.h"
 #include "../QueryProcessor/HandleST.h"
 #include "../QueryProcessor/HandlePT.h"
+#include "../QueryProcessor/HandleWith.h"
 #include "../QueryProcessor/HUtility.h"
 #include "../QueryProcessor/HandlerStruct.h"
 #include "../FollowTable.h"
@@ -13,6 +14,7 @@
 #include "../ModifyTable.h"
 #include "../ParentTable.h"
 #include "../ParentSTable.h"
+#include "../NextTable.h"
 #include "../ProgLine.h"
 
 #include <string>

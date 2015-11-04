@@ -175,6 +175,7 @@
     <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
     <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
     <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleWith.h" />
     <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
     <ClInclude Include="..\Source\QueryProcessor\QueryHandler.h" />
     <ClInclude Include="..\Source\TNode.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="..\source\QueryProcessor\HandlePT.cpp" />
     <ClCompile Include="..\source\QueryProcessor\HandleRS.cpp" />
     <ClCompile Include="..\source\QueryProcessor\HandleST.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleWith.cpp" />
     <ClCompile Include="..\source\QueryProcessor\HUtility.cpp" />
     <ClCompile Include="..\Source\QueryProcessor\QueryHandler.cpp" />
     <ClCompile Include="..\Source\TNode.cpp" />

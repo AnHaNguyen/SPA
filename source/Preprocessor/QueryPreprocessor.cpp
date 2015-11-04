@@ -25,6 +25,9 @@ vector<string> QueryPreprocessor::start(string line) {
 		input = trim("Select" + seperate[1]);
 	}
 	QueryTree* tree = startProcess(declare, input);
+	if (tree->getValidity() == false) {
+		cout << "================== Invalid QueryTree ===================" << endl;
+	}
 	//vector<string> result;
 	//return result;
 	QueryHandler handler;

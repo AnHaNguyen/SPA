@@ -333,16 +333,9 @@ int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<s
 		}
 	}
 	if (check == 2) {
-		vector<string> total1;
 		vector<string> total2;
 		ansVec1 = vec1;
 		ansVec2 = vec2;
-		int temp;
-		for (size_t i = 0; i < vec1.size(); i++) {
-			if (!HUtility().contain(total1, vec1[i])) {
-				total1.push_back(vec1[i]);
-			}
-		}
 		for (size_t i = 0; i < vec2.size(); i++) {
 			for (size_t j = 0; j < vec2[i].second.size(); j++) {
 				if (!HUtility().contain(total2, vec2[i].second[j])) {
@@ -351,22 +344,12 @@ int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<s
 			}
 		}
 
-		HUtility().intersectionSS(total1, total2, 1);
+		HUtility().intersectionSS(vec1, total2, 1);
 		size_t i = 0;
-		size_t j = 0;
-		while (vec1.size() > 0 && i < vec1.size()) {
-			if (!HUtility().contain(total1, vec1[i])) {
-				vec1.erase(vec1.begin() + i);
-			}
-			else {
-				i++;
-			}
-		}
-		i = 0;
-		j = 0;
 		while (vec2.size() > 0 && i < vec2.size()) {
+			size_t j = 0;
 			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
-				if (!HUtility().contain(total1, vec2[i].second[j])) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
 					vec2[i].second.erase(vec2[i].second.begin() + j);
 				}
 				else {
@@ -380,6 +363,15 @@ int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<s
 				i++;
 			}
 		}
+		/*for (size_t i = 0; i < vec2.size(); i++) {
+			for (size_t j = 0; j < vec2[i].second.size(); j++) {
+				if (!HUtility().contain(test, vec2[i].second[j])) {
+					test.push_back(vec2[i].second[j]);
+				}
+			}
+		}*/
+		/*vec1 = test;
+		return test.size();*/
 	}
 	if (vec1.size() == ansVec1.size() && vec2.size() == ansVec2.size()) {
 		return 0;
@@ -461,16 +453,47 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 		}
 	}
 	if (att1 == 1 && att2 == 2) {
+		vector<string> total1;
+		vector<string> total2;
+		ansVec1 = vec1;
+		ansVec2 = vec2;
+
 		for (size_t i = 0; i < vec1.size(); i++) {
-			bool added = 0;
-			for (size_t j = 0; j < vec2.size(); j++) {
-				if (find(vec2[j].second.begin(), vec2[j].second.end(), vec1[i].first) != vec2[j].second.end()) {
-					ansVec2.push_back(vec2[j]);
-					added = 1;
+			if (!HUtility().contain(total1, vec1[i].first)) {
+				total1.push_back(vec1[i].first);
+			}
+		}
+		for (size_t i = 0; i < vec2.size(); i++) {
+			for (size_t j = 0; j < vec2[i].second.size(); j++) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					total2.push_back(vec2[i].second[j]);
 				}
 			}
-			if (added) {
-				ansVec1.push_back(vec1[i]);
+		}
+
+		HUtility().intersectionSS(total1, total2, 1);
+		size_t i = 0;
+		while (vec1.size() > 0 && i < vec1.size()) {
+			if (!HUtility().contain(total1, vec1[i].first)) {
+				vec1.erase(vec1.begin() + i);
+			}
+		}
+		i = 0;
+		while (vec2.size() > 0 && i < vec2.size()) {
+			size_t j = 0;
+			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					vec2[i].second.erase(vec2[i].second.begin() + j);
+				}
+				else {
+					j++;
+				}
+			}
+			if (vec2[i].second.size() == 0) {
+				vec2.erase(vec2.begin() + i);
+			}
+			else {
+				i++;
 			}
 		}
 	}
@@ -486,24 +509,57 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 		}
 	}
 	if (att1 == 2 && att2 == 2) {
+		vector<string> total1;
+		vector<string> total2;
+		ansVec1 = vec1;
+		ansVec2 = vec2;
+
 		for (size_t i = 0; i < vec1.size(); i++) {
-			bool added = 0;
-			for (size_t j = 0; j < vec2.size(); j++) {
-				if (find(vec2[j].second.begin(), vec2[j].second.end(), vec1[i].second) != vec2[j].second.end()) {
-					ansVec2.push_back(vec2[j]);
-					added = 1;
+			if (!HUtility().contain(total1, vec1[i].second)) {
+				total1.push_back(vec1[i].second);
+			}
+		}
+		for (size_t i = 0; i < vec2.size(); i++) {
+			for (size_t j = 0; j < vec2[i].second.size(); j++) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					total2.push_back(vec2[i].second[j]);
 				}
 			}
-			if (added) {
-				ansVec1.push_back(vec1[i]);
+		}
+
+		HUtility().intersectionSS(total1, total2, 1);
+		size_t i = 0;
+		while (vec1.size() > 0 && i < vec1.size()) {
+			if (!HUtility().contain(total1, vec1[i].second)) {
+				vec1.erase(vec1.begin() + i);
+			}
+		}
+		i = 0;
+		while (vec2.size() > 0 && i < vec2.size()) {
+			size_t j = 0;
+			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					vec2[i].second.erase(vec2[i].second.begin() + j);
+				}
+				else {
+					j++;
+				}
+			}
+			if (vec2[i].second.size() == 0) {
+				vec2.erase(vec2.begin() + i);
+			}
+			else {
+				i++;
 			}
 		}
 	}
 	if (vec1.size() == ansVec1.size() && vec2.size() == ansVec2.size()) {
 		return 0;
 	}
-	vec1 = ansVec1;
-	vec2 = ansVec2;
+	if (att2 != 2) {
+		vec1 = ansVec1;
+		vec2 = ansVec2;
+	}
 	return 1;
 }
 
@@ -523,31 +579,93 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 		}
 	}
 	if (att1 == 1 && att2 == 2) {
+		vector<string> total1;
+		vector<string> total2;
+		ansVec1 = vec1;
+		ansVec2 = vec2;
+
 		for (size_t i = 0; i < vec1.size(); i++) {
-			bool added = 0;
-			for (size_t j = 0; j < vec2.size(); j++) {
-				if (find(vec2[j].second.begin(), vec2[j].second.end(), vec1[i].first) != vec2[j].second.end()) {
-					ansVec2.push_back(vec2[j]);
-					added = 1;
+			if (!HUtility().contain(total1, vec1[i].first)) {
+				total1.push_back(vec1[i].first);
+			}
+		}
+		for (size_t i = 0; i < vec2.size(); i++) {
+			for (size_t j = 0; j < vec2[i].second.size(); j++) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					total2.push_back(vec2[i].second[j]);
 				}
 			}
-			if (added) {
-				ansVec1.push_back(vec1[i]);
+		}
+
+		HUtility().intersectionSS(total1, total2, 1);
+		size_t i = 0;
+		while (vec1.size() > 0 && i < vec1.size()) {
+			if (!HUtility().contain(total1, vec1[i].first)) {
+				vec1.erase(vec1.begin() + i);
+			}
+		}
+		i = 0;
+		while (vec2.size() > 0 && i < vec2.size()) {
+			size_t j = 0;
+			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
+				if (!HUtility().contain(total2, vec2[i].second[j])) {
+					vec2[i].second.erase(vec2[i].second.begin() + j);
+				}
+				else {
+					j++;
+				}
+			}
+			if (vec2[i].second.size() == 0) {
+				vec2.erase(vec2.begin() + i);
+			}
+			else {
+				i++;
 			}
 		}
 	}
 
 	if (att1 == 2 && att2 == 1) {
+		vector<string> total1;
+		vector<string> total2;
+		ansVec1 = vec1;
+		ansVec2 = vec2;
+
 		for (size_t i = 0; i < vec2.size(); i++) {
-			bool added = 0;
-			for (size_t j = 0; j < vec1.size(); j++) {
-				if (find(vec1[j].second.begin(), vec1[j].second.end(), vec2[i].first) != vec1[j].second.end()) {
-					ansVec1.push_back(vec1[j]);
-					added = 1;
+			if (!HUtility().contain(total2, vec2[i].first)) {
+				total2.push_back(vec2[i].first);
+			}
+		}
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec1[i].second.size(); j++) {
+				if (!HUtility().contain(total1, vec1[i].second[j])) {
+					total1.push_back(vec1[i].second[j]);
 				}
 			}
-			if (added) {
-				ansVec1.push_back(vec2[i]);
+		}
+
+		HUtility().intersectionSS(total1, total2, 1);
+		size_t i = 0;
+		while (vec2.size() > 0 && i < vec2.size()) {
+			if (!HUtility().contain(total2, vec2[i].first)) {
+				vec2.erase(vec2.begin() + i);
+			}
+		}
+		i = 0;
+		while (vec1.size() > 0 && i < vec1.size()) {
+			size_t j = 0;
+			while (vec1[i].second.size() > 0 && j < vec1[i].second.size()) {
+				if (!HUtility().contain(total1, vec1[i].second[j])) {
+					vec1[i].second.erase(vec1[i].second.begin() + j);
+				}
+				else {
+					j++;
+				}
+			}
+			if (vec1[i].second.size() == 0) {
+				vec1.erase(vec1.begin() + i);
+			}
+			else {
+				i++;
 			}
 		}
 	}
@@ -575,8 +693,8 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 
 		HUtility().intersectionSS(total1, total2, 1);
 		size_t i = 0;
-		size_t j = 0;
 		while (vec1.size() > 0 && i < vec1.size()) {
+			size_t j = 0;
 			while (vec1[i].second.size() > 0 && j < vec1[i].second.size()) {
 				if (!HUtility().contain(total1, vec1[i].second[j])) {
 					vec1[i].second.erase(vec1[i].second.begin() + j);
@@ -593,8 +711,8 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 			}
 		}
 		i = 0;
-		j = 0;
 		while (vec2.size() > 0 && i < vec2.size()) {
+			size_t j = 0;
 			while (vec2[i].second.size() > 0 && j < vec2[i].second.size()) {
 				if (!HUtility().contain(total1, vec2[i].second[j])) {
 					vec2[i].second.erase(vec2[i].second.begin() + j);
@@ -614,7 +732,7 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 	if (vec1.size() == ansVec1.size() && vec2.size() == ansVec2.size()) {
 		return 0;
 	}
-	if (att1 != 2 || att2 != 2) {
+	if (att1 == 1 && att2 == 1) {
 		vec1 = ansVec1;
 		vec2 = ansVec2;
 	}

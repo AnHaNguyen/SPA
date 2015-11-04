@@ -35,6 +35,7 @@
     <ClCompile Include="..\source\QueryProcessor\HandleRS.cpp" />
     <ClCompile Include="..\source\QueryProcessor\HandleST.cpp" />
     <ClCompile Include="..\source\QueryProcessor\HUtility.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleWith.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -71,5 +72,6 @@
     <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
     <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
     <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleWith.h" />
   </ItemGroup>
 </Project>
