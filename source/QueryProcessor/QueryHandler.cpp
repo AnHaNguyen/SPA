@@ -685,6 +685,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	if (selType == "") {
 		return final;
 	}
+	
 	vector<vector<string>> finalVec;
 
 	while (true) {
@@ -729,50 +730,50 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				finalPart = progLine->getLinesOfType("if");
 			}
 			handleRS.rmEString(finalPart);
-			return finalPart;
 		}
-
-		//Return function normal case
-		//Case select within any clause (at this point no more empty vector)
-		for (size_t i = 0; i < attList.size(); i++) {
-			if (rs == attList[i].att) {
-				//Case at least 1 1syn clause is the rs
-				bool found = false;
-				for (size_t j = 0; j < attList[i].reClause.size(); j++) {
-					if (queryRS[attList[i].reClause[j]].synCount == 1) {
-						finalPart = queryRS[attList[i].reClause[j]].vec;
-						found = true;
-					}
-					break;
-				}
-
-				//Case select from 2 syn
-				if (!found) {
+		else {
+			//Return function normal case
+			//Case select within any clause (at this point no more empty vector)
+			for (size_t i = 0; i < attList.size(); i++) {
+				if (rs == attList[i].att) {
+					//Case at least 1 1syn clause is the rs
+					bool found = false;
 					for (size_t j = 0; j < attList[i].reClause.size(); j++) {
-						if (queryRS[attList[i].reClause[j]].synCount == 2) {
-							if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+						if (queryRS[attList[i].reClause[j]].synCount == 1) {
+							finalPart = queryRS[attList[i].reClause[j]].vec;
+							found = true;
+						}
+						break;
+					}
 
-								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
-									finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].first);
+					//Case select from 2 syn
+					if (!found) {
+						for (size_t j = 0; j < attList[i].reClause.size(); j++) {
+							if (queryRS[attList[i].reClause[j]].synCount == 2) {
+								if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].first);
+									}
 								}
-							}
-							if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
-								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
-									for (size_t h = 0; h < queryRS[attList[i].reClause[j]].table[k].second.size(); h++) {
-										if (!utility.contain(finalPart, queryRS[attList[i].reClause[j]].table[k].second[h])) {
-											finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].second[h]);
+								if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+										for (size_t h = 0; h < queryRS[attList[i].reClause[j]].table[k].second.size(); h++) {
+											if (!utility.contain(finalPart, queryRS[attList[i].reClause[j]].table[k].second[h])) {
+												finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].second[h]);
+											}
 										}
 									}
 								}
-							}
-							if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
-								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
-									finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].first);
+								if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].first);
+									}
 								}
-							}
-							if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
-								for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
-									finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].second);
+								if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].second);
+									}
 								}
 							}
 						}
@@ -782,6 +783,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		}
 		finalVec.push_back(finalPart);
 		if (result->getNext() != NULL) {
+		//	final.push_back("size " + to_string(finalVec.size()));
 			result = result->getNext();
 		}
 		else {
@@ -798,5 +800,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
+	//final = finalVec[0];
 	return final;
 }

@@ -2,7 +2,7 @@
 HandleWith::HandleWith() {}
 HandleWith::~HandleWith() {}
 
-void handleWith(vector<string> &withVec, string firstAtt, string secondAtt) {
+void HandleWith::handleWith(vector<string> &withVec, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
 	if (HUtility().getSymMean(secondAtt) == "") {
 		withVec.push_back(secondAtt);
