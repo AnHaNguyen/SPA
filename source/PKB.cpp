@@ -493,6 +493,20 @@ vector<string> PKB::getAffectSReverse(string n2) {
 	return returnList;
 }
 
+/*void PKB::updateProgLineParent() {
+	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
+		for (unsigned j = 0; j < parentTable->size(); j++) {
+			string parent = parentTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentTable->getTable().at(j).child.size(); k++) {
+				string child = parentTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParent(i, parent);
+				}
+			}
+		}
+	}
+}*/
+
 void PKB::updateProgLine() {
 	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
 		for (unsigned j = 0; j < parentTable->size(); j++) {
@@ -532,4 +546,5 @@ void PKB::updateProgLine() {
 			}
 		}
 	}
+	//exit(EXIT_FAILURE);
 }
