@@ -753,7 +753,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
 						finalPart1.push_back(queryRS[i].table[j].first);
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
-							finalPart2.push_back(queryRS[i].table[j].second[k]);
+							if (!utility.contain(finalPart2, queryRS[i].table[j].second[k])) {
+								finalPart2.push_back(queryRS[i].table[j].second[k]);
+							}
 						}
 					}
 					finalVec.push_back(finalPart1);
@@ -779,7 +781,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
 						finalPart2.push_back(queryRS[i].table[j].first);
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
-							finalPart1.push_back(queryRS[i].table[j].second[k]);
+							if (!utility.contain(finalPart1, queryRS[i].table[j].second[k])) {
+								finalPart1.push_back(queryRS[i].table[j].second[k]);
+							}
 						}
 					}
 					finalVec.push_back(finalPart1);
