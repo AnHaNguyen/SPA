@@ -738,16 +738,17 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		for (size_t i = 0; i < queryRS.size(); i++) {
 			if (queryRS[i].firstAtt == var1 && queryRS[i].secondAtt == var2) {
 				if (!queryRS[i].vec.empty()) {
-					finalVec.push_back(queryRS[i].vec);
-					finalVec.push_back(queryRS[i].vec);
+					for (size_t j = 0; j < queryRS[i].vec.size(); j++) {
+						final.push_back(queryRS[i].vec[j]+" " + queryRS[i].vec[j]);
+					}
 				}
 				if (!queryRS[i].ssTable.empty()) {
-					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
-						final.push_back(queryRS[i].ssTable[i].first + " " + queryRS[i].ssTable[i].second);
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); j++) {
+						final.push_back(queryRS[i].ssTable[j].first + " " + queryRS[i].ssTable[j].second);
 					}
 				}
 				if (!queryRS[i].table.empty()) {
-					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
+					for (size_t j = 0; j < queryRS[i].table.size(); j++) {
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
 							final.push_back(queryRS[i].table[j].first + " " + queryRS[i].table[j].second[k]);
 						}
@@ -758,17 +759,17 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 			if (queryRS[i].firstAtt == var2 && queryRS[i].secondAtt == var1) {
 				if (!queryRS[i].vec.empty()) {
-					finalVec.push_back(queryRS[i].vec);
-					finalVec.push_back(queryRS[i].vec);
+					for (size_t j = 0; j < queryRS[i].vec.size(); j++) {
+						final.push_back(queryRS[i].vec[j] + " " + queryRS[i].vec[j]);
+					}
 				}
 				if (!queryRS[i].ssTable.empty()) {
-					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
-						final.push_back(queryRS[i].ssTable[i].second + " " + queryRS[i].ssTable[i].first);
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); j++) {
+						final.push_back(queryRS[i].ssTable[j].second + " " + queryRS[i].ssTable[j].first);
 					}
 				}
 				if (!queryRS[i].table.empty()) {
-					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
-						finalPart2.push_back(queryRS[i].table[j].first);
+					for (size_t j = 0; j < queryRS[i].table.size(); j++) {
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
 							final.push_back(queryRS[i].table[j].second[k]+ " " + queryRS[i].table[j].first);
 						}
@@ -777,6 +778,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				checkSC = false;
 				break;
 			}
+		}
+		if (!checkSC) {
+			return final;
 		}
 	}
 
