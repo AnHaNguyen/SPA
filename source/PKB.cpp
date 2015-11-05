@@ -387,3 +387,164 @@ vector<pair<string, vector<string>>> PKB::affect() {
 	}
 	return returnList;
 }
+
+vector<string> PKB::affectS(string n1, string n2) {
+	vector<string> returnList;
+	if (n1 != "_" && n2 != "_") {		//affect*(1,2)
+		if (progLine->getType(n1) != "assign" || progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		else {
+			vector<string> list = getAffectS(n1);
+			for (unsigned i = 0; i < list.size(); i++) {
+				if (list.at(i) == n2) {
+					returnList.push_back("true");
+					return returnList;
+				}
+			}
+			returnList.push_back("false");
+			return returnList;
+		}
+
+	}
+	else if (n1 != "_" && n2 == "_") {		//affect*(1,n2)
+		if (progLine->getType(n1) != "assign") {
+			return returnList;
+		}
+		else {
+			returnList = getAffectS(n1);
+			return returnList;
+		}
+	}
+	else if (n1 == "_" && n2 != "_") {		//affect*(n1, 2)
+		if (progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		else {
+			returnList = getAffectSReverse(n2);
+			return returnList;
+		}
+	}
+	return returnList;
+}
+
+vector<pair<string, vector<string>>> PKB::affectS() {
+	vector<pair<string, vector<string>>> returnList;
+	for (unsigned i = 0; i < procTable->size(); i++) {
+		string curProc = procTable->getProc(i);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned j = 0; j < assignList.size(); j++) {
+			string line = assignList.at(j);
+			vector<string> affectStmts = affectS(line, "_");
+			pair<string, vector<string>> pr;
+			pr.first = line;
+			pr.second = affectStmts;
+			returnList.push_back(pr);
+		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::getAffectS(string n1) {
+	vector<string> returnList;
+	vector<bool> processed;
+	//string curProc = progLine->getProcedure(n1);
+	//vector<string> assignList = progLine->getAssignsOfProc(n1);
+	int numLines = progLine->numOfLines();
+	for (int i = 0; i < numLines; i++) {
+		processed.push_back(false);
+	}
+	queue<string> q;
+	q.push(n1);
+	while (!q.empty()) {
+		vector<string> affectStmts = affect(q.front(), "_");
+		q.pop();
+		for (unsigned i = 0; i < affectStmts.size(); i++) {
+			if (!processed.at(atoi(affectStmts.at(i).c_str()) -1)) {
+				processed.at(atoi(affectStmts.at(i).c_str()) -1) = true;
+				returnList.push_back(affectStmts.at(i));
+				q.push(affectStmts.at(i));
+			}
+		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::getAffectSReverse(string n2) {
+	vector<string> returnList;
+	vector<bool> processed;
+	int numLines = progLine->numOfLines();
+	for (int i = 0; i < numLines; i++) {
+		processed.push_back(false);
+	}
+	queue<string> q;
+	q.push(n2);
+	while (!q.empty()) {
+		vector<string> affectStmts = affect("_", q.front());
+		q.pop();
+		for (unsigned i = 0; i < affectStmts.size(); i++) {
+			if (!processed.at(atoi(affectStmts.at(i).c_str()) - 1)) {
+				processed.at(atoi(affectStmts.at(i).c_str()) - 1) = true;
+				returnList.push_back(affectStmts.at(i));
+				q.push(affectStmts.at(i));
+			}
+		}
+	}
+	return returnList;
+}
+
+/*void PKB::updateProgLineParent() {
+	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
+		for (unsigned j = 0; j < parentTable->size(); j++) {
+			string parent = parentTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentTable->getTable().at(j).child.size(); k++) {
+				string child = parentTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParent(i, parent);
+				}
+			}
+		}
+	}
+}*/
+
+void PKB::updateProgLine() {
+	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
+		for (unsigned j = 0; j < parentTable->size(); j++) {
+			string parent = parentTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentTable->getTable().at(j).child.size(); k++) {
+				string child = parentTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParent(i, parent);
+				}
+			}
+		}
+		for (unsigned j = 0; j < parentSTable->size(); j++) {
+			string parentS = parentSTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentSTable->getTable().at(j).child.size(); k++) {
+				string child = parentSTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParentS(i, parentS);
+				}
+			}
+		}
+		for (unsigned j = 0; j < followSTable->size(); j++) {
+			string followS = followSTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < followSTable->getTable().at(j).followStmts.size(); k++) {
+				string followed = followSTable->getTable().at(j).followStmts.at(k);
+				if (atoi(followed.c_str()) == i + 1) {
+					progLine->updateFollowS(i, followS);
+				}
+			}
+		}
+		for (unsigned j = 0; j < nextTable->size(); j++) {
+			string prev = nextTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < nextTable->getTable().at(j).nextStmts.size(); k++) {
+				string next = nextTable->getTable().at(j).nextStmts.at(k);
+				if (atoi(next.c_str()) == i + 1) {
+					progLine->updateNext(i, prev);
+				}
+			}
+		}
+	}
+	//exit(EXIT_FAILURE);
+}

@@ -34,6 +34,9 @@ private: static FollowTable* followTable;
 		 static FollowSTable* followSTable;
 		 static ParentSTable* parentSTable;
 		 static CallSTable* callSTable;
+
+		 static vector<string> getAffectS(string n1);
+		 static vector<string> getAffectSReverse(string n2);
 public:
 		 PKB();
 		 ~PKB();
@@ -81,6 +84,14 @@ public:
 		 //for Affect
 		 static vector<string> affect(string a1, string a2);
 		 static vector <pair<string,vector<string>>> affect();
+
+		 //for AffectS
+		 static vector<string> affectS(string a1, string a2);
+		 static vector<pair<string, vector<string>>> affectS();
+
+		//Optimization
+		 static void updateProgLine();
+		 //static void updateProgLineParent();
 };
 
 #endif

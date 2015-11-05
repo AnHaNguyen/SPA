@@ -74,7 +74,7 @@ void DesignExtractor::storeToPKB() {
 	PKB::setCallSTable(callSTable);
 	PKB::setFollowSTable(followSTable);
 	PKB::setParentSTable(parentSTable);
-	PKB::setCallTable(callTable);
+	PKB::updateProgLine();
 }
 
 //-------------------------AST-------------------------//
