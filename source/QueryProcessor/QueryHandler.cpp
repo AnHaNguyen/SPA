@@ -743,23 +743,15 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 				if (!queryRS[i].ssTable.empty()) {
 					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
-						finalPart1.push_back(queryRS[i].ssTable[j].first);
-						finalPart2.push_back(queryRS[i].ssTable[j].second);
+						final.push_back(queryRS[i].ssTable[i].first + " " + queryRS[i].ssTable[i].second);
 					}
-					finalVec.push_back(finalPart1);
-					finalVec.push_back(finalPart2);
 				}
 				if (!queryRS[i].table.empty()) {
 					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
-						finalPart1.push_back(queryRS[i].table[j].first);
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
-							if (!utility.contain(finalPart2, queryRS[i].table[j].second[k])) {
-								finalPart2.push_back(queryRS[i].table[j].second[k]);
-							}
+							final.push_back(queryRS[i].table[j].first + " " + queryRS[i].table[j].second[k]);
 						}
 					}
-					finalVec.push_back(finalPart1);
-					finalVec.push_back(finalPart2);
 				}
 				checkSC = false;
 				break;
@@ -771,23 +763,16 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 				if (!queryRS[i].ssTable.empty()) {
 					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
-						finalPart2.push_back(queryRS[i].ssTable[j].first);
-						finalPart1.push_back(queryRS[i].ssTable[j].second);
+						final.push_back(queryRS[i].ssTable[i].second + " " + queryRS[i].ssTable[i].first);
 					}
-					finalVec.push_back(finalPart1);
-					finalVec.push_back(finalPart2);
 				}
 				if (!queryRS[i].table.empty()) {
 					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
 						finalPart2.push_back(queryRS[i].table[j].first);
 						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
-							if (!utility.contain(finalPart1, queryRS[i].table[j].second[k])) {
-								finalPart1.push_back(queryRS[i].table[j].second[k]);
-							}
+							final.push_back(queryRS[i].table[j].second[k]+ " " + queryRS[i].table[j].first);
 						}
 					}
-					finalVec.push_back(finalPart1);
-					finalVec.push_back(finalPart2);
 				}
 				checkSC = false;
 				break;
