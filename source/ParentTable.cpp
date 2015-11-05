@@ -43,18 +43,18 @@ vector <string> ParentTable::getChild(string parent) {
 	return returnList;
 }
 
-string ParentTable::getParentSlow(string child) {
-	/*for (unsigned i = 0; i < parentTable.size(); i++) {
+/*string ParentTable::getParentSlow(string child) {
+	for (unsigned i = 0; i < parentTable.size(); i++) {
 		for (unsigned j = 0; j < parentTable.at(i).child.size(); j++) {
 			if (parentTable.at(i).child.at(j) == child) {
 				return parentTable.at(i).lineNo;
 			}
 		}
-	}*/
+	}
 	int line = atoi(child.c_str());
 	ProgLine* pl = PKB::getProgLine();
 	return pl->getParent(line);
-}
+}*/
 
 int ParentTable::size() {
 	return parentTable.size();
