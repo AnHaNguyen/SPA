@@ -727,8 +727,72 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	}
 
 	vector<vector<string>> finalVec;
+	//Check case both control parameters are in the same clause
+	bool checkSC = true;
+	if (result->getNext() != NULL) {
+		string var1 = result->getResult().getSynonym();
+		string var2 = result->getNext()->getResult().getSynonym();
+		vector<string> finalPart1;
+		vector<string> finalPart2;
 
-	while (true) {
+		for (size_t i = 0; i < queryRS.size(); i++) {
+			if (queryRS[i].firstAtt == var1 && queryRS[i].secondAtt == var2) {
+				if (!queryRS[i].vec.empty()) {
+					finalVec.push_back(queryRS[i].vec);
+					finalVec.push_back(queryRS[i].vec);
+				}
+				if (!queryRS[i].ssTable.empty()) {
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
+						finalPart1.push_back(queryRS[i].ssTable[j].first);
+						finalPart2.push_back(queryRS[i].ssTable[j].second);
+					}
+					finalVec.push_back(finalPart1);
+					finalVec.push_back(finalPart2);
+				}
+				if (!queryRS[i].table.empty()) {
+					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
+						finalPart1.push_back(queryRS[i].table[j].first);
+						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
+							finalPart2.push_back(queryRS[i].table[j].second[k]);
+						}
+					}
+					finalVec.push_back(finalPart1);
+					finalVec.push_back(finalPart2);
+				}
+				checkSC = false;
+				break;
+			}
+			if (queryRS[i].firstAtt == var2 && queryRS[i].secondAtt == var1) {
+				if (!queryRS[i].vec.empty()) {
+					finalVec.push_back(queryRS[i].vec);
+					finalVec.push_back(queryRS[i].vec);
+				}
+				if (!queryRS[i].ssTable.empty()) {
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); i++) {
+						finalPart2.push_back(queryRS[i].ssTable[j].first);
+						finalPart1.push_back(queryRS[i].ssTable[j].second);
+					}
+					finalVec.push_back(finalPart1);
+					finalVec.push_back(finalPart2);
+				}
+				if (!queryRS[i].table.empty()) {
+					for (size_t j = 0; j < queryRS[i].table.size(); i++) {
+						finalPart2.push_back(queryRS[i].table[j].first);
+						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
+							finalPart1.push_back(queryRS[i].table[j].second[k]);
+						}
+					}
+					finalVec.push_back(finalPart1);
+					finalVec.push_back(finalPart2);
+				}
+				checkSC = false;
+				break;
+			}
+		}
+	}
+
+	//Other cases
+	while (checkSC) {
 		string rs = result->getResult().getSynonym();
 		vector<string> finalPart;
 		//Check case select not equal to each attribute
@@ -838,6 +902,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
-	//final = finalVec[0];
+
 	return final;
 }
