@@ -15,8 +15,9 @@ public:
 	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec);
 	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
 	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec);
-	vector<string> handleNext(string &firstAtt, string &secondAtt);
-	vector<string> handleCalls(string firstAtt, string secondAtt);
+	void handleNext(string &firstAtt, string &secondAtt, vector<string> &nextVec);
+	void handleCalls(string firstAtt, string secondAtt, vector<string> &callVec);
+	void handleAffect(string firstAtt, string secondAtt, vector<string> &affVec);
 
 	bool isFollowsS(string firstAtt, string secondAtt);
 	bool isParentS(string firstAtt, string secondAtt);

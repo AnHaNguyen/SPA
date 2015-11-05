@@ -70,6 +70,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		vector<string> callVec;
 		vector <pair<string, vector<string>>> callTable;
 
+		vector<string> affVec;
+		vector <pair<string, vector<string>>> affTable;
+
 
 		if (queryST->getSynonym() != "") {
 			ST = queryST->getSynonym();
@@ -184,18 +187,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 
-			/*Handle affects - next (next iteration)
-			if (ST == "affects") {
-			ansVec = getAffect(firstAtt, secondAtt);
-			}
-			if (ST == "affects*") {
-			ansVec = getAffectS(firstAtt, secondAtt);
-			}
-			}*/
-
 			//Handle Next
 			if (ST == "Next") {
-				nextVec = handleST.handleNext(stFirst, stSecond);
+				handleST.handleNext(stFirst, stSecond, nextVec);
 				if (nextVec.size() > 0 && nextVec.front() == "all") {
 					utility.getNextTable(nextTable);
 					handleRS.checkPSV(nextTable, stFirst, stSecond);
@@ -217,7 +211,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					}
 				}
 				else {
-					nextVec = handleST.handleNext(stFirst, stSecond);
+					handleST.handleNext(stFirst, stSecond, nextVec);
 					if (!nextVec.empty()) {
 						if (nextVec.size() > 0 && nextVec.front() == "all") {
 							utility.getNextTable(nextTable);
@@ -239,7 +233,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Handle Calls
 			if (ST == "Calls") {
-				callVec = handleST.handleCalls(stFirst, stSecond);
+				 handleST.handleCalls(stFirst, stSecond, callVec);
 				if (callVec.size() > 0 && callVec.front() == "all") {
 					utility.getCallTable(callTable);
 				}
@@ -260,7 +254,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					}
 				}
 				else {
-					callVec = handleST.handleCalls(stFirst, stSecond);
+					handleST.handleCalls(stFirst, stSecond, callVec);
 					if (!callVec.empty()) {
 						if (callVec.size() > 0 && callVec.front() == "all") {
 							utility.getCallTable(callTable);
@@ -276,6 +270,14 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							}
 						}
 					}
+				}
+			}
+
+			//Handle affects
+			if (ST == "affects") {
+				handleST.handleAffect(stFirst, stSecond, affVec);
+				if (affVec.size() > 0 && affVec.front() == "all") {
+					affTable = PKB::affect();
 				}
 			}
 
