@@ -477,6 +477,9 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 			if (!HUtility().contain(total1, vec1[i].first)) {
 				vec1.erase(vec1.begin() + i);
 			}
+			else {
+				i++;
+			}
 		}
 		i = 0;
 		while (vec2.size() > 0 && i < vec2.size()) {
@@ -532,6 +535,9 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 		while (vec1.size() > 0 && i < vec1.size()) {
 			if (!HUtility().contain(total1, vec1[i].second)) {
 				vec1.erase(vec1.begin() + i);
+			}
+			else{
+				i++;
 			}
 		}
 		i = 0;
@@ -603,6 +609,9 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 			if (!HUtility().contain(total1, vec1[i].first)) {
 				vec1.erase(vec1.begin() + i);
 			}
+			else {
+				i++;
+			}
 		}
 		i = 0;
 		while (vec2.size() > 0 && i < vec2.size()) {
@@ -648,6 +657,9 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 		while (vec2.size() > 0 && i < vec2.size()) {
 			if (!HUtility().contain(total2, vec2[i].first)) {
 				vec2.erase(vec2.begin() + i);
+			}
+			else {
+				i++;
 			}
 		}
 		i = 0;
