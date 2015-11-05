@@ -26,6 +26,7 @@ public:	ParentTable();
 		bool isContained(string lineNo);
 		bool isParent(string lineNo, string child);
 		vector<ParentEntry_t> getTable();
+		string getParentSlow(string child);
 };
 
 #endif

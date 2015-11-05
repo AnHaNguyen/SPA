@@ -28,5 +28,6 @@ public: ParentSTable();
 		bool isContained(string line);
 		bool isParentS(string line, string child);
 		vector<ParentSEntry_t> getTable();
+		vector<string> getParentSSlow(string child);
 };
 #endif
