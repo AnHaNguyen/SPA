@@ -90,3 +90,35 @@ vector<string> ProgLine::getAssignsOfProc(string procedure) {
 	}
 	return returnList;
 }
+
+/*void ProgLine::updateFollowS(int line, string s) {
+	progLine.at(line).followS.push_back(s);
+}
+
+void ProgLine::updateParent(int line, string s) {
+	progLine.at(line).parent = s;
+}
+
+void ProgLine::updateParentS(int line, string s) {
+	progLine.at(line).parentS.push_back(s);
+}
+
+void ProgLine::updateNext(int line, string s) {
+	progLine.at(line).next.push_back(s);
+}
+
+vector<string> ProgLine::getFollowS(int line) {
+	return progLine.at(line - 1).followS;
+}
+
+string ProgLine::getParent(int line) {
+	return progLine.at(line - 1).parent;
+}
+
+vector<string> ProgLine::getParentS(int line) {
+	return progLine.at(line - 1).parentS;
+}
+
+vector<string> ProgLine::getNext(int line) {
+	return progLine.at(line - 1).next;
+}*/

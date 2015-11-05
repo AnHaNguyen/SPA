@@ -29,6 +29,7 @@ public: NextTable();
 		bool isNextS(string prev, string next);
 		vector<NextEntry_t> getNextSTable();
 		void addListToTable(string line, vector<string> list);
+		vector<string> getPrevSlow(string next);
 };
 
 #endif
