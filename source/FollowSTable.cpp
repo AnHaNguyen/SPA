@@ -41,20 +41,20 @@ vector <string> FollowSTable::getNextS(string prev) {
 	return returnList;
 }
 
-vector<string> FollowSTable::getPrevSSlow(string next) {
+/*vector<string> FollowSTable::getPrevSSlow(string next) {
 	vector<string> returnList;
-	/*for (unsigned i = 0; i < followSTable.size(); i++) {
+	for (unsigned i = 0; i < followSTable.size(); i++) {
 		for (unsigned j = 0; j < followSTable.at(i).followStmts.size(); j++) {
 			if (followSTable.at(i).followStmts.at(j) == next) {
 				returnList.push_back(followSTable.at(i).lineNo);
 			}
 		}
-	}*/
+	}
 	int line = atoi(next.c_str());
 	ProgLine* pl = PKB::getProgLine();
 	returnList = pl->getFollowS(line);
 	return returnList;
-}
+}*/
 
 int FollowSTable::size() {
 	return followSTable.size();

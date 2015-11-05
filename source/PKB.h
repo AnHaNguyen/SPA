@@ -90,7 +90,7 @@ public:
 		 static vector<pair<string, vector<string>>> affectS();
 
 		//Optimization
-		 static void updateProgLine();
+		 //static void updateProgLine();
 		 //static void updateProgLineParent();
 };
 

@@ -25,7 +25,7 @@ public:	FollowSTable();
 		bool isContained(string lineNo);
 		bool isFollowS(string lineNo, string child);
 		vector<FollowSEntry_t> getTable();
-		vector<string> getPrevSSlow(string next);
+	//	vector<string> getPrevSSlow(string next);
 };
 
 #endif

@@ -853,10 +853,10 @@ string DesignExtractor::nearestNext(string line) {
 	else if (progLine->getType(line) == WHILE) {
 		return line;
 	}
-	else if (parentTable->getParentSlow(line) == NO_VALUE) {
+	else if (parentTable->getParent(line) == NO_VALUE) {
 		return NO_VALUE;
 	}
-	else return nearestNext(parentTable->getParentSlow(line));
+	else return nearestNext(parentTable->getParent(line));
 }
 
 void DesignExtractor::processSTable() {

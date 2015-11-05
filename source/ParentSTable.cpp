@@ -39,20 +39,20 @@ vector<string> ParentSTable::getChildS(string parent) {
 	return returnList;
 }
 
-vector<string> ParentSTable::getParentSSlow(string child) {
+/*vector<string> ParentSTable::getParentSSlow(string child) {
 	vector<string> returnList;
-	/*for (unsigned i = 0; i < parentSTable.size(); i++) {
+	for (unsigned i = 0; i < parentSTable.size(); i++) {
 		for (unsigned j = 0; j < parentSTable.at(i).child.size(); j++) {
 			if (parentSTable.at(i).child.at(j) == child) {
 				returnList.push_back(parentSTable.at(i).lineNo);
 			}
 		}
-	}*/
+	}
 	int line = atoi(child.c_str());
 	ProgLine* pl = PKB::getProgLine();
 	returnList = pl->getParentS(line);
 	return returnList;
-}
+}*/
 
 int ParentSTable::size() {
 	return parentSTable.size();

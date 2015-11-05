@@ -27,21 +27,21 @@ bool NextTable::addToTable(string prev, string next) {
 	return true;
 }
 
-vector<string> NextTable::getPrevSlow(string next) {
+/*vector<string> NextTable::getPrevSlow(string next) {
 	vector<string> returnList;
-	/*for (unsigned i = 0; i < nextTable.size(); i++) {
+	for (unsigned i = 0; i < nextTable.size(); i++) {
 		for (unsigned j = 0; j < nextTable.at(i).nextStmts.size(); j++) {
 			if (nextTable.at(i).nextStmts.at(j) == next) {
 				returnList.push_back(nextTable.at(i).lineNo);
 				break;
 			}
 		}
-	}*/
+	}
 	int line = atoi(next.c_str());
 	ProgLine* pl = PKB::getProgLine();
 	returnList = pl->getNext(line);
 	return returnList;
-}
+}*/
 
 vector<string> NextTable::getNext(string prev) {
 	vector<string> returnList;
