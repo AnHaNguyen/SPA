@@ -2,21 +2,20 @@
 HandleST::HandleST() {}
 HandleST::~HandleST() {}
 
-string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
+void HandleST::handleFollows(string &firstAtt, string &secondAtt, vector<string> &folVec) {
 	FollowTable* folTab = PKB::getFollowTable();
-	string ans = "na";
 	//Case 1st: n/s
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
 		|| HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
-			ans = "all";
+			folVec.push_back("all");
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
 			if (folTab->getPrev(secondAtt) != "") {
-				ans = folTab->getPrev(secondAtt);
+				folVec.push_back(folTab->getPrev(secondAtt));
 			}
 		}
 	}
@@ -24,14 +23,13 @@ string HandleST::handleFollows(string &firstAtt, string &secondAtt) {
 	else {
 		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
 			if (folTab->getNext(firstAtt) != "") {
-				ans = folTab->getNext(firstAtt);
+				folVec.push_back(folTab->getNext(firstAtt));
 			}
 		}
 		else if (folTab->isFollows(firstAtt, secondAtt)) {
-			ans = "true";
+			folVec.push_back("true");
 		}
 	}
-	return ans;
 }
 
 void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec) {

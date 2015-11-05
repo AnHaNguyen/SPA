@@ -3,7 +3,7 @@ HandlePT::HandlePT() {}
 HandlePT::~HandlePT() {}
 
 void HandlePT::handleAssign(string ptFirst, string ptSecond,
-	vector<string> &patVec, vector<pair<string, vector<string>>> &patAsgTable, vector<asgPat_t> asgPat) {
+	vector<string> &patVec, vector<pair<string, vector<string>>> &patAsgTable) {
 	pair<string, bool> ptFirstU;
 	pair<string, bool> ptSecondU;
 	HandlePT().checkUnderscore(ptFirstU, ptFirst);

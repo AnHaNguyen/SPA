@@ -11,7 +11,7 @@ class HandleST {
 public:
 	HandleST();
 	~HandleST();
-	string handleFollows(string &firstAtt, string &secondAtt);
+	void handleFollows(string &firstAtt, string &secondAtt, vector<string> &folVec);
 	void handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec);
 	void handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec);
 	void handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec);

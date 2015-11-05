@@ -13,7 +13,7 @@ public:
 	~HandlePT();
 
 	void handleAssign(string ptFirst, string ptSecond, 
-		vector<string> &patVec, vector<pair<string, vector<string>>> &patTable, vector<asgPat_t> asgPat);
+		vector<string> &patVec, vector<pair<string, vector<string>>> &patTable);
 	void HandlePT::handleIf(string ptFirst, string ptSecond, 
 		vector<string> &patVec, vector<pair<string, string>> &ifTable);
 	void HandlePT::handleWhile(string ptFirst, string ptSecond, 
