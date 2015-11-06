@@ -623,13 +623,13 @@ namespace TestPreprocessor
 		TEST_METHOD(with_table)
 		{
 			QueryPreprocessor pro51;
-			string input51 = "Select w with n1 = 10 and p1.procName = v1.varName such that Modifies(1,v1) with s1.stmt# = c1.value with c1.value = 8";
+			string input51 = "Select w with n1 = 10 and p1.procName = v1.varName such that Modifies(1,v1) with s1.stmt# = c1.value with c1.value = 2";
 			pro51.setWithTable(input51);
 			Assert::AreEqual(4, (int)pro51.getWithTable().size());
 			Assert::AreEqual((string)"n1 = 10", pro51.getWithTable()[0]);
 			Assert::AreEqual((string)"p1.procName = v1.varName", pro51.getWithTable()[1]);
 			Assert::AreEqual((string)"s1.stmt# = c1.value", pro51.getWithTable()[2]);
-			Assert::AreEqual((string)"c1.value = 8", pro51.getWithTable()[3]);
+			Assert::AreEqual((string)"c1.value = 2", pro51.getWithTable()[3]);
 		}
 
 		TEST_METHOD(with_nodes)
@@ -789,7 +789,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(false, tree64->getValidity());
 		}
 
-		TEST_METHOD(pattern_invalid_expr_3) {
+		TEST_METHOD(pattern_invalid_expr_lack_left_bracket) {
 			QueryPreprocessor pro65;
 			string declare65 = "assign a1,a2,a3;while w;stmt s1,s2;variable v1;if ifstat;";
 			string input65 = "Select a1 pattern a1(_, \"(x+y)+(6+8\")";
@@ -871,5 +871,28 @@ namespace TestPreprocessor
 			QueryTree* tree74 = pro74.startProcess(declare74, input74);
 			Assert::AreEqual(false, tree74->getValidity());
 		}
+
+		TEST_METHOD(such_that_Modifeis_firstAttr_quotation) {
+			QueryPreprocessor pro75;
+			string declare75 = "assign a; variable v; procedure p1, p2;";
+			string input75 = "Select a such that Modifies(\"Main\", v)";
+			QueryTree* tree75 = pro75.startProcess(declare75, input75);
+			Assert::AreEqual(true, tree75->getValidity());
+		}
+
+		TEST_METHOD(Follows_with_S_Stmt_2) {
+			QueryPreprocessor pro76;
+			string declare76 = "assign a; variable v; procedure p1, p2; stmt s;";
+			string input76 = "Select s such that Follows(1,s) with s.stmt# = 2";
+			QueryTree* tree76 = pro76.startProcess(declare76, input76);
+			Assert::AreEqual(true, tree76->getValidity());
+			Assert::AreEqual((string)"Follows", tree76->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"1", tree76->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"s", tree76->getSuchThat()->getSecondAttr());
+			Assert::AreEqual((string)"s", tree76->getWith()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"stmt#", tree76->getWith()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"2", tree76->getWith()->getRightType());
+		}
+
 	};
 }

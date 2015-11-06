@@ -390,10 +390,11 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 	}
 
 	if (syn == "Modifies") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+		if (!(isValidStmtRef(symbolTable, first) || isValidEntRef(symbolTable, first)) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
-		if (first != "_" && !isInteger(first)) {
+
+		if (first != "_" && !isInteger(first) && first.find("\"")==string::npos) {
 			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
 				&& firstType != "prog_line" && firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
@@ -411,10 +412,10 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 	}
 
 	if (syn == "Uses") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+		if (!(isValidStmtRef(symbolTable, first) || isValidEntRef(symbolTable, first)) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
-		if (first != "_" && !isInteger(first)) {
+		if (first != "_" && !isInteger(first) && first.find("\"") == string::npos) {
 			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
 				&& firstType != "prog_line" &&  firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
@@ -752,6 +753,9 @@ bool QueryTree::isValidEntRef(vector< vector<string> > table, string str) {
 				return true;
 			}
 		}
+	}
+	if (isInteger(str)) {
+		return true;
 	}
 	return false;
 }

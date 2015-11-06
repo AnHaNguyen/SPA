@@ -1,0 +1,5 @@
+1 - assign, f(c,c)
+assign a; variable v; procedure p1, p2; stmt s;
+Select s such that Follows(1,s) with s.stmt# = 2
+2
+5000
