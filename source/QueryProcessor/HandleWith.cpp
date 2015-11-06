@@ -8,7 +8,7 @@ void HandleWith::handleWith(vector<string> &withVec, string firstAtt, string sec
 		withVec.push_back(secondAtt);
 	}
 	else {
-		//Case stmt#
+		//Case stmt
 		if (HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "prog_line") {
 			if (HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "prog_line") {
 				withVec = progLine->getLinesOfType("prog_line");
@@ -36,6 +36,77 @@ void HandleWith::handleWith(vector<string> &withVec, string firstAtt, string sec
 				HUtility().intersectionSS(withVec, total, 1);
 			}
 		}
+		//Case assign
+		if (HUtility().getSymMean(firstAtt) == "assign") {
+			withVec = progLine->getLinesOfType("assign");
+			if (HUtility().getSymMean(secondAtt) == "if") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "while") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "constant") {
+				withVec = progLine->getLinesOfType("stmt");
+				vector<string> total;
+				vector<pair<string, vector<string>>> constTable = HUtility().getConstTable();
+				for (size_t i = 0; i < constTable.size(); i++) {
+					for (size_t j = 0; j < constTable[i].second.size(); j++) {
+						if (!HUtility().contain(total, constTable[i].second[j])) {
+							total.push_back(constTable[i].second[j]);
+						}
+					}
+				}
+				HUtility().intersectionSS(withVec, total, 1);
+			}
+		}
+		//Case if
+		if (HUtility().getSymMean(firstAtt) == "if") {
+			withVec = progLine->getLinesOfType("if");
+			if (HUtility().getSymMean(secondAtt) == "assign") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "while") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "constant") {
+				withVec = progLine->getLinesOfType("stmt");
+				vector<string> total;
+				vector<pair<string, vector<string>>> constTable = HUtility().getConstTable();
+				for (size_t i = 0; i < constTable.size(); i++) {
+					for (size_t j = 0; j < constTable[i].second.size(); j++) {
+						if (!HUtility().contain(total, constTable[i].second[j])) {
+							total.push_back(constTable[i].second[j]);
+						}
+					}
+				}
+				HUtility().intersectionSS(withVec, total, 1);
+			}
+		}
+
+		//Case while
+		if (HUtility().getSymMean(firstAtt) == "while") {
+			withVec = progLine->getLinesOfType("while");
+			if (HUtility().getSymMean(secondAtt) == "assign") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "if") {
+				withVec.clear();
+			}
+			if (HUtility().getSymMean(secondAtt) == "constant") {
+				withVec = progLine->getLinesOfType("stmt");
+				vector<string> total;
+				vector<pair<string, vector<string>>> constTable = HUtility().getConstTable();
+				for (size_t i = 0; i < constTable.size(); i++) {
+					for (size_t j = 0; j < constTable[i].second.size(); j++) {
+						if (!HUtility().contain(total, constTable[i].second[j])) {
+							total.push_back(constTable[i].second[j]);
+						}
+					}
+				}
+				HUtility().intersectionSS(withVec, total, 1);
+			}
+		}
+
 		//Case procedure
 		if (HUtility().getSymMean(firstAtt) == "procedure") {
 			if (HUtility().getSymMean(secondAtt) == "procedure") {
