@@ -480,23 +480,28 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		vector<string> withVec;
 
 		if (queryWith->getLeftType() != "") {
+			final.push_back("wtf1");
 			withFirst = queryWith->getLeftType();
 		}
 		else {
+			final.push_back("wtf2");
 			withFirst = queryWith->getLeftAttrRef().getSynonym();
 		}
-		if (queryWith->getRightType() != "") {
-			withFirst = queryWith->getRightType();
+		if (queryWith->getRightType() == "2") {
+			final.push_back("wtf3");
+			withSecond = queryWith->getRightType();
 		}
 		else {
-			withFirst = queryWith->getRightAttrRef().getSynonym();
+			final.push_back("wtf4");
+			withSecond = queryWith->getRightAttrRef().getSynonym();
 		}
-
+		final.push_back(queryWith->getRightType());
+		return final;
 		handleWith.handleWith(withVec, withFirst, withSecond);
 		if (withVec.empty()) {
 			return final;
 		}
-
+		
 		//Populate queryRS
 		RSEntry_t currentRS;
 		currentRS.synCount = 0;

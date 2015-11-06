@@ -10,7 +10,9 @@ void HandleST::handleFollows(string &firstAtt, string &secondAtt, vector<string>
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
-			folVec.push_back("all");
+			if (firstAtt != secondAtt || firstAtt == "_") {
+				folVec.push_back("all");
+			}
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
@@ -20,8 +22,9 @@ void HandleST::handleFollows(string &firstAtt, string &secondAtt, vector<string>
 		}
 	}
 	//Case 1st: 1, 2
-	else {
-		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+	else if (HUtility().isInt(firstAtt)) {
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
+			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
 			if (folTab->getNext(firstAtt) != "") {
 				folVec.push_back(folTab->getNext(firstAtt));
 			}
@@ -46,8 +49,8 @@ void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string
 		}
 	}
 	//Case 1st: 1, 2
-	else {
-		if (HUtility().isInt(firstAtt) && HUtility().getSymMean(secondAtt) != "") {
+	else if (HUtility().isInt(firstAtt)) {
+		if (HUtility().getSymMean(secondAtt) == "variable" || secondAtt == "_") {
 			modVec = modTab->getModified(firstAtt);
 		}
 		else if (modTab->isModified(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
@@ -60,12 +63,14 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 {
 	ParentTable* parTab = PKB::getParentTable();
 	//Case 1st: n/a/if/while
-	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
+	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
 		|| HUtility().getSymMean(firstAtt) == "while" || HUtility().getSymMean(firstAtt) == "if" || HUtility().getSymMean(firstAtt) == "assign") {
 		//Case 2nd: n/a/if/while
-		if (HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "while" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "assign") {
-			parVec.push_back("all");
+			if (firstAtt != secondAtt || firstAtt == "_") {
+				parVec.push_back("all");
+			}
 		}
 		//Case 2nd: 1,2
 		if (HUtility().isInt(secondAtt)) {
@@ -76,8 +81,9 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 		}
 	}
 	//Case 1st: 1/2
-	else {
-		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+	else if (HUtility().isInt(firstAtt)) {
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
+			|| HUtility().getSymMean(secondAtt) == "while" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "assign") {
 			vector<string> temp = parTab->getChild(firstAtt);
 			for (size_t i = 0; i < temp.size(); i++) {
 				if (!HUtility().contain(parVec, temp[i])) {
@@ -93,7 +99,7 @@ void HandleST::handleParent(string &firstAtt, string &secondAtt, vector<string> 
 
 void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec) {
 	UseTable* useTab = PKB::getUseTable();
-	//Case 
+	//Case 1st: n 
 	if (HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign"
 		|| HUtility().getSymMean(firstAtt) == "while" || HUtility().getSymMean(firstAtt) == "if" || HUtility().getSymMean(firstAtt) == "procedure"
 		|| HUtility().getSymMean(firstAtt) == "call") {
@@ -104,8 +110,9 @@ void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &u
 			useVec = useTab->getUser(secondAtt.substr(1, secondAtt.size() - 2));
 		}
 	}
-	else {
-		if (HUtility().isInt(firstAtt) && HUtility().getSymMean(secondAtt) != "") {
+	//Case 1st: 123
+	else if (HUtility().isInt(firstAtt)) {
+		if (HUtility().getSymMean(secondAtt) == "variable" || HUtility().getSymMean(secondAtt) == "_") {
 			useVec = useTab->getUsed(firstAtt);
 		}
 		else if (useTab->isUsed(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
@@ -122,7 +129,18 @@ void HandleST::handleNext(string &firstAtt, string &secondAtt, vector<string> &n
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "assign"
 			|| HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
-			nextVec.push_back("all");
+			if (firstAtt != secondAtt || firstAtt == "_") {
+				nextVec.push_back("all");
+			}
+			//Case 2 parameters are the same
+			else {
+				vector<NextEntry_t> nextTable = nextTab->getTable();
+				for (size_t i = 0; i < nextTable.size(); i++) {
+					if (HUtility().contain(nextTable[i].nextStmts, nextTable[i].lineNo)) {
+						nextVec.push_back(nextTable[i].lineNo);
+					}
+				}
+			}
 		}
 		//Case 2nd: 1, 2...
 		if (HUtility().isInt(secondAtt)) {
@@ -130,10 +148,11 @@ void HandleST::handleNext(string &firstAtt, string &secondAtt, vector<string> &n
 		}
 	}
 	//Case 1st: 1, 2
-	else {
-		if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+	else if (HUtility().isInt(firstAtt)) {
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "assign"
+			|| HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
 			if (nextTab->getNext(firstAtt).size()) {
-				if (HUtility().getSymMean(secondAtt) == "assign") {
+				/*if (HUtility().getSymMean(secondAtt) == "assign") {
 					nextVec = HUtility().intersection(nextTab->getNext(firstAtt), HUtility().getAssignTable());
 				}
 				if (HUtility().getSymMean(secondAtt) == "if") {
@@ -144,7 +163,8 @@ void HandleST::handleNext(string &firstAtt, string &secondAtt, vector<string> &n
 				}
 				if (HUtility().getSymMean(secondAtt) != "assign" && HUtility().getSymMean(secondAtt) != "if" && HUtility().getSymMean(secondAtt) != "while") {
 					nextVec = nextTab->getNext(firstAtt);
-				}
+				}*/
+				nextVec = nextTab->getNext(firstAtt);
 			}
 		}
 		else if (nextTab->isNext(firstAtt, secondAtt)) {
@@ -164,7 +184,9 @@ void HandleST::handleCalls(string firstAtt, string secondAtt, vector<string> &ca
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "procedure") {
 		//Case 2nd: _/p
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "procedure") {
-			callVec.push_back("all");
+			if (firstAtt != secondAtt || firstAtt == "_") {
+				callVec.push_back("all");
+			}
 		}
 		//Case 2nd: ABC
 		else {
@@ -186,9 +208,19 @@ void HandleST::handleCalls(string firstAtt, string secondAtt, vector<string> &ca
 
 void HandleST::handleAffect(string firstAtt, string secondAtt, vector<string> &affVec) {
 	//Case firstAtt: n1 or _ (note: affects return assignment only)
-	if (HUtility().getSymMean(firstAtt) != "" || HUtility().getSymMean(firstAtt)=="_") {
-		if (HUtility().getSymMean(secondAtt) != "" || HUtility().getSymMean(secondAtt)=="_") {
-			affVec.push_back("all");
+	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt" || HUtility().getSymMean(firstAtt) == "assign") {
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "assign") {
+			if (firstAtt != secondAtt || firstAtt == "_") {
+				affVec.push_back("all");
+			}
+			else {
+				vector<pair<string, vector<string>>> affTable = PKB::affect();
+				for (size_t i = 0; i < affTable.size(); i++) {
+					if (HUtility().contain(affTable[i].second, affTable[i].first)) {
+						affVec.push_back(affTable[i].first);
+					}
+				}
+			}
 		}
 		else if (HUtility().isInt(secondAtt)) {
 			affVec = PKB::affect("_", secondAtt);
@@ -196,7 +228,7 @@ void HandleST::handleAffect(string firstAtt, string secondAtt, vector<string> &a
 	}
 	//Case firstAtt: 123
 	else if (HUtility().isInt(firstAtt)) {
-		if (HUtility().getSymMean(secondAtt) != "" || HUtility().getSymMean(secondAtt) == "_") {
+		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "assign") {
 			affVec = PKB::affect(firstAtt, "_");
 		}
 		else if (HUtility().isInt(secondAtt)) {
