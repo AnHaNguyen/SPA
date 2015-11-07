@@ -38,10 +38,14 @@ public:
 	void HUtility::getUseTable(vector<pair<string, vector<string>>> &useTable);
 	vector<pair<string, vector<string>>>  getConstTable();
 	void getParentTable(vector<pair<string, vector<string>>> &parTable);
+	void getParentSTable(vector<pair<string, vector<string>>> &parTable);
 	void getModifyTable(vector<pair<string, vector<string>>> &modTable);
-	void getFollowTable(vector<pair<string, string>> &folTable);
+	void getFollowTable(vector<pair<string, vector<string>>> &folTable);
+	void getFollowSTable(vector<pair<string, vector<string>>> &folTable);
 	void getNextTable(vector<pair<string, vector<string>>> &nextTable);
+	void getNextSTable(vector<pair<string, vector<string>>> &nextTable);
 	void getCallTable(vector<pair<string, vector<string>>> &callTable);
+	void getCallSTable(vector<pair<string, vector<string>>> &callTable);
 
 	//To convention
 	vector<string> getParentRelated(vector<ParentEntry_t>  table, int x);

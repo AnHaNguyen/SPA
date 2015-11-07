@@ -36,8 +36,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	if (queryTree->getValidity() == false) {
 		return final;
 	}
-	//final.push_back("valid");
-	//return final;
+	/*final.push_back("valid");
+	return final;*/
 
 	//Initialize symtable for HUtility
 	if (queryTree->getSymbolTable().empty()) {
@@ -47,12 +47,17 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		utility.setSymTable(queryTree->getSymbolTable());
 	}
 
+	//Handle select
+	string selType = HandleRS().handleSelect(queryTree, result);
+	if (selType == "") {
+		return final;
+	}
 
 	//Handle suchThat
 	queryST = queryTree->getSuchThat();
 	while (true) {
 		vector<string> folVec;
-		vector<pair<string, string>>  folTable;
+		vector<pair<string, vector<string>>>  folTable;
 
 		vector<string> modVec;
 		vector<pair<string, vector<string>>>  modTable;
@@ -84,7 +89,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				handleST.handleFollows(stFirst, stSecond, folVec);
 				if (folVec.size() > 0 && folVec.front() == "all") {
 					utility.getFollowTable(folTable);
-					handleRS.checkPSS(folTable, stFirst, stSecond);
+					handleRS.checkPSV(folTable, stFirst, stSecond);
 				}
 				if (folVec.size() > 0 && folVec.front() != "all" && folVec.front() != "true" && folVec.front() != "") {
 					handleRS.checkSS(folVec, stFirst, stSecond);
@@ -103,8 +108,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				else {
 					handleST.handleFollows(stFirst, stSecond, folVec);
 					if (folVec.size() > 0 && folVec.front() == "all") {
-						utility.getFollowTable(folTable);
-						handleRS.checkPSS(folTable, stFirst, stSecond);
+						utility.getFollowSTable(folTable);
+						handleRS.checkPSV(folTable, stFirst, stSecond);
 					}
 					else {
 						//Case Follows*(1,s)
@@ -156,7 +161,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					handleST.handleParent(stFirst, stSecond, parVec);
 					if (!parVec.empty()) {
 						if (parVec.size() > 0 && parVec.front() == "all") {
-							utility.getParentTable(parTable);
+							utility.getParentSTable(parTable);
 							handleRS.checkPSV(parTable, stFirst, stSecond);
 						}
 						else {
@@ -167,7 +172,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								parVec = parTab->getParentS(stSecond);
 							}
-							//return parVec;
 							handleRS.checkSS(parVec, stFirst, stSecond);
 						}
 					}
@@ -212,7 +216,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					handleST.handleNext(stFirst, stSecond, nextVec);
 					if (!nextVec.empty()) {
 						if (nextVec.size() > 0 && nextVec.front() == "all") {
-							utility.getNextTable(nextTable);
+							utility.getNextSTable(nextTable);
 							handleRS.checkPSV(nextTable, stFirst, stSecond);
 						}
 						else {
@@ -265,7 +269,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					handleST.handleCalls(stFirst, stSecond, callVec);
 					if (!callVec.empty()) {
 						if (callVec.size() > 0 && callVec.front() == "all") {
-							utility.getCallTable(callTable);
+							utility.getCallSTable(callTable);
 							handleRS.checkPSV(callTable, stFirst, stSecond);
 						}
 						else {
@@ -309,7 +313,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					handleST.handleAffect(stFirst, stSecond, affVec);
 					if (affVec.size() > 0) {
 						if (affVec.size() > 0 && affVec.front() == "all") {
-							affTable = PKB::affect();
+							affTable = PKB::affectS();
 						}
 					}
 					else {
@@ -351,7 +355,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 			if (!folTable.empty()) {
 				STCheck[1] = 1;
-				currentRS.ssTable = folTable;
+				currentRS.table = folTable;
 			}
 			if (!modVec.empty() && modVec.front() != "all" && modVec.front() != "") {
 				STCheck[2] = 1;
@@ -404,6 +408,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Check if all empty
 			if (utility.getPos(STCheck) == -1) {
+				if (selType == "BOOLEAN") {
+					final.push_back("false");
+				}
 				return final;
 			}
 			if (currentRS.synCount > 0) {
@@ -477,6 +484,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				currentRS.ssTable = patWhileTable;
 			}
 			if (utility.getPos(PTCheck) == -1) {
+				if (selType == "BOOLEAN") {
+					final.push_back("false");
+				}
 				return final;
 			}
 			if (currentRS.synCount > 0) {
@@ -496,7 +506,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	queryWith = queryTree->getWith();
 	while (true) {
 		vector<string> withVec;
-
+		vector<pair<string, string>> withCall;
 		if (queryWith->getLeftType() != "") {
 			withFirst = queryWith->getLeftType();
 		}
@@ -510,8 +520,11 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			withSecond = queryWith->getRightAttrRef().getSynonym();
 		}
 
-		handleWith.handleWith(withVec, withFirst, withSecond);
+		handleWith.handleWith(withVec, withCall, withFirst, withSecond);
 		if (withVec.empty()) {
+			if (selType == "BOOLEAN") {
+				final.push_back("false");
+			}
 			return final;
 		}
 
@@ -580,9 +593,9 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	for (size_t i = 0; i < attList.size(); i++) {
 		//Find all attEntry that this att is related with
 		vector<int> temp;
-		for (size_t j = i + 1; j < attList.size(); j++) {
+		for (size_t j = 0; j < attList.size(); j++) {
 			for (size_t k = 0; k < attList[i].reClause.size(); k++) {
-				if (find(attList[j].reClause.begin(), attList[j].reClause.end(), attList[i].reClause[k]) != attList[j].reClause.end()) {
+				if (utility.contain(attList[j].reClause, attList[i].reClause[k])) {
 					temp.push_back(j);
 					break;
 				}
@@ -596,17 +609,19 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	for (size_t i = 0; i < attList.size(); i++) {
 		loopList.push_back(i);
 	}
+
 	//Each iteration processes the 1st item in the queue
 	while (loopList.size() > 0) {
 		int i = loopList.front();
 		string var = attList[i].att;
 		vector<int> pos = attList[i].reClause;
 		int changed = 0;
+
 		for (size_t j = 0; j < pos.size(); j++) {
 			//Case 1 syn
 			if (queryRS[pos[j]].synCount == 1) {
-				for (size_t k = 0; k < pos.size(); k++) {
-					if (j != k && queryRS[pos[k]].synCount == 1) {
+				for (size_t k = j + 1; k < pos.size(); k++) {
+					if (queryRS[pos[k]].synCount == 1) {
 						int oldJSize = queryRS[pos[j]].vec.size();
 						int oldKSize = queryRS[pos[k]].vec.size();
 						changed += utility.intersectionSS(queryRS[pos[j]].vec, queryRS[pos[k]].vec, 1);
@@ -630,7 +645,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Case 2 syns
 			if (queryRS[pos[j]].synCount == 2) {
-				for (size_t k = 0; k < pos.size(); k++) {
+				for (size_t k = j+1; k < pos.size(); k++) {
 					if (queryRS[pos[k]].synCount == 1) {
 						if (queryRS[pos[j]].table.size()>0 && var == queryRS[pos[j]].firstAtt) {
 							changed += utility.intersectionPSV(queryRS[pos[k]].vec, queryRS[pos[j]].table, 1);
@@ -646,7 +661,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 						}
 					}
 
-					if (j != k && queryRS[pos[k]].synCount == 2) {
+					if (queryRS[pos[k]].synCount == 2) {
 						//case table vs table
 						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
 							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
@@ -735,17 +750,20 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	//Check if any intersection results in empty vector
 	for (size_t i = 0; i < queryRS.size(); i++) {
 		if (queryRS[i].vec.empty() && queryRS[i].table.empty() && queryRS[i].ssTable.empty()) {
+			if (selType == "BOOLEAN") {
+				final.push_back("false");
+			}
 			return final;
 		}
 	}
 
-
-	//Handle select
-	string selType = HandleRS().handleSelect(queryTree, result);
-	if (selType == "") {
+	//At this point all clauses are not empty
+	if (selType == "BOOLEAN") {
+		final.push_back("true");
 		return final;
 	}
-
+	
+	//Case normal select
 	vector<vector<string>> finalVec;
 	//Check case both control parameters are in the same clause
 	bool checkSC = true;
@@ -848,7 +866,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 		else {
-			//Return function normal case
+			//Return normal case
 			//Case select within any clause (at this point no more empty vector)
 			for (size_t i = 0; i < attList.size(); i++) {
 				if (rs == attList[i].att) {
@@ -915,6 +933,5 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
-
 	return final;
 }

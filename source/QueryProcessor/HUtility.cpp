@@ -36,6 +36,16 @@ void HUtility::getParentTable(vector<pair<string, vector<string>>> &parTable) {
 	}
 }
 
+void HUtility::getParentSTable(vector<pair<string, vector<string>>> &parTable) {
+	vector<ParentSEntry_t> parTab = PKB::getParentSTable()->getTable();
+	for (size_t i = 0; i < parTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = parTab[i].lineNo;
+		temp.second = parTab[i].child;
+		parTable.push_back(temp);
+	}
+}
+
 void HUtility::getModifyTable(vector<pair<string, vector<string>>> &modTable) {
 	vector<ModifyEntry_t> modTab = PKB::getModifyTable()->getTable();
 	for (size_t i = 0; i < modTab.size(); i++) {
@@ -46,12 +56,22 @@ void HUtility::getModifyTable(vector<pair<string, vector<string>>> &modTable) {
 	}
 }
 
-void HUtility::getFollowTable(vector<pair<string, string>> &folTable) {
+void HUtility::getFollowTable(vector<pair<string, vector<string>>> &folTable) {
 	vector<FollowEntry_t> folTab = PKB::getFollowTable()->getTable();
 	for (size_t i = 0; i < folTab.size(); i++) {
-		pair<string, string> temp;
+		pair<string, vector<string>> temp;
 		temp.first = folTab[i].prev;
-		temp.second = folTab[i].next;
+		temp.second.push_back(folTab[i].next);
+		folTable.push_back(temp);
+	}
+}
+
+void HUtility::getFollowSTable(vector<pair<string, vector<string>>> &folTable) {
+	vector<FollowSEntry_t> folTab = PKB::getFollowSTable()->getTable();
+	for (size_t i = 0; i < folTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = folTab[i].lineNo;
+		temp.second = folTab[i].followStmts;
 		folTable.push_back(temp);
 	}
 }
@@ -66,8 +86,28 @@ void HUtility::getNextTable(vector<pair<string, vector<string>>> &nextTable) {
 	}
 }
 
+void HUtility::getNextSTable(vector<pair<string, vector<string>>> &nextTable) {
+	vector<NextEntry_t> nextTab = PKB::getNextTable()->getNextSTable();
+	for (size_t i = 0; i < nextTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = nextTab[i].lineNo;
+		temp.second = nextTab[i].nextStmts;
+		nextTable.push_back(temp);
+	}
+}
+
 void HUtility::getCallTable(vector<pair<string, vector<string>>> &callTable) {
 	vector<CallEntry_t> callTab = PKB::getCallTable()->getTable();
+	for (size_t i = 0; i < callTab.size(); i++) {
+		pair<string, vector<string>> temp;
+		temp.first = callTab[i].caller;
+		temp.second = callTab[i].callees;
+		callTable.push_back(temp);
+	}
+}
+
+void HUtility::getCallSTable(vector<pair<string, vector<string>>> &callTable) {
+	vector<CallSEntry_t> callTab = PKB::getCallSTable()->getTable();
 	for (size_t i = 0; i < callTab.size(); i++) {
 		pair<string, vector<string>> temp;
 		temp.first = callTab[i].caller;

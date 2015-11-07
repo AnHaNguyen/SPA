@@ -12,8 +12,7 @@ class HandleWith {
 public:
 	HandleWith();
 	~HandleWith();
-
-	void handleWith(vector<string> &withVec, string firstAtt, string secondAtt);
+	void handleWith(vector<string> &withVec, vector<pair<string, string>> &withCall, string firstAtt, string secondAtt);
 
 };
 #endif
