@@ -163,7 +163,7 @@ string Parser::checkProcedure(vector<string> stringList, int startLine) {
 		return "";
 	}
 	else if (word2.find('{') != string::npos && word2.size() >= 2) {
-		if (!isName(word2.substr(0, word2.size() - 1))) {
+		if (!isName(word2.substr(0, word2.find('{')))) {
 			return errorTypeList[5];
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
@@ -204,7 +204,7 @@ string Parser::checkCall(vector<string> stringList, int startLine) {
 		return "";
 	}
 	else if (word2.find(';') != string::npos && word2.size() >= 2) {
-		if (!isName(word2.substr(0, word2.size() - 1))) {
+		if (!isName(word2.substr(0, word2.find('{')))) {
 			return errorTypeList[5];
 		}
 		return "";
