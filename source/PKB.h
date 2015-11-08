@@ -17,6 +17,7 @@
 #include "CallSTable.h"
 #include "ParentSTable.h"
 #include "FollowSTable.h"
+#include "CallLine.h"
 
 class PKB {
 private: static FollowTable* followTable;
@@ -34,6 +35,7 @@ private: static FollowTable* followTable;
 		 static FollowSTable* followSTable;
 		 static ParentSTable* parentSTable;
 		 static CallSTable* callSTable;
+		 static CallLine* callLine;
 
 		 static vector<string> getAffectS(string n1);
 		 static vector<string> getAffectSReverse(string n2);
@@ -70,7 +72,8 @@ public:
 		 static void setCallSTable(CallSTable* callSTable);				//for Extractor
 		 static ParentSTable* getParentSTable();					//for Query
 		 static void setParentSTable(ParentSTable* parentSTable);				//for Extractor
-
+		 static CallLine* getCallLine();
+		 static void setCallLine(CallLine* callLine);
 
 		 static vector<string> checkAssign(string pattern, bool contains_);	//to check pattern Assign
 		 static vector<string> patternIf(string controlVar, bool containsQ);			
@@ -78,6 +81,7 @@ public:
 		 static vector<string> patternWhile(string controlVar, bool containsQ);			
 															//to check pattern While
 		 static bool checkExistMod(string start, string end, string var,vector<string> processed);
+		 static vector<string> getExistMod(string start, string var, vector<string> processed);
 		 static vector<pair<string, string>> patternIf();
 		 static vector<pair<string, string>> patternWhile();
 		 

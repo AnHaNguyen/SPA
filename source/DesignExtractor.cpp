@@ -33,7 +33,7 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 	
 	processNextTable();
 	processSTable();
-	
+	generateCallLine();
 	storeToPKB();
 }
 
@@ -55,6 +55,7 @@ void DesignExtractor::initialize() {
 	followSTable = new FollowSTable();
 	callSTable = new CallSTable();
 	parentSTable = new ParentSTable();
+	callLine = new CallLine();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -78,6 +79,7 @@ void DesignExtractor::storeToPKB() {
 	PKB::setFollowSTable(followSTable);
 	PKB::setParentSTable(parentSTable);
 	//PKB::updateProgLine();
+	PKB::setCallLine(callLine);
 }
 
 //-------------------------AST-------------------------//
@@ -994,4 +996,15 @@ int DesignExtractor::getRealLineNumber(int lineNumber, string line) {
 	}
 
 	return lineNumber;
+}
+
+void DesignExtractor::generateCallLine() {
+	for (unsigned i = 0; i < ast.size(); i++) {
+		vector<TNode*> tree = ast.at(i)->getTree();
+		for (unsigned j = 0; j < tree.size(); j++) {
+			if (tree.at(j)->getType() == CALL) {
+				callLine->addToTable(to_string(tree.at(j)->getLine()), tree.at(j)->getValue());
+			}
+		}
+	}
 }
