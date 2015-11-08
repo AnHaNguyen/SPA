@@ -2,7 +2,8 @@
 #include<algorithm>
 #include<iostream>
 
-string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses","Calls","Calls*","Next","Next*","Affects","Affects*" };
+string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses","Calls","Calls*","Next","Next*","Affects","Affects*", 
+						"Contains", "Contains*", "Sibling"};
 
 QueryTree::QueryTree(){
 
@@ -399,7 +400,7 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 	string firstType = getSynType(symbolTable, first);
 	string secondType = getSynType(symbolTable, second);
 
-	if (!containWord(syn, relations, 14)) {
+	if (!containWord(syn, relations, 17)) {
 		return false;
 	}
 
@@ -537,6 +538,18 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			if (secondType != "assign" && secondType != "prog_line" && secondType != "stmt") {
 				return false;
 			}
+		}
+		return true;
+	}
+	if (syn == "Contains" || syn == "Contains*") {
+		if (!isValidNodeRef(first) || !isValidNodeRef(second)) {
+			return false;
+		}
+		return true;
+	}
+	if (syn == "Sibling"){
+		if (!isValidNodeRef(first) || !isValidNodeRef(second)) {
+			return false;
 		}
 		return true;
 	}
@@ -1023,4 +1036,11 @@ void QueryTree::printDoubleTable(vector< vector<string> > table) {
 int QueryTree::countWords(string str, string delimiter) {
 	vector<string> words = stringToVector(str, delimiter);
 	return words.size();
+}
+
+bool QueryTree::isValidNodeRef(string str) {
+	if (isValidSynonym(symbolTable, str) || isInteger(str)) {
+		return true;
+	}
+	return false;
 }

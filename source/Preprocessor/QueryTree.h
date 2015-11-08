@@ -64,6 +64,7 @@ public:
 	bool isOperation(string str);
 	bool isValidChar(vector<string>);
 	bool isValidBracket(string str);
+	bool isValidNodeRef(string str);
 
     vector<string> stringToVector(string str, string delimiter);
     string removeSpace(string str);

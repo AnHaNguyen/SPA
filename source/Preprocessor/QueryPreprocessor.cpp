@@ -387,6 +387,9 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	vector<string> NextS;
 	vector<string> Affects;
 	vector<string> AffectsS;
+	vector<string> Contains;
+	vector<string> ContainsS;
+	vector<string> Sibling;
 	vector<string> others;
 	vector<string> sorted;
 
@@ -433,6 +436,15 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 		else if (syn == "Affects*") {
 			AffectsS.push_back(str);
 		}
+		else if (syn == "Contains") {
+			Contains.push_back(str);
+		}
+		else if (syn == "Contains*") {
+			ContainsS.push_back(str);
+		}
+		else if (syn == "Sibling") {
+			Sibling.push_back(str);
+		}
 		else {
 			others.push_back(str);
 		}
@@ -474,6 +486,17 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	for (int i = 0; i < AffectsS.size(); i++) {
 		sorted.push_back(AffectsS[i]);
 	}
+	for (int i = 0; i < Contains.size(); i++) {
+		sorted.push_back(Contains[i]);
+	}
+	for (int i = 0; i < ContainsS.size(); i++) {
+		sorted.push_back(ContainsS[i]);
+	}
+	for (int i = 0; i < Sibling.size(); i++) {
+		sorted.push_back(Sibling[i]);
+	}
+
+
 	for (int i = 0; i < others.size(); i++) {
 		sorted.push_back(others[i]);
 	}
