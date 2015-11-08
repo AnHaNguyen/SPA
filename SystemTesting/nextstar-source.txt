@@ -1,0 +1,17 @@
+procedure First{
+  a=1;
+  b=1;
+  if a then{
+    a=a-1;}
+  else{
+    a=2;}
+  c=3;
+  while c{
+    a=1;
+    while c{
+      while c{
+        c=c-1;
+        call Second;}}}
+  a=a+c;}
+Procedure Second{
+  a=a+1;}
