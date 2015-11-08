@@ -7,7 +7,7 @@ procedure Planet {
  a = x + z * a;
  call Moon;
  y = a * x + z;
- If m then {
+ if m then {
  y = a + z;
  while t {
  y = y + x;
@@ -25,7 +25,7 @@ procedure Earth {
  t = t - 1; }
  d = x + d; }
 procedure Moon {
- If a then {
+ if a then {
  x = x * a; }
 else {
  x = x + a; }

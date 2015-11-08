@@ -1,4 +1,4 @@
-1 
+﻿1 
 stmt s,s1;
 Select s such that Parent (s, s1) with s1.stmt# = 2
 none
@@ -25,7 +25,7 @@ none
 5000
 6
 stmt s;
-Select s such that Parent (s, 23) 
+Select s such that Parent (s, 12) 
 11
 5000
 7
@@ -56,7 +56,7 @@ Select s such that Parent (19, s)
 12
 stmt s;
 Select s such that Parent (30, s)
-29
+none
 5000
 13 
 stmt s;
@@ -251,7 +251,7 @@ x,y
 51
 variable v;
 Select v such that Modifies (9, v)
-m,x,y
+m,x,y,z
 5000
 52
 variable v;
@@ -280,18 +280,18 @@ Select w such that Modifies (w, "z")
 5000
 57
 variable v;
-Select v such that Modifies (“Earth”, v)
+Select v such that Modifies ("Earth", v)
 d,t,x,z
 5000
 58
 stmt s;
 Select s such that Uses (s, "a")
-5,6,7,8,10,14,15,16,18,19,21,24,25,26,28,29,31
+5,6,7,8,9,10,14,15,16,18,19,21,24,25,26,28,29,31
 5000
 59
 stmt s;
 Select s such that Uses (s, "d")
-5,18,19,20,21,23,28,29
+5,18,19,20,21,23,28,29,31
 5000
 60
 stmt s;
@@ -350,152 +350,106 @@ none
 5000
 71
 assign a; while w;
-Select a such that Modifies (a, “x”) and Parent (w, a)
+Select a such that Modifies (a, "x") and Parent (w, a)
 13,20
 5000
 72
 assign a; while w;
-Select a such that Parent (w, a) and Modifies (a, “x”)
+Select a such that Parent (w, a) and Modifies (a, "x")
 13,20
 5000
 73
 assign a; while w;
-Select a such that Modifies (a, “x”) such that Parent (w, a)
+Select a such that Modifies (a, "x") such that Parent (w, a)
 13,20
 5000
 74
 procedure p;
-Select p such that Calls* (p, “Sun”)
+Select p such that Calls* (p, "Sun")
 Planet,Earth
 5000
 75
 procedure p;
-Select p such that Calls (“Planet”, p) and Modifies (p, “x”) and Uses (p, “x”)
+Select p such that Calls ("Planet", p) and Modifies (p, "x") and Uses (p, "x")
 Earth,Moon,Sun
 5000
 76
 procedure p;
-Select p such that Calls* (“Planet”, p) and Modifies (p, “z”)
+Select p such that Calls* ("Planet", p) and Modifies (p, "z")
 Earth,Sun
 5000
 77
 assign a;
-Select a pattern a (“m”, _)
+Select a pattern a ("m", _)
 3,17
 5000
 78
 assign a;
-Select a pattern a (“x”, “d + 5 * y”)
+Select a pattern a ("x", "d + 5 * y")
 none
 5000
 79
 assign a;
-Select a pattern a (_,“x + a”)
+Select a pattern a (_,"x + a")
 14,15,26
 5000
 80
 assign a;
-Select a pattern a (_,“5 * y + z”)
+Select a pattern a (_,"5 * y + z")
 none
 5000
 81
 assign a;
-Select a pattern a (_, _“y + z”)
+Select a pattern a (_, _"y + z")
 none
 5000
 82
 assign a;
-Select a pattern a (“x”, _”y + z”)
+Select a pattern a ("x", _"y + z")
 none
 5000
 83
 assign a;
-Select a pattern a (_, _“d + y * a”_)
+Select a pattern a (_, _"d + y * a"_)
 none
 5000
 84
 assign a;
-Select a pattern a (_, _“a + z”_)
+Select a pattern a (_, _"a + z"_)
 10
 5000
 85
 assign a;
-Select a pattern a (_, _“t + 1”_)
+Select a pattern a (_, _"t + 1"_)
 none
 5000
 86
 assign a;
-Select a pattern a (_, _“d + 5”_)
+Select a pattern a (_, _"d + 5"_)
 none
 5000
 87
 assign a;
-Select a pattern a (_, _“x + a”_)
+Select a pattern a (_, _"x + a"_)
 14,15,26
 5000
 88
 assign a;
-Select a pattern a (_, _“x * z”_)
+Select a pattern a (_, _"x * z"_)
 4
 5000
 89
 assign a;
-Select a pattern a (“x”, _”y + d + y”_)
+Select a pattern a ("x", _"y + d + y"_)
 none
 5000
 90
 assign a,a1;
-Select a1 pattern a (“x”,“x + a”)
+Select a1 pattern a ("x","x + a")
 1,2,3,4,6,8,10,12,13,14,15,17,20,22,23,25,26,27,30,31
 5000
 91
 assign a,a1;
-Select a pattern a1 (_, _“t + a”_)
+Select a pattern a1 (_, _"t + a"_)
 none
 5000
-92
-Sun 
-93
-assign a; while w;
-94
-assign a; if ifstat;
-95
-if ifstat; constant c;
-96
-while w; constant c;
-97
-stmt s; constant c;
-98
-
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126
-127
-128
-129
-130
