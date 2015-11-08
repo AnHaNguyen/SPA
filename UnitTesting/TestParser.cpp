@@ -13,7 +13,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 
-namespace TestPreprocessor
+namespace TestParser
 {
 	TEST_CLASS(TestParser)
 	{
@@ -287,6 +287,24 @@ namespace TestPreprocessor
 
 		}
 
+		TEST_METHOD(Test_replaceAll)
+		{
+			Parser p;
+			bool result;
+			string input, expected, actual;
+
+			input = " a2    *  (3+  c)";
+			expected = " a2    *  (3 +   c)";
+			actual = p.replaceAll(input, "+", " + ");
+			Assert::AreEqual(expected, actual);
+
+			input = "y+(4*3)";
+			expected = "y+(4 * 3)";
+			actual = p.replaceAll(input, "*", " * ");
+			Assert::AreEqual(expected, actual);
+
+		}
+
 		TEST_METHOD(Test_isEqualVector)
 		{
 			Parser p;
@@ -413,7 +431,7 @@ namespace TestPreprocessor
 			Assert::AreEqual(expected, actual);
 		}
 
-		TEST_METHOD(Test_trimmedString)
+		TEST_METHOD(Test_trimmedList)
 		{
 			Parser p;
 			vector<string> input, expected, actual;
@@ -422,6 +440,34 @@ namespace TestPreprocessor
 			input = { "   a   b", "   ","", "                 x= y +      z * x" };
 			expected = { "a   b", "x= y +      z * x" };
 			actual = p.trimmedList(input);
+			result = p.isEqualVector(expected, actual);
+
+			Assert::AreEqual(true, result);
+		}
+
+		TEST_METHOD(Test_moveCloseCurlyBracket)
+		{
+			Parser p;
+			vector<string> input, expected, actual;
+			bool result = true;
+
+			input = { "{a   b", "x= y +      z * x", "}" };
+			expected = { "{a   b", "x= y +      z * x}" };
+			actual = p.moveCloseCurlyBracket(input);
+			result = p.isEqualVector(expected, actual);
+
+			Assert::AreEqual(true, result);
+		}
+
+		TEST_METHOD(Test_moveOpenCurlyBracket)
+		{
+			Parser p;
+			vector<string> input, expected, actual;
+			bool result = true;
+
+			input = { "procedure abc","{","a   b", "x= y +      z * x}" };
+			expected = { "procedure abc{","a   b", "x= y +      z * x}" };
+			actual = p.moveOpenCurlyBracket(input);
 			result = p.isEqualVector(expected, actual);
 
 			Assert::AreEqual(true, result);
