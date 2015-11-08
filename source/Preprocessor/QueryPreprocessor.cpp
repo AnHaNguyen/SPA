@@ -93,7 +93,7 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 
 bool QueryPreprocessor::isValidDeclaration(string declare){
 	string str = declare;
-	if (str.length() == 0) {
+	if (str.length() == 0 || str=="\n") {
 		return true;
 	}
 	if (str.find(";") == string::npos) {
