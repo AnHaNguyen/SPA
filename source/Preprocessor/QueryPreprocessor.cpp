@@ -36,9 +36,11 @@ vector<string> QueryPreprocessor::start(string line) {
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 	declare = trim(declare);
-	declare = removeMultipleSpace(declare);
 	input = trim(input);
-	input = removeMultipleSpace(input);
+	if (declare.length() > 0 && input.length() > 0) {
+		declare = removeMultipleSpace(declare);
+		input = removeMultipleSpace(input);
+	}
 
 
 	QueryTree* tree = new QueryTree();
@@ -91,6 +93,9 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 
 bool QueryPreprocessor::isValidDeclaration(string declare){
 	string str = declare;
+	if (str.length() == 0) {
+		return true;
+	}
 	if (str.find(";") == string::npos) {
 		return false;
 	}
@@ -292,6 +297,7 @@ vector<string> QueryPreprocessor::setClauseTable(vector< vector<string> > table)
 }
 
 vector<string> QueryPreprocessor::setClauseTableForSuchThat(vector< vector<string> > table) {
+
 	vector<string> newTable;
 	for (int i = 0; i<table.size(); i++) {
 		string str = table[i][1];
@@ -304,6 +310,7 @@ vector<string> QueryPreprocessor::setClauseTableForSuchThat(vector< vector<strin
 
 	newTable = sortAttribute(newTable);
 	newTable = sortRelation(newTable);
+
 	return newTable;
 }
 
@@ -504,13 +511,13 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	if (sorted.size() > 1) {
 		for (int i = 0; i < sorted.size() - 1; i++) {
 			if (sorted[i] == sorted[i + 1]) {
-				sorted[i + 1] = "";
+				sorted[i + 1] = "This is duplicated";
 			}
 		}
 	}
 	vector<string> removeDuplicate;
 	for (int i = 0; i < sorted.size(); i++) {
-		if (sorted[i] != "") {
+		if (sorted[i] != "This is duplicated") {
 			removeDuplicate.push_back(sorted[i]);
 		}
 	}
@@ -598,6 +605,9 @@ string QueryPreprocessor::trim(string str){
 }
 
 string QueryPreprocessor::removeMultipleSpace(string str){
+	if (str.length() < 1) {
+		return str;
+	}
 
     string result = "";
     for(int i=0; i<str.size()-1; i++){
@@ -612,6 +622,9 @@ string QueryPreprocessor::removeMultipleSpace(string str){
 }
 
 string QueryPreprocessor::removeSpace(string str) {
+	if (str.length() < 1) {
+		return str;
+	}
 	string result = "";
 	for (int i = 0; i<str.size(); i++) {
 		if (str.at(i) != ' ') {
