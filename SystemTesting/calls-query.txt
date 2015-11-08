@@ -1,0 +1,35 @@
+1 -
+procedure p1, p2;
+Select p1 such that Calls(p1, p2);
+AA, AB, AC, AD, AE, BA, BD, BE, BF
+5000
+2 -
+procedure p1, p2;
+Select p2 such that Calls(p1, p2);
+AB, AC, AD, AE, AF, BA, BB, BC, BD, BE, BF
+5000
+3 -
+procedure p1;
+Select p1 such that Calls(p1, "AB");
+AA
+5000
+4 -
+procedure p2;
+Select p2 such that Calls("AA", p2);
+AB, BA
+5000
+5 -
+procedure p1, p2;
+Select p1 such that Calls(p1, "AE");
+AD, BF
+5000
+6 -
+procedure p1, p2;
+Select p2 such that Calls("BA", p2);
+BB, BC, BD
+5000
+7 -
+procedure p1, p2;
+Select p1 such that Calls(p1, "AF");
+AE
+5000

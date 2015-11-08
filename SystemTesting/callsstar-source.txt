@@ -1,0 +1,37 @@
+procedure AA{
+    a=1;
+    b=2;
+    call AB;
+    call BA;}
+procedure AB{
+    call AC;}
+procedure AC{
+    call AD;}
+procedure AD{
+    call AE;}
+procedure AE{
+    call AF;}
+procedure AF{
+    b=10;}
+procedure BA{
+    if a then{
+        call BB;}
+    else{
+        call BC;}
+    while b{
+    call BD;}}
+procedure BB{
+    c=a-1;}
+procedure BC{
+    d=b-1;}
+procedure BD{
+    while a{
+        call BE;}}
+procedure BE{
+    if a then{
+        a=a-1;}
+    else{
+        call BF;}}
+procedure BF{
+    f=a+b+c+d+e;
+    call AE;}"

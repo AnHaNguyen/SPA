@@ -1450,7 +1450,7 @@ namespace TestProcessor {
 
             /**
              *  procedure p1;
-             *  Select p2 such that Calls(p1, "AB");
+             *  Select p1 such that Calls(p1, "AB");
              *
              *  Basic case
              */
@@ -1539,7 +1539,7 @@ namespace TestProcessor {
 
             /**
              *  procedure p1, p2;
-             *  Select p2 such that Calls("Seventh", p2);
+             *  Select p2 such that Calls("BA", p2);
              *
              *  "BA" has 3 call-stmts inside containers
              */
@@ -1570,7 +1570,7 @@ namespace TestProcessor {
 
             /**
              *  procedure p1, p2;
-             *  Select p1 such that Calls(p1, "Sixth");
+             *  Select p1 such that Calls(p1, "AF");
              *
              *  Deeply nested call-stmts
              */
@@ -1737,7 +1737,7 @@ namespace TestProcessor {
 
             /**
              *  procedure p1, p2;
-             *  Select p1 such that Calls*("AB", p2);
+             *  Select p2 such that Calls*("AB", p2);
              *
              *	Basic case on nested call-stmts
              */
@@ -1769,7 +1769,7 @@ namespace TestProcessor {
 
             /**
              *  procedure p1, p2;
-             *  Select p1 such that Calls*("BA", p2);
+             *  Select p2 such that Calls*("BA", p2);
              *
              *	Basic case on nested container stmts
              */
@@ -2226,7 +2226,7 @@ namespace TestProcessor {
             tree1->setResult(selections2);
 
             vector<string> relations2;
-            relations2.push_back("Next(n1, n2)");
+            relations2.push_back("Next*(n1, n2)");
             tree2->setSuchThat(relations2);
 
             tree2->setPattern(emptyVector);
