@@ -50,6 +50,7 @@ public:
 
 	int isStmtLst(vector<string> stringList, int startLine);
 
+	string checkSemiColon(vector<string> stringList);
 	int pairedCurlyBracketsPos(vector<string> stringList, int startIndex);
 	bool isPairedRoundBrackets(string str);
 	bool checkAllBrackets(vector<string> stringList);
