@@ -26,7 +26,7 @@ vector<string> QueryPreprocessor::start(string line) {
 	}
 	QueryTree* tree = startProcess(declare, input);
 	if (tree->getValidity() == false) {
-		cout << "================== Invalid QueryTree ===================" << endl;
+		//cout << "================== Invalid QueryTree ===================" << endl;
 	}
 	//vector<string> result;
 	//return result;
@@ -60,7 +60,7 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 		//	printTable(selections);
 	}
 	else {
-		cout << "wrong select" << endl;
+		//cout << "wrong select" << endl;
 		tree->setValidity(false);
 		return tree;
 	}
@@ -160,18 +160,27 @@ bool QueryPreprocessor::isValidSelection(string input){
 }
 
 bool QueryPreprocessor::isValidSuchThat(){
+
 	for (int i = 0; i < relations.size(); i++) {
 		string clause = relations[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong such that 1" << endl;
+			//cout << "wrong such that 1" << endl;
 			return false;
 		}
 		if (countWords(clause, ",")>2) {
-			cout << "wrong such that 2" << endl;
+			//cout << "wrong such that 2" << endl;
 			return false;
 		}
+		vector <string> seperate = stringToVector(clause, ")");
+		if (seperate.size() > 0) {
+			if (trim(seperate[1]) != "") {
+				//cout << " extra word: " << seperate[1] << endl;
+				return false;
+			}
+		}
 	}
+
 	return true;
 }
 
@@ -180,12 +189,19 @@ bool QueryPreprocessor::isValidPattern(){
 		string clause = patterns[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong pattern 1" << endl;
+			//cout << "wrong pattern 1" << endl;
 			return false;
 		}
 		if (countWords(clause, ",")>3) {
-			cout << "wrong pattern 2" << endl;
+			//cout << "wrong pattern 2" << endl;
 			return false;
+		}
+		vector <string> seperate = stringToVector(clause, ")");
+		if (seperate.size() > 0) {
+			if (trim(seperate[1]) != "") {
+				//cout << " extra word: " << seperate[1] << endl;
+				return false;
+			}
 		}
 	}
 	return true;
@@ -304,11 +320,11 @@ void QueryPreprocessor::setDeclarationTable(string declare){
     declarations.pop_back();
 }
 
-void QueryPreprocessor::setSuchThatTable(string input){
+void QueryPreprocessor::setSuchThatTable(string input) {
 
-    string str = removeMultipleSpace(input);
+	string str = removeMultipleSpace(input);
 	vector< vector<string> > suchThatClauses = seperateClause(str, "such that");
-	relations = setClauseTableForSuchThat(suchThatClauses);	
+	relations = setClauseTableForSuchThat(suchThatClauses);
 }
 
 vector<string> QueryPreprocessor::sortAttribute(vector<string> table) {
@@ -461,7 +477,22 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	for (int i = 0; i < others.size(); i++) {
 		sorted.push_back(others[i]);
 	}
-	return sorted;
+
+	if (sorted.size() > 1) {
+		for (int i = 0; i < sorted.size() - 1; i++) {
+			if (sorted[i] == sorted[i + 1]) {
+				sorted[i + 1] = "";
+			}
+		}
+	}
+	vector<string> removeDuplicate;
+	for (int i = 0; i < sorted.size(); i++) {
+		if (sorted[i] != "") {
+			removeDuplicate.push_back(sorted[i]);
+		}
+	}
+
+	return removeDuplicate;
 }
 
 void QueryPreprocessor::setPatternTable(string input){

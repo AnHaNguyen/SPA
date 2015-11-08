@@ -76,7 +76,7 @@ void QueryTree::setResult(vector<string> table){
 		}
 
 		else {
-			cout << "wrong result TREE: " << str << endl;
+			//cout << "wrong result TREE: " << str << endl;
 			isValid = false;
 			return;
 		}
@@ -113,7 +113,7 @@ void QueryTree::setSuchThat(vector<string> table){
 			suchThatPtr->setSecondAttr(second);
 		}
 		else {
-			cout << "wrong such that TREE: " << str << endl;
+			//cout << "wrong such that TREE: " << str << endl;
 			isValid = false;
 		}
 
@@ -154,7 +154,7 @@ void QueryTree::setPattern(vector<string> table){
 				patternPtr->setSecondAttr(second);
 			}
 			else {
-				cout << "wrong pattern TREE_1: " << str << endl;
+				//cout << "wrong pattern TREE_1: " << str << endl;
 				isValid = false;
 			}
 		}
@@ -174,7 +174,7 @@ void QueryTree::setPattern(vector<string> table){
 				patternPtr->setThirdAttr(third);
 			}
 			else {
-				cout << "wrong pattern TREE_2: " << str << endl;
+				//cout << "wrong pattern TREE_2: " << str << endl;
 				isValid = false;
 			}
 		}
@@ -224,7 +224,7 @@ void QueryTree::setWith(vector<string> table) {
 			}
 		}
 		else {
-			cout << "wrong with TREE: " << str << endl;
+			//cout << "wrong with TREE: " << str << endl;
 			isValid = false;
 		}
 
@@ -329,6 +329,20 @@ void QueryTree::setSymbolTable(vector<string> terms){
 				//cout << "wrong symbol table"  << endl;
 				//cout << symbolTable[i][j] << endl;
 				isValid = false;
+			}
+		}
+	}
+
+	for (int i = 0; i < symbolTable.size(); i++) {
+		for (int j = 1; j < symbolTable[i].size(); j++) {
+			string symbol = symbolTable[i][j];
+			for (int m = 0; m < symbolTable.size(); m++) {
+				for (int n = 1; n < symbolTable[m].size(); n++) {
+					if ((i != m || j != n) && (symbolTable[m][n] == symbol)) {
+						isValid = false;
+						//cout << "duplicated declared synonym" << symbol << endl;
+					}
+				}
 			}
 		}
 	}
@@ -690,7 +704,7 @@ bool QueryTree::isValidIdent(string str) {
 
 	for (int i = 0; i<str.size(); i++) {
 		if (!(isalnum(str.at(i)) || str.at(i) == '#')) {
-			cout << "line 305" << endl;
+			//cout << "line 305" << endl;
 			return false;
 		}
 	}
