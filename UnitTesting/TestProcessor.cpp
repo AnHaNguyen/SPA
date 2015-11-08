@@ -1280,6 +1280,7 @@ namespace TestProcessor {
 			 *
 			 *	while stmt with nested-call with nested-while
 			 */
+
 			QueryTree* tree5 = new QueryTree();
 
 			vector<string> declarations5;
@@ -1312,7 +1313,6 @@ namespace TestProcessor {
 			Assert::AreEqual(string("y"), results[4]);
 			Assert::AreEqual(string("z"), results[5]);
 		}
-
 
 
 
@@ -2747,6 +2747,5 @@ namespace TestProcessor {
 
 		}
 	};
-
 
 }

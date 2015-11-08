@@ -23,10 +23,17 @@ DesignExtractor::DesignExtractor(vector<string>parsedInput){
 		processFollowTable(ast.at(i));
 		processParentTable(ast.at(i));
 	}
-
+	
+	if (callTable->isContainedRecur()) {
+		exit(EXIT_FAILURE);
+	}
+	
 	processProcTable();
 	processModUseTable();
-
+	
+	processNextTable();
+	processSTable();
+	
 	storeToPKB();
 }
 
@@ -44,6 +51,10 @@ void DesignExtractor::initialize() {
 	progLine = new ProgLine();
 	ast = vector<AST* >();
 	ASTCurParent = vector<TNode*>();
+	nextTable = new NextTable();
+	followSTable = new FollowSTable();
+	callSTable = new CallSTable();
+	parentSTable = new ParentSTable();
 
 	lineNumber = 0;
 	stmtLstNumber = 0;
@@ -61,6 +72,12 @@ void DesignExtractor::storeToPKB() {
 	PKB::setParentTable(parentTable);
 	PKB::setFollowTable(followTable);
 	PKB::setProgLine(progLine);
+	PKB::setNextTable(nextTable);
+	PKB::setCallTable(callTable);
+	PKB::setCallSTable(callSTable);
+	PKB::setFollowSTable(followSTable);
+	PKB::setParentSTable(parentSTable);
+	//PKB::updateProgLine();
 }
 
 //-------------------------AST-------------------------//
@@ -287,84 +304,13 @@ void DesignExtractor::processAssign(string leftSide, int lineNumber){
 	ASTCurParent.pop_back();
 }
 
-/*
-void DesignExtractor::processRightSideAssign(AST* curProcSubAST, TNode* curParent, 
-											string rightSideText, int lineNumber){
-	vector<int> plusList;
-
-	// Find the position of each plus sign
-	string tempStr = rightSideText;
-	while (true) {
-		int posOfPlus = tempStr.find(PLUS);
-
-		if(posOfPlus != string::npos){
-			// replace the first occurence + by @
-			tempStr.replace(posOfPlus, 1, "@");
-			plusList.push_back(posOfPlus);
-		} else {
-			// Fake plus sign
-			plusList.push_back(tempStr.length());
-			break;
-		}
-	}
-
-	// Create subtree of assignment
-	string leftSubTree = rightSideText.substr(0, plusList.at(0));
-	string typeOfLeft = exprType(leftSubTree);
-
-	// add const & var into the corresponding table
-	if (typeOfLeft == VARIABLE) {
-		varTable->addVar(leftSubTree);
-	}
-	else if (typeOfLeft == CONSTANT) {
-		constTable->addToTable(convertNumToStr(lineNumber), leftSubTree);
-	}
-
-	TNode* leftSubTreeNode = new TNode(leftSubTree, typeOfLeft, lineNumber);
-	curProcSubAST->addToTree(leftSubTreeNode);
-
-	for(unsigned i = 0; i < plusList.size() - 1; i++){
-		int prevPlus = plusList.at(i);
-		int nextPlus = plusList.at(i + 1);
-
-		string rightSubTree = rightSideText.substr(prevPlus + 1, nextPlus - prevPlus -1);	
-		string typeOfRight = exprType(rightSubTree);
-
-		// add var & const to corresponding table when creating ast
-		if (typeOfRight == VARIABLE) {
-			varTable->addVar(rightSubTree);
-		}
-		else if (typeOfRight == CONSTANT) {
-			constTable->addToTable(convertNumToStr(lineNumber),rightSubTree);
-		}
-
-		TNode* rightSubTreeNode = new TNode(rightSubTree, typeOfRight, lineNumber);
-		TNode* plusNode = new TNode(NO_VALUE, PLUS_TEXT, lineNumber);
-
-		curProcSubAST->addToTree(rightSubTreeNode);
-		
-		plusNode->setChild(leftSubTreeNode);
-		leftSubTreeNode->setParent(plusNode);
-		plusNode->setChild(rightSubTreeNode);
-		rightSubTreeNode->setParent(plusNode);
-		
-		leftSubTreeNode = plusNode;
-		curProcSubAST->addToTree(leftSubTreeNode);
-	}
-
-	// Stick subtree to main tree
-	if (curParent->getType() != "") {
-		curParent->setChild(leftSubTreeNode);
-		leftSubTreeNode->setParent(curParent);
-	}
-}*/
-
 void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int lineNumber) {
 	stack<int> bracketStack = stack<int>();
 	seperateNodeBracket = queue<TNode*>();
 	queue<TNode*> finalQueue = queue<TNode*>();
 	int len = rightSideText.length();
 	TNode* finalStickNode = new TNode();
+	bool noBracket = true;
 
 	// process for bracket
 	for (int i = 0; i < len; i++) {
@@ -372,6 +318,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 
 		if (curChar == ROUND_OPEN_BRACKET) {
 			bracketStack.push(i);
+			noBracket = false;
 		}
 		else if (curChar == ROUND_CLOSE_BRACKET) {
 			int openBracket = bracketStack.top();
@@ -388,7 +335,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 			for (int j = openBracket; j <= i; j++) {
 				rightSideText.replace(j, 1, FAKE_ROUND_BRACKET);
 			}
-			
+
 			if (bracketStack.empty()) {
 				TNode* finalNode = seperateNodeBracket.front();
 				seperateNodeBracket.pop();
@@ -399,7 +346,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 		}
 	}
 
-	if (rightSideText.find_first_not_of(FAKE_ROUND_BRACKET) != string::npos) {
+	if (rightSideText.find_first_not_of(FAKE_ROUND_BRACKET) != string::npos || noBracket) {
 		seperateNodeBracket = finalQueue;
 		finalStickNode = processInsideBracket(curProcAst, rightSideText, lineNumber);
 	}
@@ -413,7 +360,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	// first: type, second, position
 	vector<pair<string, int>> signList = vector<pair<string, int>>();
 
-	for (int i = 0; i < subString.length(); i++) {
+	for (unsigned int i = 0; i < subString.length(); i++) {
 		string curChar = subString.substr(i, 1);
 		if (curChar == PLUS) {
 			signList.push_back(make_pair(PLUS_TEXT, i));
@@ -432,8 +379,11 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 
 	// only 1 variable in right side
 	if (size < 1) {
+		TNode* singleNode = new TNode(subString, exprType(subString), lineNumber);
+		curProcAst->addToTree(singleNode);
 		addToVarConstTable(subString, lineNumber);
-		return new TNode(subString, exprType(subString), lineNumber);
+
+		return singleNode;
 	}
 
 	// first para
@@ -455,6 +405,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	signNode->setChild(leftNode);
 	leftNode->setParent(signNode);
 	curProcAst->addToTree(signNode);
+
 	curNode = signNode;
 	curPlusMinusNode = curNode;
 
@@ -508,13 +459,16 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			curNode->setChild(leftNode);
 			leftNode->setParent(curNode);
 
-			curPlusMinusNode->setChild(curNode);
-			curNode->setParent(curPlusMinusNode);
-			curNode = curPlusMinusNode;
+			if (curPlusMinusNode != curNode) {
+				curPlusMinusNode->setChild(curNode);
+				curNode->setParent(curPlusMinusNode);
+				curNode = curPlusMinusNode;
+			}
 
 			signNode->setChild(curNode);
 			curNode->setParent(signNode);
 			curNode = signNode;
+			curPlusMinusNode = curNode;
 		}
 	}
 
@@ -556,7 +510,7 @@ void DesignExtractor::addToVarConstTable(string var, int lineNumber) {
 	}
 }
 
-//---------------------Create Call Table------------------//
+//---------------------Create Call Table----------------------//
 void DesignExtractor::processCallTable(AST* ast) {
 	string caller = ast->getProcedure();
 
@@ -735,7 +689,7 @@ void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
 
 	// if callee's mod/useTable is completed then add(caller, varOfCallee)
 	if (calleeOfCalleeList.size() > 0) {
-		for (int i = 0; i < calleeOfCalleeList.size(); i++) {
+		for (unsigned int i = 0; i < calleeOfCalleeList.size(); i++) {
 			updateModUseTableWCall(callee, calleeOfCalleeList.at(i));
 		}
 	}
@@ -745,16 +699,16 @@ void DesignExtractor::updateModUseTableWCall(string caller, string callee) {
 	vector<string> modVarList = modTable->getModified(callee);
 	vector<string> useVarList2 = useTable->getUsed(callee);
 
-	for (int i = 0; i < modVarList.size(); i++) {
+	for (unsigned int i = 0; i < modVarList.size(); i++) {
 		modTable->addToTable(caller, modVarList.at(i));
 	}
 
-	for (int i = 0; i < useVarList2.size(); i++) {
+	for (unsigned int i = 0; i < useVarList2.size(); i++) {
 		useTable->addToTable(caller, useVarList2.at(i));
 	}
 }
 
-//--------------Process Right Branch of the Assignment--------------//
+//--------------Process Right Branch of the Assignment-------------//
 void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr) {
 	string rightNodeType = rightNode->getType();
 
@@ -766,16 +720,16 @@ void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr)
 
 	vector<TNode*> childList = rightNode->getChildList();
 	if (childList.size() > 0) {
-		for (int i = 0; i < childList.size(); i++) {
+		for (unsigned int i = 0; i < childList.size(); i++) {
 			TNode* processedNode = childList.at(i);
 			processRightBranchAST(processedNode, lineNumStr);
 		}
 	}
 }
 
-//---------------Smaller modules for Use Table----------------//
+//---------------Smaller modules for Use Table---------------//
 void DesignExtractor::addVarToContainer(string container, vector<string> varList, string type) {
-	for (int i = 0; i < varList.size(); i++) {
+	for (unsigned int i = 0; i < varList.size(); i++) {
 		string iVar = varList.at(i);
 
 		if (type == USE_VAR) {
@@ -796,67 +750,84 @@ void DesignExtractor::processProcTable() {
 	}
 }
 
-/*bool DesignExtractor::processModTable() {	
-	int lineNumber = 0;
-	for (unsigned i = 0; i < input.size(); i++) {			
-		string line = input.at(i);
-		lineNumber = getRealLineNumber(lineNumber, line);
-		unsigned pos = line.find(EQUAL);
+AST* DesignExtractor::buildSubtree(string pattern) {
+	AST* subAST = new AST();
+	rightSideText = pattern;
 
-		if (pos != string::npos){
-			string var = line.substr(0, pos);
-			modTable->add(lineNumber, var);							
-			varTable->addVar(var);
-		}
-	}
-	return true;
+	TNode* curParent = new TNode();
+	subAST->addToTree(curParent);
+	processRightSideAssign(subAST, curParent, 0);
+
+	return subAST;
 }
 
-bool DesignExtractor::processUseTable() {
-	int lineNumber = 0;
-
-	for (unsigned i = 0; i < input.size(); i++) {
-		string line = input.at(i);
-		string type = line.substr(0, 5);
-		if (type == WHILE) {
-			string var = line.substr(5, line.size() - 6);
-			lineNumber = getRealLineNumber(lineNumber, line);
-
-			useTable->add(lineNumber, var);			// start after while (5), length = size - start - '{'
-			varTable->addVar(var);
+//---------------------------Next Table-------------------------------//
+bool DesignExtractor::processNextTable() {
+	for (int i = 1; i <= progLine->numOfLines(); i++) {
+		string type = progLine->getType(to_string(i));
+		if (type == ASSIGN || type == CALL) {
+			string next = followTable->getNext(to_string(i));
+			if (next != NO_VALUE) {
+				nextTable->addToTable(to_string(i), next);
+			}
 		}
-		else {								
-			unsigned pos = line.find(EQUAL);
-			lineNumber = getRealLineNumber(lineNumber, line);
-
-			if (pos != string::npos) {
-				line = line.substr(pos + 1, line.size() - pos - 1);			//remove =
-				pos = line.find(PLUS);
-				while (pos != string::npos) {
-					string var = line.substr(0, pos);
-
-					if (!isConst(var)) {	
-						useTable->add(lineNumber, var);				
-						varTable->addVar(var);
-					}
-					else {
-						constTable->addToTable(lineNumber, var);		
-					}
-					line = line.substr(pos + 1, line.size() - pos - 1);		//remove +
-					pos = line.find(PLUS);
+		else if (type == WHILE) {
+			vector<string> childList = parentTable->getChild(to_string(i));
+			vector<int> cvtChildList;
+			for (unsigned j = 0; j < childList.size(); j++) {
+				cvtChildList.push_back(atoi(childList.at(j).c_str()));
+			}
+			int firstChild = cvtChildList.at(0);
+			int lastChild = cvtChildList.at(0);
+			for (unsigned j = 1; j < cvtChildList.size(); j++) {
+				if (cvtChildList.at(j) < firstChild) {
+					firstChild = cvtChildList.at(j);
 				}
-				if (line.find(CLOSE_BRACKET) != string::npos) {
-					line = line.substr(0, line.size() - 2);			//remove '}' and ';'
+				if (cvtChildList.at(j) > lastChild) {
+					lastChild = cvtChildList.at(j);
 				}
-				else {
-					line = line.substr(0, line.size() - 1);		//remove ';'
+			}
+			nextTable->addToTable(to_string(i), to_string(firstChild));
+			if (progLine->getType(to_string(lastChild)) != IF) {
+				nextTable->addToTable(to_string(lastChild), to_string(i));
+			}
+			string next = followTable->getNext(to_string(i));
+			if (next != NO_VALUE) {
+				nextTable->addToTable(to_string(i), next);
+			}
+		}
+		else if (type == IF) {
+			vector<string> childList = parentTable->getChild(to_string(i));
+			vector<string> firstChilds;
+			for (unsigned j = 0; j < childList.size(); j++) {
+				if (followTable->getPrev(childList.at(j)) == "") {
+					firstChilds.push_back(childList.at(j));
 				}
-				if (!isConst(line)) {
-					useTable->add(lineNumber, line);					
-					varTable->addVar(line);
+			}
+			if (firstChilds.size() != 2) {	//check that only 2 childs that are then and else
+				return false;
+			}
+			string thenChild;
+			string elseChild;
+			if (atoi(firstChilds.at(0).c_str()) < atoi(firstChilds.at(1).c_str())) {
+				thenChild = firstChilds.at(0);
+				elseChild = firstChilds.at(1);
+			}
+			else {
+				thenChild = firstChilds.at(1);
+				elseChild = firstChilds.at(0);
+			}
+			nextTable->addToTable(to_string(i), thenChild);
+			nextTable->addToTable(to_string(i), elseChild);
+			string lastThen = findLast(thenChild);
+			string lastElse = findLast(elseChild);
+			string next = nearestNext(to_string(i));
+			if (next != NO_VALUE) {
+				if (lastThen != NO_VALUE) {
+					nextTable->addToTable(lastThen, next);
 				}
-				else {
-					constTable->addToTable(lineNumber, line);
+				if (lastElse != NO_VALUE) {
+					nextTable->addToTable(lastElse, next);
 				}
 			}
 		}
@@ -864,21 +835,100 @@ bool DesignExtractor::processUseTable() {
 	return true;
 }
 
-bool DesignExtractor::isConst(string var){
-	return (isdigit(var[0]));
-}*/
+string DesignExtractor::findLast(string line) {
+	while (followTable->getNext(line) != NO_VALUE) {
+		line = followTable->getNext(line);
+	}
+	if (progLine->getType(line) == ASSIGN || progLine->getType(line) == CALL
+		|| progLine->getType(line) == WHILE) {
+		return line;
+	}
+	return NO_VALUE;
+}
 
+string DesignExtractor::nearestNext(string line) {
+	if (followTable->getNext(line) != NO_VALUE) {
+		return followTable->getNext(line);
+	}
+	else if (progLine->getType(line) == WHILE) {
+		return line;
+	}
+	else if (parentTable->getParent(line) == NO_VALUE) {
+		return NO_VALUE;
+	}
+	else return nearestNext(parentTable->getParent(line));
+}
+
+void DesignExtractor::processSTable() {
+	generateCallSTable();
+	generateParentSTable();
+	generateFollowSTable();
+}
+
+void DesignExtractor::generateCallSTable() {
+	for (int i = 0; i < callTable->size(); i++) {
+		queue<string> lineQ;
+		string line = callTable->getTable().at(i).caller;
+		lineQ.push(line);
+
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> callees = callTable->getCallees(cur);
+			for (unsigned j = 0; j < callees.size(); j++) {
+				lineQ.push(callees.at(j));
+				callSTable->addToTable(line, callees.at(j));
+			}
+		}
+	}
+}
+
+void DesignExtractor::generateFollowSTable() {
+	for (int i = 0; i < followTable->size(); i++) {
+		queue<string> lineQ;
+		string line = followTable->getTable().at(i).prev;
+		lineQ.push(line);
+
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			string next = followTable->getNext(cur);
+			if (next != NO_VALUE) {
+				lineQ.push(next);
+				followSTable->addToTable(line, next);
+			}
+		}
+	}
+}
+
+void DesignExtractor::generateParentSTable() {
+	for (int i = 0; i < parentTable->size(); i++) {
+		queue<string> lineQ;
+		string line = parentTable->getTable().at(i).lineNo;
+		lineQ.push(line);
+
+		while (!lineQ.empty()) {
+			string cur = lineQ.front();
+			lineQ.pop();
+			vector<string> childList = parentTable->getChild(cur);
+			for (unsigned j = 0; j < childList.size(); j++) {
+				lineQ.push(childList.at(j));
+				parentSTable->addToTable(line, childList.at(j));
+			}
+		}
+	}
+}
 
 // Getter
 CallTable* DesignExtractor::getCallTable() {
 	return callTable;
 }
 
-FollowTable* DesignExtractor::getFollowTable(){
+FollowTable* DesignExtractor::getFollowTable() {
 	return followTable;
 }
 
-ParentTable* DesignExtractor::getParentTable(){
+ParentTable* DesignExtractor::getParentTable() {
 	return parentTable;
 }
 
@@ -910,20 +960,12 @@ vector<AST*> DesignExtractor::getASTList() {
 	return ast;
 }
 
-AST* DesignExtractor::buildSubtree(string pattern) {
-	AST* subAST = new AST();
-	rightSideText = pattern;
-	processRightSideAssign(subAST, new TNode(), 0);
-
-	return subAST;
-}
-
-string DesignExtractor::getRightSideText() {
-	return rightSideText;
+NextTable* DesignExtractor::getNextTable() {
+	return nextTable;
 }
 
 // Smaller modules
-string DesignExtractor::convertNumToStr(int stmtLstNumber){
+string DesignExtractor::convertNumToStr(int stmtLstNumber) {
 	ostringstream osstream;
 	osstream << stmtLstNumber;
 	string stmtLstNumText = osstream.str();
@@ -933,12 +975,13 @@ string DesignExtractor::convertNumToStr(int stmtLstNumber){
 
 // Check the string is number or variable
 // Return the type of VARIABLE or CONSTANT.
-string DesignExtractor::exprType(string numText){
+string DesignExtractor::exprType(string numText) {
 	char firstDigit = numText.at(0);
 
-	if(isdigit(firstDigit)){
+	if (isdigit(firstDigit)) {
 		return CONSTANT;
-	} else {
+	}
+	else {
 		return VARIABLE;
 	}
 }

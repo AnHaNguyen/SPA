@@ -1,0 +1,77 @@
+procedure ABC{
+1  i=1;
+2  b=200;
+3  c= a ;
+4  if a then{
+5   	while beta {
+6        	oSCar  = 1 * beta + tmp;
+7        	while tmp {
+8          		oSCar = I - (k + j1k * chArlie); }}
+9	while x {
+10        	x = x + 1;
+11        	if left then {
+12          		call Second;		
+13          		if right then {
+14            			Romeo = Romeo - 1;
+15            			b = 0;
+16            			c = delta    + l  * width + Romeo; }
+          		else {
+17				t = (oR + y) * (I + o * hey - (9 + boArd * i));
+18            			while c {
+19              			call    Init;
+20             				c = c -1 ; } 
+21            			x = x+ 1; }}
+      		else   {
+22			while l00p  {
+23				variabL3 = utility * 8 - oP0 * (9 - p);
+24				Romeo = utility + x;
+25				x = i + 7 * ERP;}
+26        		call Init; } } }
+   else{
+27  	call Init;
+28	if mobILE then{
+29		x = 9 + t;
+30		call Second;}
+	else                  {
+31		x = t;	
+32		call Init;}}}
+
+procedure Second{
+33 if x   then  {
+34 	Y1 = 0;
+35	while gg6   {
+36		ERP = t0y * 09213  + UI * 7 + 8;
+37		Tim3ToChange = t0y * 9 - (the * ninth + OOT) 	;}}
+   else  { 
+38  	if left then {
+39      	call Init;
+40          	if right then {
+41            		Romeo = Romeo - 1;
+42            		b =0;
+43            		c = delta  + l  * width + Romeo; }
+          	else {
+44            		while c {
+45              		call    Init;
+46              		c = c -1   ;} 
+47            		x = x+ 1; }}
+        else {
+48          	call Init; 
+49		r = InIt + ( 8 * aSIAn + u * (t + y ) * x - (9 + i * h )) - 999 + x;}}          }
+
+procedure Init {
+50 while err0r{
+51	if i00n   then {
+52		x = d + 8 * t0312TQ;
+53		while one56332Hundreds   {
+54			if t1mes then {
+55				b = f + c - 9;} 
+			else {
+56				 Romeo = 931321;}
+57			deltA = width * (9 + u) + o3232f;}}
+	else {
+58		t = o - 0 + 9 * Halloween + (9 * u + (qwD4T - t) );
+59		x = 5;
+60		while hell0Ad3l3 {
+61			Ad3l3 = 9 + ( y0u - 9 ) * ( specs  + 4233 + 	a2);
+62			softWar3 = TA * UI + ( 9 * theWorld ) - Curry;}}
+63 	x1   = reet543w; } }

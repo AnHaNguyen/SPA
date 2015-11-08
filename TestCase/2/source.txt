@@ -1,0 +1,100 @@
+procedure ABC{
+  i=1;
+  b=200                 ;
+  c= a   ;
+  if a then{
+   	while beta {
+        	oSCar  = 1 * beta + tmp;
+        	while tmp {
+          		oSCar = I - (k + j1k * chArlie); }}
+		while x {
+        		x = x + 1;
+        		if left              then {
+          			call Second;					// call Second procedure
+          			if right then {
+            				Romeo = Romeo - 1;
+            				b = 0;
+            				c = delta    + l  * width + Romeo; }
+          			else {
+					t = (oR + y) * (I + o * hey - (9 + boArd * i));
+            				while c {
+              				call    Init;
+             					c = c -1 ; } 
+            				x = x+ 1; }}
+      			else   {
+				while l00p              {
+					variabL3 = utility * 8 - oP0 * (9 - p);
+					Romeo = utility + x;
+					x = i + 7 * ERP;
+				}
+          			call Init; } } }
+   else{
+  	call Init;
+	if mobILE then{
+		x = 9 + t;
+		call Second;}
+	else                  {
+		x = t;				// 		assignment x = t
+		call Init;}}}
+
+procedure Second{
+ if x   then  {
+ 	Y1 = 0;
+	while gg6   {
+		ERP = t0y * 09213  + UI * 7 + 8;
+		Tim3ToChange = t0y * 9 - (the * ninth + OOT) 	;
+	}}
+   else  { 
+  	if left then {
+      	call Init;
+          	if right then {
+            		Romeo = Romeo - 1;
+            		b =0;
+            		c = delta  + l  * width + Romeo; 
+
+
+}
+          	else {
+            		while c {
+              		call    Init;
+              		c = c -1   ;} 
+            		x = x+ 1; }}
+        else {
+          	call Init; 
+		r = InIt + ( 8 * aSIAn + u * (t + y ) * x - (9 + i * h )) - 999 + x;
+	}
+	}                          }
+
+
+
+procedure Init {
+while err0r{
+	if i00n   then {
+		x = d + 8 * t0312TQ;
+		while one56332Hundreds   {
+			if t1mes then {
+				b = f + c - 9;
+			} else {
+				 Romeo = 931321;
+			}
+			
+			deltA = width * (9 + u      ) + o3232f;
+		}
+	} else {
+			t = o - 0 + 9 * Halloween + (9 * u + (qwD4T - t) );
+		x = 5;
+		while hell0Ad3l3
+		{
+			Ad3l3 = 9 + ( y0u - 9 ) * ( specs  + 4233 + 	a2);
+			softWar3 = TA * UI + ( 9 * theWorld ) - Curry;
+		}
+	}
+
+
+
+ 	x1   = reet543w; 
+} 
+
+
+
+}

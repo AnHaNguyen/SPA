@@ -1,33 +1,31 @@
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <queue>
-#include <iostream>
-
-#include "../PKB.h"
 #include "../QueryProcessor/QueryHandler.h"
-#include "../Preprocessor/QueryTree.h"
-#include "../FollowTable.h"
-#include "../ModifyTable.h"
-#include "../ParentTable.h"
-#include "../ProgLine.h"
-
-
 
 QueryHandler::QueryHandler() {}
 QueryHandler::~QueryHandler() {}
 
 
-vector<string> QueryHandler::queryRec(QueryTree* query) {
+vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 	//Initiate global values
 	PreResultNode* result;
-	PreSuchThatNode* suchThat;
-	PrePatternNode* pattern;
+	PreSuchThatNode* queryST;
+	PrePatternNode* queryPT;
+	PreWithNode* queryWith;
 	string stFirst;
 	string stSecond;
 	string ptFirst;
 	string ptSecond;
+	string withFirst;
+	string withSecond;
+	string ST;
+	string PT;
+	vector<RSEntry_t> queryRS;
+	HandleRS handleRS = HandleRS();
+	HandleST handleST = HandleST();
+	HandlePT handlePT = HandlePT();
+	HandleWith handleWith = HandleWith();
+	HUtility utility = HUtility();
+	ProgLine* progLine = PKB::getProgLine();
 
 	//Return check
 	vector<int> PTCheck;
@@ -35,1031 +33,905 @@ vector<string> QueryHandler::queryRec(QueryTree* query) {
 	vector<string> final;
 
 	//check validity
-	if (query->getValidity() == false) {
+	if (queryTree->getValidity() == false) {
 		return final;
 	}
-	if (query->getSymbolTable().size() != 0) {
-		symTable = query->getSymbolTable();
+	/*final.push_back("valid");
+	return final;*/
+
+	//Initialize symtable for HUtility
+	if (queryTree->getSymbolTable().empty()) {
+		return final;
 	}
 	else {
-		return final;
+		utility.setSymTable(queryTree->getSymbolTable());
 	}
 
 	//Handle select
-	string selType = handleSelect(query, result);
+	string selType = HandleRS().handleSelect(queryTree, result);
+	if (selType == "") {
+		return final;
+	}
 
 	//Handle suchThat
-	vector<string> folVec;
-	vector<pair<string, string>>  folTable;
+	queryST = queryTree->getSuchThat();
+	while (true) {
+		vector<string> folVec;
+		vector<pair<string, vector<string>>>  folTable;
 
-	vector<string> mvarVec;
-	vector<string> modVec;
-	vector<pair<string, vector<string>>>  modTable;
+		vector<string> modVec;
+		vector<pair<string, vector<string>>>  modTable;
 
-	vector<string> parVec;
-	vector<string>  parTable;
-	vector<string> nestTable;
-
-	vector<string> uvarVec;
-	vector<string> useVec;
-	vector<string> userTable;
-	vector<string> usedTable;
+		vector<string> parVec;
+		vector<pair<string, vector<string>>>  parTable;
 
 
-	if (query->getSuchThat()->getSynonym() != "") {
-		suchThat = query->getSuchThat();
-		string syn = suchThat->getSynonym();
-		stFirst = suchThat->getFirstAttr();
-		stSecond = suchThat->getSecondAttr();
+		vector<string> useVec;
+		vector<pair<string, vector<string>>> useTable;
 
-		//Handle follows
-		if (syn == "Follows") {
-			folVec.push_back(handleFollows(stFirst, stSecond));
-			if (folVec.size() > 0 && folVec.front() == "all") {
-				getFollowTable(folTable);
-			}
-		}
+		vector<string> nextVec;
+		vector<pair<string, vector<string>>>  nextTable;
 
-		//Handle follows*
-		if (syn == "Follows*") {
-			//Check if case Follows*(1, 2)
-			if (isInt(stFirst) && isInt(stSecond)) {
-				if (isFollowsS(stFirst, stSecond)) {
-					folVec.push_back("true");
-				}
-			}
-			else {
-				folVec.push_back(handleFollows(stFirst, stSecond));
-				queue<string> folQ;
-				folQ.push(folVec[0]);
+		vector<string> callVec;
+		vector <pair<string, vector<string>>> callTable;
+
+		vector<string> affVec;
+		vector <pair<string, vector<string>>> affTable;
+
+
+		if (queryST->getSynonym() != "") {
+			ST = queryST->getSynonym();
+			stFirst = queryST->getFirstAttr();
+			stSecond = queryST->getSecondAttr();
+
+			//Handle follows
+			if (ST == "Follows") {
+				handleST.handleFollows(stFirst, stSecond, folVec);
 				if (folVec.size() > 0 && folVec.front() == "all") {
-					getFollowTable(folTable);
+					utility.getFollowTable(folTable);
+					handleRS.checkPSV(folTable, stFirst, stSecond);
+				}
+				if (folVec.size() > 0 && folVec.front() != "all" && folVec.front() != "true" && folVec.front() != "") {
+					handleRS.checkSS(folVec, stFirst, stSecond);
+				}
+			}
+
+			//Handle follows*
+			if (ST == "Follows*") {
+				FollowSTable* folS = PKB::getFollowSTable();
+				//Check if case Follows*(1, 2)
+				if (utility.isInt(stFirst) && utility.isInt(stSecond)) {
+					if (folS->isFollowS(stFirst, stSecond)) {
+						folVec.push_back("true");
+					}
 				}
 				else {
-					while (!folQ.empty()) {
-						string temp = folQ.front();
-						folQ.pop();
-						string nextFol;
-						if (isInt(stFirst)) {
-							nextFol = handleFollows(temp, stSecond);
-							if (nextFol != "na") {
-								folQ.push(nextFol);
-								folVec.push_back(nextFol);
-							}
+					handleST.handleFollows(stFirst, stSecond, folVec);
+					if (folVec.size() > 0 && folVec.front() == "all") {
+						utility.getFollowSTable(folTable);
+						handleRS.checkPSV(folTable, stFirst, stSecond);
+					}
+					else {
+						//Case Follows*(1,s)
+						if (utility.isInt(stFirst)) {
+							folVec = folS->getNextS(stFirst);
 						}
-						if (isInt(stSecond)) {
-							nextFol = handleFollows(stFirst, temp);
-							if (nextFol != "na") {
-								folQ.push(nextFol);
-								folVec.push_back(nextFol);
+						if (utility.isInt(stSecond)) {
+							folVec = folS->getPrevS(stSecond);
+						}
+						handleRS.checkSS(folVec, stFirst, stSecond);
+					}
+				}
+			}
+
+			//Handle modifies
+			if (ST == "Modifies") {
+				handleST.handleModifies(stFirst, stSecond, modVec);
+				if (modVec.size() > 0 && modVec.front() == "all") {
+					utility.getModifyTable(modTable);
+					handleRS.checkPSV(modTable, stFirst, stSecond);
+				}
+				else if (modVec.size() > 0 && modVec.front() != "true" && modVec.front() != "") {
+					handleRS.checkSS(modVec, stFirst, stSecond);
+				}
+			}
+
+			//Handle parent
+			if (ST == "Parent") {
+				handleST.handleParent(stFirst, stSecond, parVec);
+				if (parVec.size() > 0 && parVec.front() == "all") {
+					utility.getParentTable(parTable);
+					handleRS.checkPSV(parTable, stFirst, stSecond);
+				}
+				else if (parVec.size() > 0 && parVec.front() != "true" && parVec.front() != "") {
+					handleRS.checkSS(parVec, stFirst, stSecond);
+				}
+			}
+
+			//Handle parent*
+			if (ST == "Parent*") {
+				ParentSTable* parTab = PKB::getParentSTable();
+				//Check case Parent*(1, 2)
+				if (utility.isInt(stFirst) && utility.isInt(stSecond)) {
+					if (parTab->isParentS(stFirst, stSecond)) {
+						parVec.push_back("true");
+					}
+				}
+				else {
+					handleST.handleParent(stFirst, stSecond, parVec);
+					if (!parVec.empty()) {
+						if (parVec.size() > 0 && parVec.front() == "all") {
+							utility.getParentSTable(parTable);
+							handleRS.checkPSV(parTable, stFirst, stSecond);
+						}
+						else {
+							//Case Parent*(1, s)
+							if (utility.isInt(stFirst)) {
+								parVec = parTab->getChildS(stFirst);
+							}
+							if (utility.isInt(stSecond)) {
+								parVec = parTab->getParentS(stSecond);
+							}
+							handleRS.checkSS(parVec, stFirst, stSecond);
+						}
+					}
+				}
+			}
+
+			//Handle uses
+			vector<UseEntry_t> useTab;
+			if (ST == "Uses") {
+				handleST.handleUses(stFirst, stSecond, useVec);
+				if (useVec.size() > 0 && useVec.front() == "all") {
+					utility.getUseTable(useTable);
+					handleRS.checkPSV(useTable, stFirst, "");
+				}
+				else if (useVec.size() > 0 && useVec.front() != "true" && useVec.front() != "") {
+					handleRS.checkSS(useVec, stFirst, "");
+				}
+			}
+
+			//Handle Next
+			if (ST == "Next") {
+				handleST.handleNext(stFirst, stSecond, nextVec);
+				if (nextVec.size() > 0 && nextVec.front() == "all") {
+					utility.getNextTable(nextTable);
+					handleRS.checkPSV(nextTable, stFirst, stSecond);
+				}
+				else if (nextVec.size() > 0 && nextVec.front() != "true" && nextVec.front() != "") {
+					handleRS.checkSS(nextVec, stFirst, stSecond);
+				}
+			}
+
+			//Handle Next*
+			if (ST == "Next*") {
+				NextTable* nextTab = PKB::getNextTable();
+				//Check case Next*(1, 2)
+				if (utility.isInt(stFirst) && utility.isInt(stSecond)) {
+					if (nextTab->isNextS(stFirst, stSecond)) {
+						nextVec.push_back("true");
+					}
+				}
+				else {
+					handleST.handleNext(stFirst, stSecond, nextVec);
+					if (!nextVec.empty()) {
+						if (nextVec.size() > 0 && nextVec.front() == "all") {
+							utility.getNextSTable(nextTable);
+							handleRS.checkPSV(nextTable, stFirst, stSecond);
+						}
+						else {
+							//Case Next*(1, s)
+							if (utility.isInt(stFirst)) {
+								nextVec = nextTab->getNextS(stFirst);
+							}
+							if (utility.isInt(stSecond)) {
+								nextVec = nextTab->getPrevS(stSecond);
+							}
+							//Case Next*(s, s)
+							if (stFirst == stSecond) {
+								vector<NextEntry_t> nextSTable = PKB::getNextTable()->getNextSTable();
+								for (size_t i = 0; i < nextSTable.size(); i++) {
+									nextVec.clear();
+									if (HUtility().contain(nextSTable[i].nextStmts, nextSTable[i].lineNo)) {
+										nextVec.push_back(nextSTable[i].lineNo);
+									}
+								}
+							}
+							handleRS.checkSS(nextVec, stFirst, stSecond);
+						}
+					}
+				}
+			}
+
+			//Handle Calls
+			if (ST == "Calls") {
+				handleST.handleCalls(stFirst, stSecond, callVec);
+				if (callVec.size() > 0 && callVec.front() == "all") {
+					utility.getCallTable(callTable);
+				}
+			}
+
+			//Handle Calls*
+			if (ST == "Calls*") {
+				CallSTable* callSTab = PKB::getCallSTable();
+				pair<string, bool> firstAttQ;
+				pair<string, bool> secondAttQ;
+				HUtility().checkQuotation(firstAttQ, stFirst);
+				HUtility().checkQuotation(secondAttQ, stSecond);
+
+				//Check case Calls*("ABC", "DEF")
+				if (utility.getSymMean(stFirst) == "" && utility.getSymMean(stSecond) == "") {
+					if (callSTab->isCallS(firstAttQ.first, secondAttQ.first)) {
+						callVec.push_back("true");
+					}
+				}
+				else {
+					handleST.handleCalls(stFirst, stSecond, callVec);
+					if (!callVec.empty()) {
+						if (callVec.size() > 0 && callVec.front() == "all") {
+							utility.getCallSTable(callTable);
+							handleRS.checkPSV(callTable, stFirst, stSecond);
+						}
+						else {
+							//Case Calls*(1, s)
+							if (utility.isInt(stFirst)) {
+								callVec = callSTab->getCalleeS(stFirst);
+							}
+							if (utility.isInt(stSecond)) {
+								callVec = callSTab->getCallerS(stSecond);
+							}
+							//Case Calls*(s, s)
+							if (stFirst == stSecond) {
+								vector<CallSEntry_t> callSTable = PKB::getCallSTable()->getTable();
+								for (size_t i = 0; i < callSTable.size(); i++) {
+									callVec.clear();
+									if (HUtility().contain(callSTable[i].callees, callSTable[i].caller)) {
+										callVec.push_back(callSTable[i].caller);
+									}
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 
-		//Handle modifies
-		vector<ModifyEntry_t> modTab;
-		if (syn == "Modifies") {
-			/*if (PKB::getModifyTable()->isModified("1", "i")) {
-				final.push_back("weeeee");
+			//Handle affects
+			if (ST == "Affects") {
+				handleST.handleAffect(stFirst, stSecond, affVec);
+				if (affVec.size() > 0 && affVec.front() == "all") {
+					affTable = PKB::affect();
+				}
+			}
+
+			//Handle affects*
+			if (ST == "Affects*") {
+				//Check case Affect*(1, 2)
+				if (HUtility().isInt(stFirst) && HUtility().isInt(stSecond)) {
+					affVec = PKB::affectS(stFirst, stSecond);
+				}
+				else {
+					handleST.handleAffect(stFirst, stSecond, affVec);
+					if (affVec.size() > 0) {
+						if (affVec.size() > 0 && affVec.front() == "all") {
+							affTable = PKB::affectS();
+						}
+					}
+					else {
+						//Case Affect*(1, n)
+						if (HUtility().isInt(stFirst)) {
+							affVec = PKB::affectS(stFirst, "_");
+						}
+						if (HUtility().isInt(stSecond)) {
+							affVec = PKB::affectS("_", stSecond);
+						}
+					}
+				}
+			}
+
+			//Populate queryRS
+			RSEntry_t currentRS;
+			currentRS.synCount = 0;
+			if (utility.getSymMean(stFirst) != "") {
+				currentRS.firstAtt = stFirst;
+				currentRS.synCount++;
+			}
+			else {
+				currentRS.firstAtt = "";
+			}
+			if (utility.getSymMean(stSecond) != "") {
+				currentRS.secondAtt = stSecond;
+				currentRS.synCount++;
+			}
+			else {
+				currentRS.secondAtt = "";
+			}
+
+			for (int i = 0; i < 14; i++) {
+				STCheck.push_back(0);
+			}
+			if (!folVec.empty() && folVec.front() != "all" && folVec.front() != "") {
+				STCheck[0] = 1;
+				currentRS.vec = folVec;
+			}
+			if (!folTable.empty()) {
+				STCheck[1] = 1;
+				currentRS.table = folTable;
+			}
+			if (!modVec.empty() && modVec.front() != "all" && modVec.front() != "") {
+				STCheck[2] = 1;
+				currentRS.vec = modVec;
+			}
+			if (!modTable.empty()) {
+				STCheck[3] = 1;
+				currentRS.table = modTable;
+			}
+			if (!parVec.empty() && parVec.front() != "all" && parVec.front() != "") {
+				STCheck[4] = 1;
+				currentRS.vec = parVec;
+			}
+			if (!parTable.empty()) {
+				STCheck[5] = 1;
+				currentRS.table = parTable;
+			}
+			if (!useVec.empty() && useVec.front() != "all" && useVec.front() != "") {
+				STCheck[6] = 1;
+				currentRS.vec = useVec;
+			}
+			if (!useTable.empty()) {
+				STCheck[7] = 1;
+				currentRS.table = useTable;
+			}
+			if (!nextVec.empty() && nextVec.front() != "all" && nextVec.front() != "") {
+				STCheck[8] = 1;
+				currentRS.vec = nextVec;
+			}
+			if (!nextTable.empty()) {
+				STCheck[9] = 1;
+				currentRS.table = nextTable;
+			}
+			if (!callVec.empty() && callVec.front() != "all" && callVec.front() != "") {
+				STCheck[10] = 1;
+				currentRS.vec = callVec;
+			}
+			if (!callTable.empty()) {
+				STCheck[11] = 1;
+				currentRS.table = callTable;
+			}
+			if (!affVec.empty() && affVec.front() != "all" && affVec.front() != "") {
+				STCheck[12] = 1;
+				currentRS.vec = affVec;
+			}
+			if (!affTable.empty()) {
+				STCheck[13] = 1;
+				currentRS.table = affTable;
+			}
+
+			//Check if all empty
+			if (utility.getPos(STCheck) == -1) {
+				if (selType == "BOOLEAN") {
+					final.push_back("false");
+				}
 				return final;
-			}*/
-			handleModifies(stFirst, stSecond, modVec, mvarVec);
-			if (modVec.size() > 0 && modVec.front() == "all") {
-				getModifyTable(modTab, modTable);
+			}
+			if (currentRS.synCount > 0) {
+				queryRS.push_back(currentRS);
 			}
 		}
-
-		//Handle parent
-		if (syn == "Parent") {
-			handleParent(stFirst, stSecond, parVec);
-			if (parVec.size() > 0 && parVec.front() == "all") {
-				getParentTable(result, stFirst, parTable, stSecond, nestTable);
-			}
+		if (queryST->getNext() != NULL) {
+			queryST = queryST->getNext();
 		}
+		else {
+			break;
+		}
+	}
 
-		//Handle parent*
-		if (syn == "Parent*") {
-			//Check case Parent*(1, 2)
-			if (isInt(stFirst) && isInt(stSecond)) {
-				if (isParentS(stFirst, stSecond)) {
-					parVec.push_back("true");
 
-				}
+	//Handle pattern
+	queryPT = queryTree->getPattern();
+	while (true) {
+		vector<string> patVec;
+		vector <pair<string, vector<string>>> patAsgTable;
+		vector<pair<string, string>> patIfTable;
+		vector<pair<string, string>> patWhileTable;
+
+
+		if (queryPT->getSynonym() != "") {
+			PT = queryPT->getSynonym();
+			string pType = utility.getSymMean(PT);
+			ptFirst = queryPT->getFirstAttr();
+			ptSecond = queryPT->getSecondAttr();
+
+			if (pType == "assign") {
+				handlePT.handleAssign(ptFirst, ptSecond, patVec, patAsgTable);
+			}
+			if (pType == "if") {
+				handlePT.handleIf(ptFirst, ptSecond, patVec, patIfTable);
+			}
+			if (pType == "while") {
+				handlePT.handleWhile(ptFirst, ptSecond, patVec, patWhileTable);
+			}
+
+			//Populate QueryRS
+			RSEntry_t currentRS;
+			currentRS.synCount = 0;
+			if (utility.getSymMean(ptFirst) != "") {
+				currentRS.secondAtt = ptFirst;
+				currentRS.synCount++;
 			}
 			else {
-				handleParent(stFirst, stSecond, parVec);
-				if (!parVec.empty()) {
-					queue<string> parQ;
-					if (parVec.size() > 0 && parVec.front() == "all") {
-						getParentTable(result, stFirst, parTable, stSecond, nestTable);
-					}
-					else {
-						parQ.push(parVec.front());
-						while (!parQ.empty()) {
-							string temp = parQ.front();
-							parQ.pop();
-							int oldSize = parVec.size();
-							if (isInt(stFirst)) {
-								handleParent(temp, stSecond, parVec);
-								if (oldSize < parVec.size()) {
-									for (int i = oldSize; i < parVec.size(); i++) {
-										parQ.push(parVec[i]);
-									}
-								}
-							}
-							if (isInt(stSecond)) {
-								handleParent(stFirst, temp, parVec);
-								if (oldSize < parVec.size()) {
-									for (int i = oldSize; i < parVec.size(); i++) {
-										parQ.push(parVec[i]);
-									}
-								}
-							}
-						}
-					}
-				}
+				currentRS.firstAtt = "";
 			}
-		}
+			currentRS.firstAtt = PT;
+			currentRS.synCount++;
 
-		//Handle uses
-		vector<UseEntry_t> useTab;
-		if (syn == "Uses") {
-			handleUses(stFirst, stSecond, useVec, uvarVec);
-			if (useVec.size() > 0 && useVec.front() == "all") {
-				getUseTable(useTab, userTable, usedTable);
+			for (int i = 0; i < 4; i++) {
+				PTCheck.push_back(0);
+			}
+			if (!patVec.empty() && patVec.front() != "all" && patVec.front() != "") {
+				PTCheck[0] = 1;
+				currentRS.vec = patVec;
+			}
+			if (!patAsgTable.empty()) {
+				PTCheck[1] = 1;
+				currentRS.table = patAsgTable;
+			}
+			if (!patIfTable.empty()) {
+				PTCheck[2] = 1;
+				currentRS.ssTable = patIfTable;
+			}
+			if (!patWhileTable.empty()) {
+				PTCheck[3] = 1;
+				currentRS.ssTable = patWhileTable;
+			}
+			if (utility.getPos(PTCheck) == -1) {
+				if (selType == "BOOLEAN") {
+					final.push_back("false");
+				}
+				return final;
+			}
+			if (currentRS.synCount > 0) {
+				queryRS.push_back(currentRS);
 			}
 		}
-
-		/*Handle affecs - next (next iteration)
-		if (syn == "affects") {
-		ansVec = getAffect(firstAtt, secondAtt);
+		if (queryPT->getNext() != NULL) {
+			queryPT = queryPT->getNext();
 		}
-		if (syn == "affects*") {
-		ansVec = getAffectS(firstAtt, secondAtt);
-		}
-		if (syn == "next") {
-		ansVec = getNext(firstAtt, secondAtt);
-		}
-		if (syn == "next") {
-		ansVec = getNextS(firstAtt, secondAtt);
-		}*/
-
-		for (int i = 0; i < 12; i++) {
-			STCheck.push_back(0);
-		}
-		if (!folVec.empty() && folVec.front() != "na" && folVec.front() != "all") {
-			STCheck[0] = 1;
-		}
-		if (!folTable.empty()) {
-			STCheck[1] = 1;
-		}
-		if (!mvarVec.empty()) {
-			STCheck[2] = 1;
-		}
-		if (!modVec.empty() && modVec.front() != "na") {
-			STCheck[3] = 1;
-		}
-		if (!modTable.empty()) {
-			STCheck[4] = 1;
-		}
-		if (!parVec.empty() && parVec.front() != "na" && parVec.front() != "all") {
-			STCheck[5] = 1;
-		}
-		if (!parTable.empty()) {
-			STCheck[6] = 1;
-		}
-		if (!nestTable.empty()) {
-			STCheck[7] = 1;
-		}
-		if (!uvarVec.empty()) {
-			STCheck[8] = 1;
-		}
-		if (!useVec.empty() && useVec.front() != "na" && useVec.front() != "all") {
-			STCheck[9] = 1;
-		}
-		if (!userTable.empty()) {
-			STCheck[10] = 1;
-		}
-		if (!usedTable.empty()) {
-			STCheck[11] = 1;
-		}
-	}
-	//Handle pattern (this iteration only assign pattern)
-	vector<string> patVec;
-	vector<string> pvarVec;
-	vector<string> pconVec;
-
-
-	if (query->getPattern()->getSynonym() != "") {
-		pattern = query->getPattern();
-		string syn = pattern->getSynonym();
-		string pType = getSymMean(syn);
-		ptFirst = pattern->getFirstAttr();
-		ptSecond = pattern->getSecondAttr();
-
-		pair<string, bool> ptFirstX;
-		pair<string, bool> ptSecondX;
-		atoPair(ptFirstX, ptFirst);
-		atoPair(ptSecondX, ptSecond);
-
-		//Case 1st att = _
-		if (ptFirstX.first == "") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				patVec = getAssignTable();
-			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
-				patVec = PKB::getUseTable()->getUser(ptSecondX.first);
-			}
-			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
-				//Select type = variable
-				if (selType == "variable") {
-					vector<string> tempVec;
-					tempVec = getAssignTable();
-					for (int i = 0; i < tempVec.size(); i++) {
-						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-						for (int j = 0; j < current.size(); j++) {
-							pvarVec.push_back(current[j]);
-						}
-					}
-				}
-				//Select type = assign or not found
-				else {
-					vector<string> tempVec;
-					tempVec = getAssignTable();
-					for (int i = 0; i < tempVec.size(); i++) {
-						vector<string> current = PKB::getUseTable()->getUsed(tempVec[i]);
-						for (int j = 0; j < current.size(); j++) {
-							if (current.size() > 0) {
-								patVec.push_back(tempVec[i]);
-							}
-						}
-					}
-				}
-			}
-			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
-					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
-					}
-				}
-				else {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
-				}
-			}
-		}
-
-		//Case 1st att = "x123"
-		if (getSymMean(ptFirstX.first) == "") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				patVec = PKB::getModifyTable()->getModifier(ptFirstX.first);
-			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
-				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-				vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-				patVec = intersection(temp1, temp2);
-			}
-			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
-				vector<string> temp1 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-				vector<UseEntry_t> useTable = PKB::getUseTable()->getTable();
-				vector<string> temp2 = toConvention(useTable, true);
-				if (selType == "variable") {
-					vector<string> temp3 = intersection(temp1, temp2);
-					for (int i = 0; i < temp3.size(); i++) {
-						for (int j = 0; j < useTable.size(); j++) {
-							if (temp3[i] == useTable[j].userLine) {
-								for (int k = 0; k < useTable[j].usedVar.size(); k++) {
-									pvarVec.push_back(useTable[j].usedVar[k]);
-								}
-							}
-						}
-					}
-				}
-				else {
-					patVec = intersection(temp1, temp2);
-				}
-			}
-			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
-					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
-					}
-				}
-				else {
-					vector<string> temp2 = PKB::getModifyTable()->getModifier(ptFirstX.first);
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
-				}
-			}
-		}
-		//Case 1st att = v 
-		if (getSymMean(ptFirst) == "variable") {
-			//Case 2nd att = _
-			if (ptSecondX.first == "_") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					for (int i = 0; i < temp1.size(); i++) {
-						pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
-					}
-				}
-				else {
-					patVec = getAssignTable();
-				}
-			}
-			//Case 2nd att = "x123"
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-					vector<string> temp3 = intersection(temp1, temp2);
-					for (int i = 0; i < temp3.size(); i++) {
-						pvarVec = PKB::getModifyTable()->getModified(temp3[i]);
-					}
-				}
-				else {
-					vector<string> temp1 = getAssignTable();
-					vector<string> temp2 = PKB::getUseTable()->getUser(ptSecondX.first);
-					patVec = intersection(temp1, temp2);
-				}
-			}
-			//Case 2nd att = v
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "variable") {
-				if (selType == "variable") {
-					vector<string> temp1 = getAssignTable();
-					if (result->getResult() == ptFirst) {
-						for (int i = 0; i < temp1.size(); i++) {
-							pvarVec = PKB::getModifyTable()->getModified(temp1[i]);
-						}
-					}
-					else {
-						for (int i = 0; i < temp1.size(); i++) {
-							for (int j = 0; j < PKB::getUseTable()->getUsed(temp1[i]).size(); j++) {
-								pvarVec.push_back(PKB::getUseTable()->getUsed(temp1[i])[j]);
-							}
-						}
-					}
-				}
-			}
-			//Case 2nd att = c
-			if (containSign(ptSecondX.first) == false && getSymMean(ptSecondX.first) == "constant") {
-				//Seltype = constant
-				if (selType == "constant") {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					vector < pair<string, vector<string>>> temp3 = intersection(temp2, temp1);
-					for (int i = 0; i < temp3.size(); i++) {
-						pconVec.insert(pconVec.end(), temp1[i].second.begin(), temp1[i].second.end());
-					}
-				}
-				else {
-					vector<string> temp2 = getAssignTable();
-					vector<pair<string, vector<string>>> temp1 = getConstTable();
-					patVec = intersection(temp2, temp1, true);
-				}
-			}
-		}
-		for (int i = 0; i < 3; i++) {
-			PTCheck.push_back(0);
-		}
-		if (!patVec.empty() && patVec.front() != "na") {
-			PTCheck[0] = 1;
-		}
-		if (!pvarVec.empty()) {
-			PTCheck[1] = 1;
-		}
-		if (!pconVec.empty()) {
-			PTCheck[2] = 1;
+		else {
+			break;
 		}
 	}
 
-	//Check if pattern or such that is false
-	if (query->getSuchThat()->getSynonym() != "" && getPos(STCheck) == -1) {
-		rmEString(final);
+
+	//Handle with
+	queryWith = queryTree->getWith();
+	while (true) {
+		vector<string> withVec;
+		vector<pair<string, string>> withCall;
+		if (queryWith->getLeftType() != "") {
+			withFirst = queryWith->getLeftType();
+		}
+		else {
+			withFirst = queryWith->getLeftAttrRef().getSynonym();
+		}
+		if (queryWith->getRightType() != "") {
+			withSecond = queryWith->getRightType();
+		}
+		else {
+			withSecond = queryWith->getRightAttrRef().getSynonym();
+		}
+
+		handleWith.handleWith(withVec, withCall, withFirst, withSecond);
+		if (withVec.empty()) {
+			if (selType == "BOOLEAN") {
+				final.push_back("false");
+			}
+			return final;
+		}
+
+		//Populate queryRS
+		RSEntry_t currentRS;
+		currentRS.synCount = 0;
+		if (utility.getSymMean(withFirst) != "") {
+			currentRS.firstAtt = withFirst;
+			currentRS.synCount = 1;
+		}
+		else {
+			currentRS.firstAtt = "";
+		}
+		if (utility.getSymMean(withSecond) != "") {
+			currentRS.secondAtt = withSecond;
+			currentRS.synCount = 1;
+		}
+		else {
+			currentRS.secondAtt = "";
+		}
+		currentRS.vec = withVec;
+		queryRS.push_back(currentRS);
+
+		if (queryWith->getNext() != NULL) {
+			queryWith = queryWith->getNext();
+		}
+		else {
+			break;
+		}
+	}
+
+
+	//Find all dependency of syn and clauses
+	//Populate attList's atts and reClause
+	vector <attEntry_t> attList;
+	for (size_t i = 0; i < queryRS.size(); i++) {
+		//Case att not found, add att and all clauses where att is found
+		if (utility.contain(attList, queryRS[i].firstAtt) == -1) {
+			attEntry_t temp;
+			temp.att = queryRS[i].firstAtt;
+			for (size_t j = 0; j < queryRS.size(); j++) {
+				if (queryRS[i].firstAtt == queryRS[j].firstAtt || queryRS[i].firstAtt == queryRS[j].secondAtt) {
+					temp.reClause.push_back(j);
+				}
+			}
+			if (temp.reClause.size()>0) {
+				attList.push_back(temp);
+			}
+		}
+
+		if (utility.contain(attList, queryRS[i].secondAtt) == -1) {
+			attEntry_t temp;
+			temp.att = queryRS[i].secondAtt;
+			for (size_t j = 0; j < queryRS.size(); j++) {
+				if (queryRS[i].secondAtt == queryRS[j].firstAtt || queryRS[i].secondAtt == queryRS[j].secondAtt) {
+					temp.reClause.push_back(j);
+				}
+			}
+			if (temp.reClause.size()>0) {
+				attList.push_back(temp);
+			}
+		}
+	}
+
+	//Populate attList's reAtt
+	for (size_t i = 0; i < attList.size(); i++) {
+		//Find all attEntry that this att is related with
+		vector<int> temp;
+		for (size_t j = 0; j < attList.size(); j++) {
+			for (size_t k = 0; k < attList[i].reClause.size(); k++) {
+				if (utility.contain(attList[j].reClause, attList[i].reClause[k])) {
+					temp.push_back(j);
+					break;
+				}
+			}
+		}
+		attList[i].reAtt = temp;
+	}
+
+	//Initialize loop list
+	vector<int> loopList;
+	for (size_t i = 0; i < attList.size(); i++) {
+		loopList.push_back(i);
+	}
+
+	//Each iteration processes the 1st item in the queue
+	while (loopList.size() > 0) {
+		int i = loopList.front();
+		string var = attList[i].att;
+		vector<int> pos = attList[i].reClause;
+		int changed = 0;
+
+		for (size_t j = 0; j < pos.size(); j++) {
+			//Case 1 syn
+			if (queryRS[pos[j]].synCount == 1) {
+				for (size_t k = j + 1; k < pos.size(); k++) {
+					if (queryRS[pos[k]].synCount == 1) {
+						int oldJSize = queryRS[pos[j]].vec.size();
+						int oldKSize = queryRS[pos[k]].vec.size();
+						changed += utility.intersectionSS(queryRS[pos[j]].vec, queryRS[pos[k]].vec, 1);
+					}
+					if (queryRS[pos[k]].synCount == 2) {
+						if (queryRS[pos[k]].table.size()>0 && var == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPSV(queryRS[pos[j]].vec, queryRS[pos[k]].table, 1);
+						}
+						if (queryRS[pos[k]].table.size()>0 && var == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPSV(queryRS[pos[j]].vec, queryRS[pos[k]].table, 2);
+						}
+						if (queryRS[pos[k]].ssTable.size() > 0 && var == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPSS(queryRS[pos[j]].vec, queryRS[pos[k]].ssTable, 1);
+						}
+						if (queryRS[pos[k]].ssTable.size() > 0 && var == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPSS(queryRS[pos[j]].vec, queryRS[pos[k]].ssTable, 2);
+						}
+					}
+				}
+			}
+
+			//Case 2 syns
+			if (queryRS[pos[j]].synCount == 2) {
+				for (size_t k = j+1; k < pos.size(); k++) {
+					if (queryRS[pos[k]].synCount == 1) {
+						if (queryRS[pos[j]].table.size()>0 && var == queryRS[pos[j]].firstAtt) {
+							changed += utility.intersectionPSV(queryRS[pos[k]].vec, queryRS[pos[j]].table, 1);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && var == queryRS[pos[j]].secondAtt) {
+							changed += utility.intersectionPSV(queryRS[pos[k]].vec, queryRS[pos[j]].table, 2);
+						}
+						if (queryRS[pos[j]].ssTable.size() > 0 && var == queryRS[pos[j]].firstAtt) {
+							changed += utility.intersectionPSS(queryRS[pos[k]].vec, queryRS[pos[j]].ssTable, 1);
+						}
+						if (queryRS[pos[j]].ssTable.size() > 0 && var == queryRS[pos[j]].secondAtt) {
+							changed += utility.intersectionPSS(queryRS[pos[k]].vec, queryRS[pos[j]].ssTable, 2);
+						}
+					}
+
+					if (queryRS[pos[k]].synCount == 2) {
+						//case table vs table
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 1);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 2);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 1);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 2);
+						}
+
+						//Case foltable vs foltable
+						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 1);
+						}
+						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 2);
+						}
+						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 1);
+						}
+						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 2);
+						}
+
+						//Case foltable vs table
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 1);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 1);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 2);
+						}
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
+							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 2);
+						}
+
+						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
+							queryRS[pos[k]].firstAtt == queryRS[pos[j]].firstAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 1);
+						}
+						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
+							queryRS[pos[k]].firstAtt == queryRS[pos[j]].secondAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 1);
+						}
+						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
+							queryRS[pos[k]].secondAtt == queryRS[pos[j]].firstAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 2);
+						}
+						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
+							queryRS[pos[k]].secondAtt == queryRS[pos[j]].secondAtt) {
+							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 2);
+						}
+					}
+				}
+			}
+		}
+		loopList.erase(loopList.begin());
+		//If some the item's reClauses change then enqueue all reAtt that are not inside the list already (some of these will change too)
+		if (changed > 0) {
+			for (size_t j = 0; j < attList[i].reAtt.size(); j++) {
+				if (!utility.contain(loopList, attList[i].reAtt[j])) {
+					loopList.push_back(attList[i].reAtt[j]);
+				}
+			}
+		}
+	}
+
+	//Check if any intersection results in empty vector
+	for (size_t i = 0; i < queryRS.size(); i++) {
+		if (queryRS[i].vec.empty() && queryRS[i].table.empty() && queryRS[i].ssTable.empty()) {
+			if (selType == "BOOLEAN") {
+				final.push_back("false");
+			}
+			return final;
+		}
+	}
+
+	//At this point all clauses are not empty
+	if (selType == "BOOLEAN") {
+		final.push_back("true");
 		return final;
 	}
-	if (query->getPattern()->getSynonym() != "" && getPos(PTCheck) == -1) {
-		rmEString(final);
-		return final;
+	
+	//Case normal select
+	vector<vector<string>> finalVec;
+	//Check case both control parameters are in the same clause
+	bool checkSC = true;
+	if (result->getNext() != NULL) {
+		string var1 = result->getResult().getSynonym();
+		string var2 = result->getNext()->getResult().getSynonym();
+		vector<string> finalPart1;
+		vector<string> finalPart2;
+
+		for (size_t i = 0; i < queryRS.size(); i++) {
+			if (queryRS[i].firstAtt == var1 && queryRS[i].secondAtt == var2) {
+				if (!queryRS[i].vec.empty()) {
+					for (size_t j = 0; j < queryRS[i].vec.size(); j++) {
+						final.push_back(queryRS[i].vec[j] + " " + queryRS[i].vec[j]);
+					}
+				}
+				if (!queryRS[i].ssTable.empty()) {
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); j++) {
+						final.push_back(queryRS[i].ssTable[j].first + " " + queryRS[i].ssTable[j].second);
+					}
+				}
+				if (!queryRS[i].table.empty()) {
+					for (size_t j = 0; j < queryRS[i].table.size(); j++) {
+						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
+							final.push_back(queryRS[i].table[j].first + " " + queryRS[i].table[j].second[k]);
+						}
+					}
+				}
+				checkSC = false;
+				break;
+			}
+			if (queryRS[i].firstAtt == var2 && queryRS[i].secondAtt == var1) {
+				if (!queryRS[i].vec.empty()) {
+					for (size_t j = 0; j < queryRS[i].vec.size(); j++) {
+						final.push_back(queryRS[i].vec[j] + " " + queryRS[i].vec[j]);
+					}
+				}
+				if (!queryRS[i].ssTable.empty()) {
+					for (size_t j = 0; j < queryRS[i].ssTable.size(); j++) {
+						final.push_back(queryRS[i].ssTable[j].second + " " + queryRS[i].ssTable[j].first);
+					}
+				}
+				if (!queryRS[i].table.empty()) {
+					for (size_t j = 0; j < queryRS[i].table.size(); j++) {
+						for (size_t k = 0; k < queryRS[i].table[j].second.size(); k++) {
+							final.push_back(queryRS[i].table[j].second[k] + " " + queryRS[i].table[j].first);
+						}
+					}
+				}
+				checkSC = false;
+				break;
+			}
+		}
+		if (!checkSC) {
+			return final;
+		}
 	}
-	//Check case select not equal to each attribute
-	string rs = result->getResult();
-	if (rs != stFirst && rs != stSecond && rs != ptFirst && rs != ptSecond) {
-		if (selType == "prog_line" || selType == "stmt") {
-			final = PKB::getProgLine()->getLinesOfType("prog_line");
-		}
-		if (selType == "variable") {
-			final = PKB::getVarTable()->getTable();
+
+	//Other cases
+	while (checkSC) {
+		string rs = result->getResult().getSynonym();
+		vector<string> finalPart;
+		//Check case select not equal to each attribute
+		bool checkRS = false;
+		for (size_t i = 0; i < queryRS.size(); i++) {
+			if (queryRS[i].firstAtt == rs || queryRS[i].secondAtt == rs) {
+				checkRS = true;
+				break;
+			}
 		}
 
-		if (selType == "constant") {
-			vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
-			for (int i = 0; i < constTable.size(); i++) {
-				for (int j = 0; j < constTable[i].constants.size(); j++) {
-					if (!contain(final, constTable[i].constants[j])) {
-						final.push_back(constTable[i].constants[j]);
-					}
-				}
+		if (!checkRS) {
+			if (selType == "prog_line" || selType == "stmt") {
+				finalPart = progLine->getLinesOfType("prog_line");
 			}
-		}
-		if (selType == "procedure") {
-			final = PKB::getProcTable()->getTable();
-		}
-		if (selType == "assign") {
-			final = PKB::getProgLine()->getLinesOfType("assign");
-		}
-		if (selType == "while") {
-			final = PKB::getProgLine()->getLinesOfType("while");
-		}
-		if (selType == "if") {
-			final = PKB::getProgLine()->getLinesOfType("if");
-		}
-		rmEString(final);
-		return final;
-	}
-
-	//Return function normal case
-	if (getPos(STCheck) != -1) {
-		switch (getPos(STCheck)) {
-		case 0:
-			final = folVec;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(folVec, patVec);
-			}
-			break;
-		case 1:
-			for (int i = 0; i < folTable.size(); i++) {
-				if (rs == stFirst) {
-					//Check if stSecond is in FolTable
-					if (folAss(stSecond, stFirst, folTable, i)) {
-						final.push_back(folTable[i].first);
-					}
-					else if (getSymMean(stSecond) != "assign") {
-						final.push_back(folTable[i].first);
-					}
-				}
-
-				if (rs == stSecond) {
-					//Check if stFirst is in FolTable
-					if (stFirst != stFirst)
-						final.push_back(stFirst);
-					if (folAss(stFirst, stFirst, folTable, i)) {
-						final.push_back(folTable[i].second);
-					}
-					else if (getSymMean(stFirst) != "assign") {
-						final.push_back(folTable[i].second);
-					}
-				}
-				if (rs != stFirst && rs != stSecond && folTable.size() > 0) {
-					final.push_back("true");
-				}
-			}
-			if (getPos(PTCheck) == 0) {
-				final = intersection(patVec, folTable);
-			}
-			break;
-		case 2:
-			final = mvarVec;
-			if (getPos(PTCheck) == 1) {
-				final = intersection(mvarVec, pvarVec);
-			}
-			break;
-		case 3:
-			final = modVec;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(modVec, patVec);
-			}
-			break;
-		case 4:
 			if (selType == "variable") {
-				for (int i = 0; i < modTable.size(); i++) {
-					final.insert(final.end(), modTable[i].second.begin(), modTable[i].second.end());
-				}
+				finalPart = PKB::getVarTable()->getTable();
 			}
-			else {
-				for (int i = 0; i < modTable.size(); i++) {
-					final.push_back(modTable[i].first);
-				}
-			}
-			if (getPos(PTCheck) == 0) {
-				final = intersection(patVec, modTable, true);
-			}
-			if (getPos(PTCheck) == 1) {
-				final = intersection(pvarVec, modTable, true);
-			}
-			if (getPos(PTCheck) == 2) {
-				final = intersection(pconVec, modTable, true);
-			}
-			break;
-		case 5:
-			final = parVec;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(parVec, patVec);
-			}
-			break;
-		case 6:
-			final = parTable;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(parTable, patVec);
-			}
-			break;
-		case 7:
-			final = nestTable;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(nestTable, patVec);
-			}
-			break;
-		case 8:
-			final = uvarVec;
-			if (getPos(PTCheck) == 1) {
-				final = intersection(uvarVec, pvarVec);
-			}
-			break;
-		case 9:
-			final = useVec;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(useVec, patVec);
-			}
-			break;
-		case 10:
-			final = userTable;
-			if (getPos(PTCheck) == 0) {
-				final = intersection(userTable, patVec);
-			}
-			break;
-		case 11:
-			final = usedTable;
-			if (getPos(PTCheck) == 1) {
-				final = intersection(usedTable, pvarVec);
-			}
-			if (getPos(PTCheck) == 2) {
-				final = intersection(usedTable, pconVec);
-			}
-			break;
-		}
-	}
-	if (getPos(PTCheck) != -1) {
-		switch (getPos(PTCheck)) {
-		case 0:
-			final = patVec;
-			break;
-		case 1:
-			final = pvarVec;
-			break;
-		case 2:
-			final = pconVec;
-			break;
-		}
-	}
-	if (final.size() > 0 && selType == "assign") {
-		final = intersection(final, getAssignTable());
-	}
-	if (selType == "prog_line" || selType == "stmt") {
-		final = intersection(final, PKB::getProgLine()->getLinesOfType("prog_line"));
-	}
-	if (selType == "while") {
-		final = intersection(final, PKB::getProgLine()->getLinesOfType("while"));
-	}
-	if (selType == "if") {
-		final = intersection(final, PKB::getProgLine()->getLinesOfType("if"));
-	}
-	if (selType == "procedure") {
-		final = intersection(final, PKB::getProgLine()->getLinesOfType("procedure"));
-	}
-	rmEString(final);
-	return final;
-}
-
-void QueryHandler::getUseTable(vector<UseEntry_t> &useTab, vector<string> &userTable, vector<string> &usedTable) {
-	UseTable* UseTable = PKB::getUseTable();
-	useTab = UseTable->getTable();
-	userTable = toConvention(useTab, true);
-	usedTable = toConvention(useTab, 2);
-}
-
-bool QueryHandler::getParentTable(PreResultNode * result, string &firstAtt, vector<string> &parTable,
-	string &secondAtt, vector<string> &nestTable) {
-	vector<ParentEntry_t> parTab;
-	ParentTable* ParentTable = PKB::getParentTable();
-	parTab = ParentTable->getTable();
-	if (parTab.empty()) {
-		return false;
-	}
-	if (result->getResult() == firstAtt) {
-		parTable = toConvention(parTab, 1);
-	}
-	if (result->getResult() == secondAtt) {
-		nestTable = toConvention(parTab, 2);
-	}
-	if (result->getResult() != firstAtt && result->getResult() != secondAtt) {
-		parTable = toConvention(parTab, 1);
-	}
-	return true;
-}
-
-void QueryHandler::getModifyTable(vector<ModifyEntry_t> &modTab, vector<pair<string, vector<string>>> &modTable) {
-	ModifyTable* ModifyTable = PKB::getModifyTable();
-	modTab = ModifyTable->getTable();
-	modTable = toConvention(modTab);
-}
-
-void QueryHandler::getFollowTable(vector<pair<string, string>> &folTable) {
-	folTable = toConvention(PKB::getFollowTable()->getTable());
-}
-
-vector<pair<string, vector<string>>> QueryHandler::getConstTable() {
-	vector<ConstEntry_t> temp1 = PKB::getConstTable()->getTable();
-	vector<pair<string, vector<string>>> temp3;
-	for (int i = 0; i < temp1.size(); i++) {
-		pair<string, vector<string>> temp;
-		temp.first = temp1[i].line;
-		temp.second = temp1[i].constants;
-		temp3.push_back(temp);
-	}
-	return temp3;
-}
-
-
-vector<string> QueryHandler::getAssignTable() {
-	vector<string> ansVec;
-	ProgLine* progLine = PKB::getProgLine();
-	ansVec = progLine->getLinesOfType("assign");
-	return ansVec;
-}
-
-bool QueryHandler::containSign(string str) {
-	if (str.find("+") != string::npos || str.find("-") != string::npos || str.find("*") != string::npos) {
-		return true;
-	}
-	return false;
-}
-void QueryHandler::atoPair(pair<string, bool> &Attx, string &Att) {
-
-	//Case _"x+y"_ or _
-	if (Att.substr(0, 1) == "_") {
-		if (Att.size() > 1) {
-			Attx.first = Att.substr(2, Att.size() - 4);
-			Attx.second = true;
-		}
-		else {
-			Attx.first = Att;
-			Attx.second = false;
-		}
-	}
-	//Case "x+y", "x" or v, c
-	else {
-		if (Att.substr(0, 1) == "\"") {
-			Attx.first = Att.substr(1, Att.size() - 2);
-			Attx.second = false;
-		}
-		else {
-			Attx.first = Att;
-			Attx.second = false;
-		}
-	}
-}
-
-
-void QueryHandler::handleUses(string &firstAtt, string &secondAtt, vector<string> &useVec, vector<string> &uvarVec) {
-	UseTable* useTab = PKB::getUseTable();
-	//Case 
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign"
-		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if" || getSymMean(firstAtt) == "procedure"
-		|| getSymMean(firstAtt) == "call") {
-		if (getSymMean(secondAtt) == "variable" || getSymMean(secondAtt) == "_") {
-			useVec.push_back("all");
-		}
-		else {
-			useVec = useTab->getUser(secondAtt.substr(1, secondAtt.size() - 2));
-		}
-	}
-	else {
-		if (isInt(firstAtt) && getSymMean(secondAtt) != "") {
-			uvarVec = useTab->getUsed(firstAtt);
-		}
-		else if (useTab->isUsed(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
-			useVec.push_back("true");
-		}
-	}
-}
-
-void QueryHandler::handleParent(string &firstAtt, string &secondAtt, vector<string> &parVec)
-{
-	ParentTable* parTab = PKB::getParentTable();
-	//Case 1st: n/a/if/while
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt"
-		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if") {
-		//Case 2nd: n/a/if/while
-		if (getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt"
-			|| getSymMean(secondAtt) == "while" || getSymMean(secondAtt) == "if") {
-			parVec.push_back("all");
-		}
-		//Case 2nd: 1,2
-		if (isInt(secondAtt)) {
-			string temp = parTab->getParent(secondAtt);
-			if (temp != "" && !contain(parVec, temp)) {
-				parVec.push_back(temp);
-			}
-		}
-	}
-	//Case 1st: 1/2
-	else {
-		if (isInt(firstAtt) && !isInt(secondAtt)) {
-			vector<string> temp = parTab->getChild(firstAtt);
-			for (int i = 0; i < temp.size(); i++) {
-				if (!contain(parVec, temp[i])) {
-					parVec.push_back(temp[i]);
-				}
-			}
-		}
-		else if (parTab->isParent(firstAtt, secondAtt)) {
-			parVec.push_back("true");
-		}
-	}
-}
-
-void QueryHandler::handleModifies(string &firstAtt, string &secondAtt, vector<string> &modVec, vector<string> &mvarVec)
-{
-	ModifyTable* modTab = PKB::getModifyTable();
-	//Case 1st: all possible syms
-	if (getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign"
-		|| getSymMean(firstAtt) == "while" || getSymMean(firstAtt) == "if" || getSymMean(firstAtt) == "procedure"
-		|| getSymMean(firstAtt) == "call") {
-		if (getSymMean(secondAtt) == "variable" || secondAtt == "_") {
-			modVec.push_back("all");
-		}
-		else {
-			modVec = modTab->getModifier(secondAtt.substr(1, secondAtt.size() - 2));
-		}
-	}
-	//Case 1st: 1, 2
-	else {
-		if (isInt(firstAtt) && getSymMean(secondAtt) != "") {
-			mvarVec = modTab->getModified(firstAtt);
-		}
-		else if (modTab->isModified(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
-			modVec.push_back("true");
-		}
-	}
-}
-
-string QueryHandler::handleFollows(string &firstAtt, string &secondAtt) {
-	FollowTable* folTab = PKB::getFollowTable();
-	string ans = "na";
-	//Case 1st: n/s
-	if (firstAtt == "_" || getSymMean(firstAtt) == "prog_line" || getSymMean(firstAtt) == "stmt" || getSymMean(firstAtt) == "assign") {
-		//Case 2nd: n/s
-		if (secondAtt == "_" || getSymMean(secondAtt) == "prog_line" || getSymMean(secondAtt) == "stmt" || getSymMean(secondAtt) == "assign") {
-			ans = "all";
-		}
-		//Case 2nd: 1, 2...
-		if (isInt(secondAtt)) {
-			if (folTab->getPrev(secondAtt) != "") {
-				ans = folTab->getPrev(secondAtt);
-			}
-		}
-	}
-	//Case 1st: 1, 2
-	else {
-		if (isInt(firstAtt) && !isInt(secondAtt)) {
-			if (folTab->getNext(firstAtt) != "") {
-				if (getSymMean(secondAtt) == "assign") {
-					if (contain(getAssignTable(), folTab->getNext(firstAtt))) {
-						ans = folTab->getNext(firstAtt);
+			if (selType == "constant") {
+				vector<ConstEntry_t> constTable = PKB::getConstTable()->getTable();
+				for (size_t i = 0; i < constTable.size(); i++) {
+					for (size_t j = 0; j < constTable[i].constants.size(); j++) {
+						if (!utility.contain(finalPart, constTable[i].constants[j])) {
+							finalPart.push_back(constTable[i].constants[j]);
+						}
 					}
 				}
-				else {
-					ans = folTab->getNext(firstAtt);
+			}
+			if (selType == "procedure") {
+				finalPart = PKB::getProcTable()->getTable();
+			}
+			if (selType == "assign") {
+				finalPart = progLine->getLinesOfType("assign");
+			}
+			if (selType == "while") {
+				finalPart = progLine->getLinesOfType("while");
+			}
+			if (selType == "if") {
+				finalPart = progLine->getLinesOfType("if");
+			}
+		}
+		else {
+			//Return normal case
+			//Case select within any clause (at this point no more empty vector)
+			for (size_t i = 0; i < attList.size(); i++) {
+				if (rs == attList[i].att) {
+					//Case at least 1 1syn clause is the rs
+					bool found = false;
+					for (size_t j = 0; j < attList[i].reClause.size(); j++) {
+						if (queryRS[attList[i].reClause[j]].synCount == 1) {
+							finalPart = queryRS[attList[i].reClause[j]].vec;
+							found = true;
+						}
+						break;
+					}
+
+					//Case select from 2 syn
+					if (!found) {
+						for (size_t j = 0; j < attList[i].reClause.size(); j++) {
+							if (queryRS[attList[i].reClause[j]].synCount == 2) {
+								if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].first);
+									}
+								}
+								if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].table.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
+										for (size_t h = 0; h < queryRS[attList[i].reClause[j]].table[k].second.size(); h++) {
+											if (!utility.contain(finalPart, queryRS[attList[i].reClause[j]].table[k].second[h])) {
+												finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].second[h]);
+											}
+										}
+									}
+								}
+								if (rs == queryRS[attList[i].reClause[j]].firstAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].first);
+									}
+								}
+								if (rs == queryRS[attList[i].reClause[j]].secondAtt && queryRS[attList[i].reClause[j]].ssTable.size()>0) {
+									for (size_t k = 0; k < queryRS[attList[i].reClause[j]].ssTable.size(); k++) {
+										finalPart.push_back(queryRS[attList[i].reClause[j]].ssTable[k].second);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
-		else if (folTab->isFollows(firstAtt, secondAtt)) {
-			ans = "true";
+		finalVec.push_back(finalPart);
+		if (result->getNext() != NULL) {
+			result = result->getNext();
+		}
+		else {
+			break;
 		}
 	}
-	return ans;
-}
-
-string QueryHandler::handleSelect(QueryTree * query, PreResultNode * &result)
-{
-	if (query->getResult() != NULL) {
-		result = query->getResult();
-		string rs = result->getResult();
-		return getSymMean(rs);
+	if (finalVec.size() == 1) {
+		final = finalVec[0];
 	}
-}
-
-//Check if getPrev(a) or getNext(a) has a = assign
-bool QueryHandler::folAss(string att, string firstAtt, vector<pair<string, string>> folTable, int i) {
-	if (getSymMean(att) == "assign" && att == firstAtt) {
-		if (contain(getAssignTable(), folTable[i].first)) {
-			return true;
-		}
-	}
-	if (getSymMean(att) == "assign" && att != firstAtt) {
-		if (contain(getAssignTable(), folTable[i].second)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool QueryHandler::isFollowsS(string firstAtt, string secondAtt) {
-	string nextFol = PKB::getFollowTable()->getNext(firstAtt);
-	if (nextFol == "" || stoi(nextFol) > stoi(secondAtt)) {
-		return false;
-	}
-	while (nextFol != "" && stoi(nextFol) <= stoi(secondAtt)) {
-		if (stoi(nextFol) == stoi(secondAtt)) {
-			return true;
-		}
-		nextFol = PKB::getFollowTable()->getNext(nextFol);
-	}
-	return false;
-}
-
-bool QueryHandler::isParentS(string firstAtt, string secondAtt) {
-	string nextPar = PKB::getParentTable()->getParent(secondAtt);
-	if (nextPar == "" || stoi(nextPar) < stoi(firstAtt)) {
-		return false;
-	}
-	while (nextPar != "" && stoi(nextPar) >= stoi(firstAtt)) {
-		if (stoi(nextPar) == stoi(firstAtt)) {
-			return true;
-		}
-		nextPar = PKB::getParentTable()->getParent(nextPar);
-	}
-	return false;
-}
-
-bool QueryHandler::isInt(string &secondAtt)
-{
-	try {
-		int number = stoi(secondAtt);
-		return true;
-	}
-	catch (exception e) {
-		return false;
-	}
-}
-
-bool QueryHandler::contain(vector<string> vec, string str) {
-	for (int i = 0; i < vec.size(); i++) {
-		if (find(begin(vec), end(vec), str) != end(vec)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void QueryHandler::rmEString(vector<string> vec) {
-	if (vec.size() > 0) {
-		for (int i = 0; i < vec.size(); i++) {
-			if (vec[i] == "" || vec[i] == "na") {
-				vec.erase(vec.begin() + i);
+	if (finalVec.size() == 2) {
+		for (size_t i = 0; i < finalVec[0].size(); i++) {
+			for (size_t j = 0; j < finalVec[1].size(); j++) {
+				final.push_back(finalVec[0][i] + " " + finalVec[1][j]);
 			}
 		}
 	}
-}
-//Get synonym
-string QueryHandler::getSymMean(string sym) {
-	for (int i = 0; i < symTable.size(); i++) {
-		vector<string> current = symTable[i];
-		if (find(current.begin(), current.end(), sym) != current.end()) {
-			return current[0];
-		}
-	}
-	return "";
-}
-
-int QueryHandler::getPos(vector<int> intVec) {
-	for (int i = 0; i < intVec.size(); i++) {
-		if (intVec[i] == 1) {
-			return i;
-		}
-	}
-	return -1;
-}
-//To convetion
-vector<pair<string, string>> QueryHandler::toConvention(vector<FollowEntry_t> table) {
-	vector<pair<string, string>> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		pair<string, string> temp;
-		temp.first = table[i].prev;
-		temp.second = table[i].next;
-		ansVec.push_back(temp);
-	}
-	return ansVec;
-}
-vector<pair<string, vector<string>>> QueryHandler::toConvention(vector<ModifyEntry_t>  table) {
-	vector<pair<string, vector<string>>> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		pair<string, vector<string>> temp;
-		temp.first = table[i].modifier;
-		temp.second = table[i].modifiedVar;
-		ansVec.push_back(temp);
-	}
-	return ansVec;
-}
-vector<string> QueryHandler::toConvention(vector<ParentEntry_t>  table, int x) {
-	vector<string> ansVec;
-	if (x == 1) {
-		for (int i = 0; i < table.size(); i++) {
-			ansVec.push_back(table[i].lineNo);
-		}
-	}
-	else {
-		for (int i = 0; i < table.size(); i++) {
-			for (int j = 0; j < table[i].child.size(); j++) {
-				ansVec.push_back(table[i].child[j]);
-			}
-		}
-	}
-	return ansVec;
-}
-vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, bool x) {
-	vector<string> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		ansVec.push_back(table[i].userLine);
-	}
-	return ansVec;
-}
-vector<string> QueryHandler::toConvention(vector<UseEntry_t> table, int x) {
-	vector<string> ansVec;
-	for (int i = 0; i < table.size(); i++) {
-		for (int j = 0; j < table[i].usedVar.size(); j++) {
-			ansVec.push_back(table[i].usedVar[j]);
-		}
-	}
-	return ansVec;
-}
-//Implement intersection method (case pair (n1, v1) and select v or n
-
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<string> vec2) {
-	vector<string> ansVec;
-	for (size_t i = 0; i < vec1.size(); i++) {
-		string current = vec1[i];
-		if (find(vec2.begin(), vec2.end(), current) != vec2.end()) {
-			ansVec.push_back(current);
-		}
-	}
-	return ansVec;
-}
-
-vector<string> QueryHandler::intersection(vector<string> vec1, vector<pair<string, string>> vec2) {
-	vector<string> ansVec;
-	for (size_t i = 0; i < vec1.size(); i++) {
-		string current = vec1[i];
-		for (size_t j = 0; j < (sizeof vec2); j++) {
-			if (vec2[j].second == current) {
-				ansVec.push_back(current);
-			}
-		}
-	}
-	return ansVec;
-}
-
-vector < pair<string, vector<string>>> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2) {
-	vector < pair<string, vector<string>>> ansVec;
-	for (size_t i = 0; i < vec1.size(); i++) {
-		string current = vec1[i];
-		for (size_t j = 0; j < (sizeof vec2); j++) {
-			if (vec2[j].first == current) {
-				ansVec.push_back(vec2[j]);
-			}
-		}
-	}
-	return ansVec;
-}
-
-vector <string> QueryHandler::intersection(vector<string> vec1, vector < pair<string, vector<string>>> vec2, bool check) {
-	vector <string> ansVec;
-	for (size_t i = 0; i < vec1.size(); i++) {
-		string current = vec1[i];
-		for (size_t j = 0; j < (sizeof vec2); j++) {
-			if (vec2[j].first == current) {
-				ansVec.push_back(current);
-			}
-		}
-	}
-	return ansVec;
+	return final;
 }

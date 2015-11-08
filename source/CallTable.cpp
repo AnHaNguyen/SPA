@@ -1,7 +1,7 @@
 #include <vector>
+#include <string>
 #include "CallTable.h"
-#include "Utility.h"
-
+#include "CallSTable.h"
 
 CallTable::CallTable() {
 }
@@ -11,7 +11,7 @@ CallTable::~CallTable() {
 
 bool CallTable::addToTable(string caller, string callee) {
 	if (isContained(caller) == false) {
-		callEntry_t *entry = new callEntry_t(caller, callee);
+		CallEntry_t *entry = new CallEntry_t(caller, callee);
 		callTable.push_back(*entry);
 		return true;
 	}
@@ -112,6 +112,6 @@ bool CallTable::checkRecurDFS(string caller, vector<string> callees, vector<stri
 	return false;
 }
 
-vector<callEntry_t> CallTable::getTable() {
+vector<CallEntry_t> CallTable::getTable() {
 	return callTable;
 }

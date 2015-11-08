@@ -1,7 +1,8 @@
 #include "PreResultNode.h"
 
 PreResultNode::PreResultNode(){
-    result = "";
+    result;
+	next=NULL;
 }
 
 PreResultNode::~PreResultNode(){
@@ -9,12 +10,17 @@ PreResultNode::~PreResultNode(){
 
 
 //getter
-string PreResultNode::getResult(){
+AttrRef PreResultNode::getResult(){
     return result;
 }
-
+PreResultNode* PreResultNode::getNext() {
+	return next;
+}
 
 //setter
-void PreResultNode::setResult(string str){
-    result = str;
+void PreResultNode::setResult(AttrRef ar){
+    result = ar;
+}
+void PreResultNode::setNext(PreResultNode* node) {
+	next = node;
 }

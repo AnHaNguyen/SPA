@@ -24,6 +24,12 @@ public: NextTable();
 		int size();
 		bool isContained(string line);
 		bool isNext(string prev, string next);					//check if Next(prev,next)
+		vector<string> getPrevS(string next);					//return all stmt that next can be exct after
+		vector<string> getNextS(string prev);
+		bool isNextS(string prev, string next);
+		vector<NextEntry_t> getNextSTable();
+		void addListToTable(string line, vector<string> list);
+	//	vector<string> getPrevSlow(string next);
 };
 
 #endif

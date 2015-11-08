@@ -22,6 +22,9 @@ CallTable* PKB::callTable;
 NextTable* PKB::nextTable;
 vector<CFG* > PKB::cfgList;
 ProgLine* PKB::progLine;
+FollowSTable* PKB::followSTable;
+CallSTable* PKB::callSTable;
+ParentSTable* PKB::parentSTable;
 
 PKB::PKB() {
 }
@@ -126,6 +129,9 @@ vector<string> PKB::checkAssign(string pattern, bool contains_) {
 	vector<string> returnList;
 	DesignExtractor ext = DesignExtractor();
 	AST* subtree = ext.buildSubtree(pattern);
+	/*for (unsigned i = 0; i < subtree->getTree().size(); i++) {
+		returnList.push_back(subtree->getTree().at(i)->getType());
+	}*/
 	for (unsigned i = 0; i < astList.size(); i++) {
 		vector<string> temp = astList.at(i)->findSubtree(subtree, contains_);
 		returnList.insert(returnList.end(), temp.begin(), temp.end());
@@ -133,52 +139,412 @@ vector<string> PKB::checkAssign(string pattern, bool contains_) {
 	return returnList;
 }
 
-vector<string> PKB::patternIf(string controlVar) {
+vector<string> PKB::patternIf(string controlVar, bool contains) {
 	vector<string> returnList;
-	if (controlVar == "_") {
-		vector<string> result = progLine->getLinesOfType("if");
-		for (unsigned i = 0; i < result.size(); i++) {
-			returnList.push_back(result.at(i));
+	if (contains) {
+		if (controlVar == "_") {
+			vector<string> result = progLine->getLinesOfType("if");
+			for (unsigned i = 0; i < result.size(); i++) {
+				returnList.push_back(result.at(i));
+			}
+		}
+		else {
+			vector<TNode*> ifNodes;
+			for (unsigned i = 0; i < astList.size(); i++) {
+				vector<TNode*>ifs = astList.at(i)->getType("if");
+				for (unsigned j = 0; j < ifs.size(); j++) {
+					ifNodes.push_back(ifs.at(j));
+				}
+			}
+			for (unsigned i = 0; i < ifNodes.size(); i++) {
+				if (ifNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
+					returnList.push_back(to_string(ifNodes.at(i)->getLine()));
+				}
+			}
 		}
 	}
 	else {
-		vector<TNode*> ifNodes;
-		for (unsigned i = 0; i < astList.size(); i++) {
-			vector<TNode*>ifs = astList.at(i)->getType("if");
-			for (unsigned j = 0; j < ifs.size(); j++) {
-				ifNodes.push_back(ifs.at(j));
+		returnList = progLine->getLinesOfType("if");
+	}
+	return returnList;
+}
+
+vector<string> PKB::patternWhile(string controlVar, bool contains) {
+	vector<string> returnList;
+	if (contains) {
+		if (controlVar == "_") {
+			vector<string> result = progLine->getLinesOfType("while");
+			for (unsigned i = 0; i < result.size(); i++) {
+				returnList.push_back(result.at(i));
 			}
 		}
-		for (unsigned i = 0; i < ifNodes.size(); i++) {
-			if (ifNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
-				returnList.push_back(to_string(ifNodes.at(i)->getLine()));
+		else {
+			vector<TNode*> whileNodes;
+			for (unsigned i = 0; i < astList.size(); i++) {
+				vector<TNode*> whiles = astList.at(i)->getType("while");
+				for (unsigned j = 0; j < whiles.size(); j++) {
+					whileNodes.push_back(whiles.at(j));
+				}
+			}
+			for (unsigned i = 0; i < whileNodes.size(); i++) {
+				if (whileNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
+					returnList.push_back(to_string(whileNodes.at(i)->getLine()));
+				}
+			}
+		}
+	}
+	else {
+		returnList = progLine->getLinesOfType("while");
+	}
+	return returnList;
+}
+
+FollowSTable* PKB::getFollowSTable() {
+	return followSTable;
+}
+
+void PKB::setFollowSTable(FollowSTable* followSTable) {
+	PKB::followSTable = followSTable;
+}
+
+CallSTable* PKB::getCallSTable() {
+	return callSTable;
+}
+
+void PKB::setCallSTable(CallSTable* callSTable) {
+	PKB::callSTable = callSTable;
+}
+
+ParentSTable* PKB::getParentSTable() {
+	return parentSTable;
+}
+
+void PKB::setParentSTable(ParentSTable* parentSTable) {
+	PKB::parentSTable = parentSTable;
+}
+
+bool PKB::checkExistMod(string start, string end, string modVar,vector<string> processed) {
+	/*vector<string> modifier = modifyTable->getModifier(modVar);
+	queue<string> q;
+	q.push(start);
+	while (!q.empty()) {
+		vector<string> nextStmts = nextTable->getNext(q.front());
+		q.pop();
+		for (int i = 0; i < nextStmts.size(); i++) {
+			if (nextStmts.at(i) == end) {
+				return true;
+			}
+			int contain = 0;
+			for (int j = 0; j < modifier.size(); j++) {
+				if (nextStmts.at(i) == modifier.at(j)) {
+					contain = 1;
+				}
+			}
+			if (contain == 0) {
+				q.push(nextStmts.at(i));
+			}
+		}
+	}
+	return false;*/
+	vector<string> nextStmts = nextTable->getNext(start);
+	if (nextStmts.size() == 0) {
+		return false;
+	}
+	vector<bool> nextAns;
+	for (unsigned i = 0; i < nextStmts.size(); i++) {
+		string nextLine = nextStmts.at(i);
+		if (nextLine == end) {
+			return true;
+		}
+		else if (find(processed.begin(), processed.end(), nextLine) != processed.end()) {
+			nextAns.push_back(false);
+		}
+		else if (progLine->getType(nextLine) == "assign" && 
+						modifyTable->isModified(nextLine,modVar)) {
+			nextAns.push_back(false);
+		}
+		else {
+			processed.push_back(nextLine);
+			nextAns.push_back(checkExistMod(nextLine, end, modVar, processed));
+		}
+	}
+	bool finalAns = false;
+	for (unsigned i = 0; i < nextAns.size(); i++) {
+		finalAns = (finalAns || nextAns.at(i));
+	}
+	return finalAns;
+}
+
+vector<pair<string,string>> PKB::patternIf() {
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> ast = astList.at(i)->getTree();
+		for (unsigned j = 0; j < ast.size(); j++) {
+			if (ast.at(j)->getType() == "if") {
+				pair<string, string> pr;
+				pr.first = to_string(ast.at(j)->getLine());
+				pr.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pr);
 			}
 		}
 	}
 	return returnList;
 }
 
-vector<string> PKB::patternWhile(string controlVar) {
-	vector<string> returnList;
-	if (controlVar == "_") {
-		vector<string> result = progLine->getLinesOfType("while");
-		for (unsigned i = 0; i < result.size(); i++) {
-			returnList.push_back(result.at(i));
-		}
-	}
-	else {
-		vector<TNode*> whileNodes;
-		for (unsigned i = 0; i < astList.size(); i++) {
-			vector<TNode*> whiles = astList.at(i)->getType("while");
-			for (unsigned j = 0; j < whiles.size(); j++) {
-				whileNodes.push_back(whiles.at(j));
-			}
-		}
-		for (unsigned i = 0; i < whileNodes.size(); i++) {
-			if (whileNodes.at(i)->getChildList().at(0)->getValue() == controlVar) {
-				returnList.push_back(to_string(whileNodes.at(i)->getLine()));
+vector<pair<string, string>> PKB::patternWhile() {
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> ast = astList.at(i)->getTree();
+		for (unsigned j = 0; j < ast.size(); j++) {
+			if (ast.at(j)->getType() == "while") {
+				pair<string, string> pr;
+				pr.first = to_string(ast.at(j)->getLine());
+				pr.second = ast.at(j)->getChildList().at(0)->getValue();
+				returnList.push_back(pr);
 			}
 		}
 	}
 	return returnList;
 }
+
+vector<string> PKB::affect(string n1, string n2) {
+	vector<string> returnList;
+	vector<string> processed;
+	if (n1 != "_" && n2 != "_") {	//affect (1,2)
+	//	return true or false;
+		if (progLine->getType(n1) != "assign" || progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		string modVar = modifyTable->getModified(n1).at(0);
+		if (!useTable->isUsed(n2, modVar)) {
+			returnList.push_back("false");
+			return returnList;
+		}
+
+		if (checkExistMod(n1, n2, modVar, processed)) {
+			returnList.push_back("true");
+		}
+		else {
+			returnList.push_back("false");
+		}
+		return returnList;
+	}
+	else if (n1 != "_" && n2 == "_") {	//affect(1,n2)
+		if (progLine->getType(n1) != "assign") {
+			return returnList;
+		}
+		string modVar = modifyTable->getModified(n1).at(0);
+		
+		// for all assign in this procedure
+		//		if (isUsed(assign, modVar) && exist...(n1,assign, var)
+		//			add assign
+		string curProc = progLine->getProcedure(n1);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned i = 0; i < assignList.size(); i++) {
+			if (useTable->isUsed(assignList.at(i), modVar) &&
+				checkExistMod(n1, assignList.at(i), modVar,processed)) {
+				returnList.push_back(assignList.at(i));
+			}
+		}
+		return returnList;
+		//find all assignments 1->as and no modify of modVar in that path and as uses modVar
+	}
+	else if (n2 != "_" && n1 == "_") {	//affect(n1,2)
+		if (progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		vector<string> usedVar = useTable->getUsed(n2);
+		string curProc = progLine->getProcedure(n2);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned i = 0; i < assignList.size(); i++) {
+			for (unsigned j = 0; j < usedVar.size(); j++) {
+				if (modifyTable->isModified(assignList.at(i),usedVar.at(j)) &&
+					checkExistMod(assignList.at(i), n2, usedVar.at(j),processed)) {
+					returnList.push_back(assignList.at(i));
+				}
+			}
+		}
+		return returnList;
+		// for all assign in this procedure
+		//		for each var in usedVar
+		//			if (isMod(assign, var) && exist...(assign,n2,var)
+		//				add assign
+		
+		//find all assignments as->1 and as mod var and no modify of var in that path
+	}
+	return returnList;
+}
+
+vector<pair<string, vector<string>>> PKB::affect() {
+	vector<pair<string, vector<string>>> returnList;
+	vector<string> assignList = progLine->getLinesOfType("assign");
+	for (unsigned i = 0; i < assignList.size(); i++) {
+		vector<string> affectList = affect(assignList.at(i), "_");
+		pair<string, vector<string>> pr;
+		pr.first = assignList.at(i);
+		pr.second = affectList;
+		returnList.push_back(pr);
+	}
+	return returnList;
+}
+
+vector<string> PKB::affectS(string n1, string n2) {
+	vector<string> returnList;
+	if (n1 != "_" && n2 != "_") {		//affect*(1,2)
+		if (progLine->getType(n1) != "assign" || progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		else {
+			vector<string> list = getAffectS(n1);
+			for (unsigned i = 0; i < list.size(); i++) {
+				if (list.at(i) == n2) {
+					returnList.push_back("true");
+					return returnList;
+				}
+			}
+			returnList.push_back("false");
+			return returnList;
+		}
+
+	}
+	else if (n1 != "_" && n2 == "_") {		//affect*(1,n2)
+		if (progLine->getType(n1) != "assign") {
+			return returnList;
+		}
+		else {
+			returnList = getAffectS(n1);
+			return returnList;
+		}
+	}
+	else if (n1 == "_" && n2 != "_") {		//affect*(n1, 2)
+		if (progLine->getType(n2) != "assign") {
+			return returnList;
+		}
+		else {
+			returnList = getAffectSReverse(n2);
+			return returnList;
+		}
+	}
+	return returnList;
+}
+
+vector<pair<string, vector<string>>> PKB::affectS() {
+	vector<pair<string, vector<string>>> returnList;
+	for (unsigned i = 0; i < procTable->size(); i++) {
+		string curProc = procTable->getProc(i);
+		vector<string> assignList = progLine->getAssignsOfProc(curProc);
+		for (unsigned j = 0; j < assignList.size(); j++) {
+			string line = assignList.at(j);
+			vector<string> affectStmts = affectS(line, "_");
+			pair<string, vector<string>> pr;
+			pr.first = line;
+			pr.second = affectStmts;
+			returnList.push_back(pr);
+		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::getAffectS(string n1) {
+	vector<string> returnList;
+	vector<bool> processed;
+	//string curProc = progLine->getProcedure(n1);
+	//vector<string> assignList = progLine->getAssignsOfProc(n1);
+	int numLines = progLine->numOfLines();
+	for (int i = 0; i < numLines; i++) {
+		processed.push_back(false);
+	}
+	queue<string> q;
+	q.push(n1);
+	while (!q.empty()) {
+		vector<string> affectStmts = affect(q.front(), "_");
+		q.pop();
+		for (unsigned i = 0; i < affectStmts.size(); i++) {
+			if (!processed.at(atoi(affectStmts.at(i).c_str()) -1)) {
+				processed.at(atoi(affectStmts.at(i).c_str()) -1) = true;
+				returnList.push_back(affectStmts.at(i));
+				q.push(affectStmts.at(i));
+			}
+		}
+	}
+	return returnList;
+}
+
+vector<string> PKB::getAffectSReverse(string n2) {
+	vector<string> returnList;
+	vector<bool> processed;
+	int numLines = progLine->numOfLines();
+	for (int i = 0; i < numLines; i++) {
+		processed.push_back(false);
+	}
+	queue<string> q;
+	q.push(n2);
+	while (!q.empty()) {
+		vector<string> affectStmts = affect("_", q.front());
+		q.pop();
+		for (unsigned i = 0; i < affectStmts.size(); i++) {
+			if (!processed.at(atoi(affectStmts.at(i).c_str()) - 1)) {
+				processed.at(atoi(affectStmts.at(i).c_str()) - 1) = true;
+				returnList.push_back(affectStmts.at(i));
+				q.push(affectStmts.at(i));
+			}
+		}
+	}
+	return returnList;
+}
+
+/*void PKB::updateProgLineParent() {
+	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
+		for (unsigned j = 0; j < parentTable->size(); j++) {
+			string parent = parentTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentTable->getTable().at(j).child.size(); k++) {
+				string child = parentTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParent(i, parent);
+				}
+			}
+		}
+	}
+}*/
+
+/*void PKB::updateProgLine() {
+	for (unsigned i = 0; i < progLine->numOfLines(); i++) {
+		for (unsigned j = 0; j < parentTable->size(); j++) {
+			string parent = parentTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentTable->getTable().at(j).child.size(); k++) {
+				string child = parentTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParent(i, parent);
+				}
+			}
+		}
+		for (unsigned j = 0; j < parentSTable->size(); j++) {
+			string parentS = parentSTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < parentSTable->getTable().at(j).child.size(); k++) {
+				string child = parentSTable->getTable().at(j).child.at(k);
+				if (atoi(child.c_str()) == i + 1) {
+					progLine->updateParentS(i, parentS);
+				}
+			}
+		}
+		for (unsigned j = 0; j < followSTable->size(); j++) {
+			string followS = followSTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < followSTable->getTable().at(j).followStmts.size(); k++) {
+				string followed = followSTable->getTable().at(j).followStmts.at(k);
+				if (atoi(followed.c_str()) == i + 1) {
+					progLine->updateFollowS(i, followS);
+				}
+			}
+		}
+		for (unsigned j = 0; j < nextTable->size(); j++) {
+			string prev = nextTable->getTable().at(j).lineNo;
+			for (unsigned k = 0; k < nextTable->getTable().at(j).nextStmts.size(); k++) {
+				string next = nextTable->getTable().at(j).nextStmts.at(k);
+				if (atoi(next.c_str()) == i + 1) {
+					progLine->updateNext(i, prev);
+				}
+			}
+		}
+	}
+	//exit(EXIT_FAILURE);
+}*/

@@ -17,7 +17,7 @@ bool ProgLine::addToList(int lineNo, string type, string procedure) {
 }
 
 string ProgLine::getType(string lineNo) {
-	int line = atoi(lineNo.c_str());
+	unsigned int line = atoi(lineNo.c_str());
 	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
@@ -25,7 +25,7 @@ string ProgLine::getType(string lineNo) {
 }
 
 string ProgLine::getProcedure(string lineNo) {
-	int line = atoi(lineNo.c_str());
+	unsigned int line = atoi(lineNo.c_str());
 	if (progLine.size() < line || line <= 0) {
 		return "";
 	}
@@ -71,3 +71,54 @@ vector<string> ProgLine::getLinesOfType(string type){
 vector<stmt_t> ProgLine::getTable() {
 	return progLine;
 }
+
+vector<string> ProgLine::getAssignsOfProc(string procedure) {
+	vector<string> returnList;
+	for (unsigned i = 1; i <= progLine.size(); i++) {
+		if (getProcedure(to_string(i)) == procedure && 
+					getType(to_string(i)) == "assign") {
+			returnList.push_back(to_string(i));
+			int j = i + 1;
+			while (getProcedure(to_string(j)) == procedure) {
+				if (getType(to_string(j)) == "assign") {
+					returnList.push_back(to_string(j));
+				}
+				j++;
+			}
+			break;
+		}
+	}
+	return returnList;
+}
+
+/*void ProgLine::updateFollowS(int line, string s) {
+	progLine.at(line).followS.push_back(s);
+}
+
+void ProgLine::updateParent(int line, string s) {
+	progLine.at(line).parent = s;
+}
+
+void ProgLine::updateParentS(int line, string s) {
+	progLine.at(line).parentS.push_back(s);
+}
+
+void ProgLine::updateNext(int line, string s) {
+	progLine.at(line).next.push_back(s);
+}
+
+vector<string> ProgLine::getFollowS(int line) {
+	return progLine.at(line - 1).followS;
+}
+
+string ProgLine::getParent(int line) {
+	return progLine.at(line - 1).parent;
+}
+
+vector<string> ProgLine::getParentS(int line) {
+	return progLine.at(line - 1).parentS;
+}
+
+vector<string> ProgLine::getNext(int line) {
+	return progLine.at(line - 1).next;
+}*/

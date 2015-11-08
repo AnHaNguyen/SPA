@@ -14,6 +14,9 @@
 #include "NextTable.h"
 #include "CFG.h"
 #include "ProgLine.h"
+#include "CallSTable.h"
+#include "ParentSTable.h"
+#include "FollowSTable.h"
 
 class PKB {
 private: static FollowTable* followTable;
@@ -28,7 +31,12 @@ private: static FollowTable* followTable;
 		 static NextTable* nextTable;
 		 static vector<CFG*> cfgList;
 		 static ProgLine* progLine;
+		 static FollowSTable* followSTable;
+		 static ParentSTable* parentSTable;
+		 static CallSTable* callSTable;
 
+		 static vector<string> getAffectS(string n1);
+		 static vector<string> getAffectSReverse(string n2);
 public:
 		 PKB();
 		 ~PKB();
@@ -56,10 +64,34 @@ public:
 		 static void setCFGList(vector<CFG*> cfgList);				//for Extractor
 		 static ProgLine* getProgLine();					//for Query
 		 static void setProgLine(ProgLine* progLine);				//for Extractor
+		 static FollowSTable* getFollowSTable();					//for Query
+		 static void setFollowSTable(FollowSTable* followSTable);				//for Extractor
+		 static CallSTable* getCallSTable();					//for Query
+		 static void setCallSTable(CallSTable* callSTable);				//for Extractor
+		 static ParentSTable* getParentSTable();					//for Query
+		 static void setParentSTable(ParentSTable* parentSTable);				//for Extractor
+
 
 		 static vector<string> checkAssign(string pattern, bool contains_);	//to check pattern Assign
-		 static vector<string> patternIf(string controlVar);			//to check pattern If
-		 static vector<string> patternWhile(string controlVar);			//to check pattern While
+		 static vector<string> patternIf(string controlVar, bool containsQ);			
+															//to check pattern If
+		 static vector<string> patternWhile(string controlVar, bool containsQ);			
+															//to check pattern While
+		 static bool checkExistMod(string start, string end, string var,vector<string> processed);
+		 static vector<pair<string, string>> patternIf();
+		 static vector<pair<string, string>> patternWhile();
+		 
+		 //for Affect
+		 static vector<string> affect(string a1, string a2);
+		 static vector <pair<string,vector<string>>> affect();
+
+		 //for AffectS
+		 static vector<string> affectS(string a1, string a2);
+		 static vector<pair<string, vector<string>>> affectS();
+
+		//Optimization
+		 //static void updateProgLine();
+		 //static void updateProgLineParent();
 };
 
 #endif

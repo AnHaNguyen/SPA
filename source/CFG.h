@@ -19,5 +19,6 @@ public: CFG(string procedure);
 		vector<GNode*> findParent(int lineNo);
 		vector<GNode*> findChild(int lineNo);
 		void buildNextTable(NextTable* nextTable);
+		vector<GNode*> getTable();
 };
 #endif

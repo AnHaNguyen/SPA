@@ -17,6 +17,10 @@
 #include "ConstTable.h"
 #include "ProgLine.h"
 #include "PKB.h"
+#include "NextTable.h"
+#include "ParentSTable.h"
+#include "FollowSTable.h"
+#include "CallSTable.h"
 
 using namespace std;
 
@@ -79,6 +83,10 @@ private:
 	ProcTable* procTable;
 	ConstTable* constTable;
 	ProgLine* progLine;
+	NextTable* nextTable;
+	ParentSTable* parentSTable;
+	FollowSTable* followSTable;
+	CallSTable* callSTable;
 
 	int lineNumber;
 	int stmtLstNumber;
@@ -115,11 +123,17 @@ private:
 	void processFollowTable(AST* ast);
 	void processParentTable(AST* ast);
 
-	bool isConst(string var);
-
 	string convertNumToStr(int stmtLstNumber);
 	string exprType(string numberText);
 	int getRealLineNumber(int lineNumber, string input);
+	
+	string findLast(string line);
+	string nearestNext(string line);
+	bool processNextTable();
+	void processSTable();
+	void generateCallSTable();
+	void generateFollowSTable();
+	void generateParentSTable();
 
 public:
 	DesignExtractor();
@@ -135,11 +149,11 @@ public:
 	VarTable* getVarTable();
 	ProcTable* getProcTable();
 	ConstTable* getConstTable();
+	NextTable* getNextTable();
+
 	ProgLine* getProgLine();
 	vector<AST*> getASTList();
 	AST* buildSubtree(string pattern);
-
-	string getRightSideText();
 };
 
 #endif

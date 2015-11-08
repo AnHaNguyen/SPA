@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <queue>
+#include "FollowSTable.h"
 using namespace std;
 typedef struct FollowEntry_t {		//follow(prev,next)
 	string prev;

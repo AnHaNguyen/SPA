@@ -2,7 +2,7 @@
 #include<algorithm>
 #include<iostream>
 
-string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses" };
+string relations[] = { "Follows","Follows*","Parent","Parent*","Modifies","Uses","Calls","Calls*","Next","Next*","Affects","Affects*" };
 
 QueryTree::QueryTree(){
 
@@ -10,6 +10,7 @@ QueryTree::QueryTree(){
     result = new PreResultNode();
     suchThat = new PreSuchThatNode();
     pattern = new PrePatternNode();
+	with = new PreWithNode();
 }
 
 QueryTree::~QueryTree(){
@@ -20,15 +21,23 @@ QueryTree::~QueryTree(){
 bool QueryTree::getValidity(){
     return isValid;
 }
+
 PreResultNode* QueryTree::getResult(){
     return result;
 }
+
 PreSuchThatNode* QueryTree::getSuchThat(){
     return suchThat;
 }
+
 PrePatternNode* QueryTree::getPattern(){
     return pattern;
 }
+
+PreWithNode* QueryTree::getWith() {
+	return with;
+}
+
 vector< vector<string> > QueryTree::getSymbolTable(){
     return symbolTable;
 }
@@ -39,68 +48,189 @@ void QueryTree::setValidity(bool boolean){
     isValid = boolean;
 }
 
-void QueryTree::setResult(vector<string> terms){
+void QueryTree::setResult(vector<string> table){
 
-    if(terms.size()==0) return;
+    if(table.size()==0) return;
+	
+	PreResultNode* resultPtr = result;
+	PreResultNode* prevPtr = resultPtr;
+	for (int i = 0; i < table.size(); i++) {
+		string str = table[i];
+		string synonym, attr;
+		if (str.find(".") == string::npos) {
+			synonym = str;
+		}
+		else {
+			vector<string> words = stringToVector(str, ".");
+			synonym = words[0];
+			attr = words[1];
+			if (attr == "") {
+				isValid = false;
+				return;
+			}
+		}
 
-    string str = terms[0];
+		if (isValidResultAttribute(table, synonym, attr)) {
+			AttrRef ar(synonym, attr);
+			resultPtr->setResult(ar);
+		}
 
-    str = trim(str);
-	if (!isValidSynonym(symbolTable, str)) {
-		isValid = false; 
-		//cout << "wrong select TREE" << endl;
-		return;
+		else {
+			cout << "wrong result TREE: " << str << endl;
+			isValid = false;
+			return;
+		}
+		PreResultNode* nextNode = new PreResultNode();
+		prevPtr = resultPtr;
+		resultPtr->setNext(nextNode);
+		resultPtr = resultPtr->getNext();
 	}
-    result->setResult(str);
+	prevPtr->setNext(NULL);
 }
 
-void QueryTree::setSuchThat(vector<string> terms){
-    if(terms.size()==0) return; 
-    string str = terms[0];
-    str = removeSpace(str); 
+void QueryTree::setSuchThat(vector<string> table){
+	//printTable(table);
+    if(table.size()==0) return; 
 
-    vector<string> words = stringToVector(str, "(");
-    string syn = trim(words[0]);
+	PreSuchThatNode* suchThatPtr = suchThat;
+	PreSuchThatNode* prevPtr = suchThatPtr;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
 
-    vector<string> attributes = stringToVector(words[1], ",");
-    string first = trim(attributes[0]);
+		vector<string> words = stringToVector(str, "(");
+		string syn = trim(words[0]);
 
-    vector<string> remain = stringToVector(attributes[1], ")");
-    string second = trim(remain[0]);
+		vector<string> attributes = stringToVector(words[1], ",");
+		string first = trim(attributes[0]);
 
-	if (isValidSuchThatAttribute(syn, first, second)) {
-		suchThat->setSynonym(syn);
-		suchThat->setFirstAttr(first);
-		suchThat->setSecondAttr(second);
+		vector<string> remain = stringToVector(attributes[1], ")");
+		string second = trim(remain[0]);
+
+		if (isValidSuchThatAttribute(syn, first, second)) {
+			suchThatPtr->setSynonym(syn);
+			suchThatPtr->setFirstAttr(first);
+			suchThatPtr->setSecondAttr(second);
+		}
+		else {
+			cout << "wrong such that TREE: " << str << endl;
+			isValid = false;
+		}
+
+		PreSuchThatNode* nextNode = new PreSuchThatNode();
+		prevPtr = suchThatPtr;
+		suchThatPtr->setNext(nextNode);
+		suchThatPtr = suchThatPtr->getNext();
 	}
-	else {
-		//cout << "wrong such that TREE"  << endl;
-		isValid = false;
-	}
+	prevPtr->setNext(NULL);
 }
 
-void QueryTree::setPattern(vector<string> terms){
-    if(terms.size()==0) return;
+void QueryTree::setPattern(vector<string> table){
 
-    string str = terms[0];
-    str = removeSpace(str);
+	if (table.size()==0) return;
 
-    vector<string> words = stringToVector(str, "(");
-    string syn = trim(words[0]);
+	PrePatternNode* patternPtr = pattern;
+	PrePatternNode* prevPtr = patternPtr;
+	for (int i = 0; i < table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
 
-    vector<string> attributes = stringToVector(words[1], ",");
-    string first = trim(attributes[0]);
+		vector<string> words = stringToVector(str, "(");
+		string syn = trim(words[0]);
 
-    vector<string> remain = stringToVector(attributes[1], ")");
-    string second = trim(remain[0]);
-	if (isValidPatternAttribute(syn, first, second)) {
-		pattern->setSynonym(syn);
-		pattern->setFirstAttr(first);
-		pattern->setSecondAttr(second);
+		if (countWords(str, ",") == 2) {
+			vector<string> attributes = stringToVector(words[1], ",");
+			string first = trim(attributes[0]);
+
+			int commaIndex = str.find(",");
+			string remain = str.substr(commaIndex+1, str.size()-commaIndex);
+			int endIndex = remain.rfind(")");
+			string second = remain.substr(0, endIndex);
+			string third = "";
+
+			if (isValidPatternAttribute(syn, first, second, third) && (isAssign(syn) || isWhile(syn))) {
+				patternPtr->setSynonym(syn);
+				patternPtr->setFirstAttr(first);
+				patternPtr->setSecondAttr(second);
+			}
+			else {
+				cout << "wrong pattern TREE_1: " << str << endl;
+				isValid = false;
+			}
+		}
+
+		if (countWords(str, ",") == 3) {
+			vector<string> attributes = stringToVector(words[1], ",");
+			string first = trim(attributes[0]);
+			string second = trim(attributes[1]);
+
+			vector<string> remain = stringToVector(attributes[2], ")");
+			string third = trim(remain[0]);
+
+			if (isValidPatternAttribute(syn, first, second, third) && isIf(syn)) {
+				patternPtr->setSynonym(syn);
+				patternPtr->setFirstAttr(first);
+				patternPtr->setSecondAttr(second);
+				patternPtr->setThirdAttr(third);
+			}
+			else {
+				cout << "wrong pattern TREE_2: " << str << endl;
+				isValid = false;
+			}
+		}
+
+		PrePatternNode* nextNode = new PrePatternNode();
+		prevPtr = patternPtr;
+		patternPtr->setNext(nextNode);
+		patternPtr = patternPtr->getNext();
 	}
-	else {
-		//cout << "wrong pattern TREE"  << endl;
-		isValid = false;
+	prevPtr->setNext(NULL);
+}
+
+void QueryTree::setWith(vector<string> table) {
+	//printTable(table);
+	if (table.size() == 0) return;
+
+	PreWithNode* withPtr = with;
+	for (int i = 0; i<table.size(); i++) {
+		string str = table[i];
+		str = removeSpace(str);
+
+		vector<string> equals = stringToVector(str, "=");
+		string left = equals[0];
+		string right = equals[1];
+
+		if (isValidWithAttribute(left,right)) {
+			if (left.find(".") != string::npos) {
+				vector<string> leftWords = stringToVector(left, ".");
+				string synonym = leftWords[0];
+				string attrName = leftWords[1];
+				AttrRef leftAttrRef(synonym, attrName);
+				withPtr->setLeftAttrRef(leftAttrRef);
+			}
+			if (left.find(".") == string::npos) {
+				withPtr->setLeftType(left);
+			}
+
+			if (right.find(".") != string::npos) {
+				vector<string> rightWords = stringToVector(right, ".");
+				string synonym = rightWords[0];
+				string attrName = rightWords[1];
+				AttrRef rightAttrRef(synonym, attrName);
+				withPtr->setRightAttrRef(rightAttrRef);
+			}
+			if (right.find(".") == string::npos) {
+				withPtr->setRightType(right);
+			}
+		}
+		else {
+			cout << "wrong with TREE: " << str << endl;
+			isValid = false;
+		}
+
+		PreWithNode* nextNode = new PreWithNode();
+		withPtr->setNext(nextNode);
+		withPtr = withPtr->getNext();
 	}
 }
 
@@ -108,6 +238,39 @@ bool QueryTree::isAssign(string str) {
 	for (int i = 0; i < symbolTable.size(); i++) {
 		for (int j = 0; j < symbolTable[i].size(); j++) {
 			if (symbolTable[i][0] == "assign" && symbolTable[i][j] == str) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool QueryTree::isVariable(string str) {
+	for (int i = 0; i < symbolTable.size(); i++) {
+		for (int j = 0; j < symbolTable[i].size(); j++) {
+			if (symbolTable[i][0] == "variable" && symbolTable[i][j] == str) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool QueryTree::isIf(string str) {
+	for (int i = 0; i < symbolTable.size(); i++) {
+		for (int j = 0; j < symbolTable[i].size(); j++) {
+			if (symbolTable[i][0] == "if" && symbolTable[i][j] == str) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool QueryTree::isWhile(string str) {
+	for (int i = 0; i < symbolTable.size(); i++) {
+		for (int j = 0; j < symbolTable[i].size(); j++) {
+			if (symbolTable[i][0] == "while" && symbolTable[i][j] == str) {
 				return true;
 			}
 		}
@@ -164,6 +327,7 @@ void QueryTree::setSymbolTable(vector<string> terms){
 		for (int j = 1; j < symbolTable[i].size(); j++) {
 			if (!isValidIdent(symbolTable[i][j])) {
 				//cout << "wrong symbol table"  << endl;
+				//cout << symbolTable[i][j] << endl;
 				isValid = false;
 			}
 		}
@@ -201,20 +365,38 @@ bool QueryTree::isInSymbolTable(vector< vector<string> > table, string str) {
 	return false;
 }
 
+bool QueryTree::isValidResultAttribute(vector<string> table, string synonym, string attr) {
+	if (table.size() == 1 && synonym == "BOOLEAN") {
+		return true;
+	}
+	if (isInSymbolTable(symbolTable, synonym)) {
+		if (attr!="") {
+			string str = synonym + "." + attr;
+			if (!isValidAttrRef(str)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second) {
 	string firstType = getSynType(symbolTable, first);
 	string secondType = getSynType(symbolTable, second);
 
-	if (!containWord(syn, relations, 6)) {
+	if (!containWord(syn, relations, 14)) {
 		return false;
 	}
 
 	if (syn == "Modifies") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+		if (!(isValidStmtRef(symbolTable, first) || isValidEntRef(symbolTable, first)) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
-		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
+
+		if (first != "_" && !isInteger(first) && first.find("\"")==string::npos) {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
+				&& firstType != "prog_line" && firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
 			}
 		}
@@ -230,11 +412,12 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 	}
 
 	if (syn == "Uses") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+		if (!(isValidStmtRef(symbolTable, first) || isValidEntRef(symbolTable, first)) || !isValidEntRef(symbolTable, second)) {
 			return false;
 		}
-		if (first != "_" && !isInteger(first)) {
-			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" && firstType != "prog_line") {
+		if (first != "_" && !isInteger(first) && first.find("\"") == string::npos) {
+			if (firstType != "assign" && firstType != "if" && firstType != "while" && firstType != "stmt" 
+				&& firstType != "prog_line" &&  firstType != "procedure" && firstType != "call" && firstType != "stmtLst") {
 				return false;
 			}
 		}
@@ -242,53 +425,258 @@ bool QueryTree::isValidSuchThatAttribute(string syn, string first, string second
 			return false;
 		}
 		if (second != "_" && second.find("\"")==string::npos){
-			if (secondType != "variable")
+			if (secondType != "variable") {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	if (syn == "Parent" || syn == "Parent*") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
 			return false;
+		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "if" && firstType != "while" && firstType != "prog_line" && firstType != "stmt")
+			if (firstType != "if" && firstType != "while" && firstType != "prog_line" && firstType != "stmt") {
 				return false;
+			}
 		}		
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line" && secondType != "if" && secondType != "while" 
+				&& secondType != "call") {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	if (syn == "Follows" || syn == "Follows*") {
-		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second))
-			return false;		
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
+			return false;
+		}
 		if (first != "_" && !isInteger(first)) {
-			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line")
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line" && firstType != "if" && firstType != "while"
+				&& firstType != "call") {
 				return false;
+			}
 		}
 		if (second != "_" && !isInteger(second)) {
-			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line")
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line"&& secondType != "if" && secondType != "while"
+				&& secondType != "call") {
 				return false;
+			}
 		}
 		return true;
 	}	
+
+	if (syn == "Next" || syn == "Next*") {
+		if (!isValidLineRef(symbolTable, first) || !isValidLineRef(symbolTable, second)) {
+			return false;
+		}
+		if (first != "_" && !isInteger(first)) {
+			if (firstType != "stmt" && firstType != "assign" && firstType != "prog_line" && firstType != "if" && firstType != "while"
+				&& firstType != "call") {
+				return false;
+			}
+		}
+		if (second != "_" && !isInteger(second)) {
+			if (secondType != "stmt" && secondType != "assign" && secondType != "prog_line" && secondType != "if" && secondType != "while"
+				&& secondType != "call") {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	if (syn == "Calls" || syn == "Calls*") {
+		if (!isValidEntRef(symbolTable, first) || !isValidEntRef(symbolTable, second)) {
+			return false;
+		}
+
+		if (isInteger(first) || isInteger(second)) {
+			return false;
+		}
+
+		if (first != "_" && first.find("\"") == string::npos) {
+			if (firstType != "procedure" ) {
+				return false;
+			}
+		}
+		if (second != "_" && second.find("\"") == string::npos) {
+			if (secondType != "procedure") {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	if (syn == "Affects" || syn == "Affects*") {
+		if (!isValidStmtRef(symbolTable, first) || !isValidStmtRef(symbolTable, second)) {
+			return false;
+		}
+		if (first != "_" && !isInteger(first)) {
+			if (firstType != "assign" && firstType != "prog_line" && firstType != "stmt") {
+				return false;
+			}
+		}
+		if (second != "_" && !isInteger(second)) {
+			if (secondType != "assign" && secondType != "prog_line" && secondType != "stmt") {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
-bool QueryTree::isValidPatternAttribute(string syn, string first, string second) {
-	if (!isAssign(syn)) {
-		isValid = false;
+bool QueryTree::isValidPatternAttribute(string syn, string first, string second, string third) {
+	if (!isValidQuotation(first) || !isValidQuotation(second)) {
+		//cout << "516" << endl;
 		return false;
 	}
-	if (!isValidEntRef(symbolTable, first)) {
-		return false;
+
+	if (isAssign(syn)) {
+		if (!isValidEntRef(symbolTable, first)) {
+			//cout << "522" << endl;
+			return false;
+		}
+
+		else if (isValidSynonym(symbolTable, first) && !isVariable(first)) {
+			//cout << "527" << endl;
+			return false;
+		}
+		
+		if (!isValidExpressionSpec(second)) {
+			//cout << "532" << endl;
+			return false;
+		}
+		return true;
 	}
-	if (!isValidExpressionSpec(second)) {
-		return false;
+
+	if (isIf(syn)) {
+		if (!isValidEntRef(symbolTable, first)) {
+			return false;
+		}
+
+		else if (isValidSynonym(symbolTable, first) && !isVariable(first)) {
+			return false;
+		}
+
+		if (second != "_") {
+			return false;
+		}
+
+		if (third != "_") {
+			return false;
+		}
+		return true;
+	}
+
+	if (isWhile(syn)) {
+		if (!isValidEntRef(symbolTable, first)) {
+			return false;
+		}
+
+		else if (isValidSynonym(symbolTable, first) && !isVariable(first)) {
+			return false;
+		}
+
+		if (second != "_") {
+			return false;
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool QueryTree::isValidWithAttribute(string left, string right) {
+	if (isValidRef(left) && isValidRef(right)) {
+		string firstType = "";
+		string secondType = "";
+		firstType = getRefType(left);
+		secondType = getRefType(right);
+		if (firstType != secondType) {
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+string QueryTree::getRefType(string str) {
+	if (str.find("procName") != string::npos || str.find("varName") != string::npos || str.find("\"") != string::npos) {
+		return "NAME";
+	}
+	if (str.find("value") != string::npos || str.find("stmt#") != string::npos || isInteger(str) || getSynType(symbolTable, str) == "prog_line" ||
+		getSynType(symbolTable, str) == "assign" || getSynType(symbolTable, str) == "stmt") {
+		return "INTEGER";
+	}
+	return "";
+}
+
+bool QueryTree::isValidQuotation(string str) {
+	if (str.find("\"") != string::npos){
+		if (countWords(str, "\"") != 3) {
+			return false;
+		}
 	}
 	return true;
+}
+
+bool QueryTree::isValidRef(string str) {
+	if (str.length() > 2) {
+		if (str.at(0) == '\"' && str.at(str.length() - 1) == '\"') {
+			string insideQuotes = str.substr(1, str.length() - 2);
+			if (isValidIdent(insideQuotes)) {
+				return true;
+			}
+		}
+	}
+
+	if (isValidAttrRef(str) || isInteger(str) || getSynType(symbolTable, str) == "prog_line" || 
+		getSynType(symbolTable, str) == "assign" || getSynType(symbolTable, str) == "stmt") {
+		return true;
+	}
+	return false;
+}
+
+bool QueryTree::isValidAttrRef(string str) {
+	if (str.find(".") != string::npos) {
+		vector<string> words = stringToVector(str, ".");
+		string first = words[0];
+		string second = words[1];
+		if (getSynType(symbolTable, first) == "procedure" && second == "procName") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "variable" && second == "varName") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "constant" && second == "value") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "stmt" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "assign" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "prog_line" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "call" && second == "procName") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "call" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "while" && second == "stmt#") {
+			return true;
+		}
+		if (getSynType(symbolTable, first) == "if" && second == "stmt#") {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool QueryTree::isValidIdent(string str) {
@@ -302,6 +690,7 @@ bool QueryTree::isValidIdent(string str) {
 
 	for (int i = 0; i<str.size(); i++) {
 		if (!(isalnum(str.at(i)) || str.at(i) == '#')) {
+			cout << "line 305" << endl;
 			return false;
 		}
 	}
@@ -324,7 +713,7 @@ bool QueryTree::isValidName(string str) {
 		return false;
 	}
 	for (unsigned int i = 0; i<str.size(); i++) {
-		if (!isalnum(str.at(i))) {
+		if (!isalnum(str.at(i)) && str.at(i) != '#') {
 			return false;
 		}
 	}
@@ -340,10 +729,19 @@ bool QueryTree::isValidStmtRef(vector< vector<string> > table, string str) {
 	return false;
 }
 
+bool QueryTree::isValidLineRef(vector< vector<string> > table, string str) {
+	str = trim(str);
+	if (str == "_" || isValidSynonym(table, str) || isInteger(str)) {
+		return true;
+	}
+
+	return false;
+}
+
 bool QueryTree::isValidEntRef(vector< vector<string> > table, string str) {
 	str = trim(str);
 	if (isValidSynonym(table, str)) {
-		return true;
+			return true;
 	}
 	if (str == "_") {
 		return true;
@@ -356,6 +754,9 @@ bool QueryTree::isValidEntRef(vector< vector<string> > table, string str) {
 			}
 		}
 	}
+	if (isInteger(str)) {
+		return true;
+	}
 	return false;
 }
 
@@ -367,35 +768,129 @@ bool QueryTree::isValidExpressionSpec(string str) {
 		return true;
 	}
 
+	string insideQuotes = str;
+	bool isValidFormat = false;
+
 	if (str.at(0)=='\"' && str.at(str.size()-1)=='\"') {
-		string insideQuotes = str.substr(1, str.size() - 2);
-		if (insideQuotes.find("_") == string::npos) {
-			return true;
+		isValidFormat = true;
+		insideQuotes = str.substr(1, str.size() - 2);
+	}
+	if (str.at(0) == '_'&& str.at(1) == '\"' && str.at(str.size() - 1) == '_' && str.at(str.size() - 2) == '\"') {
+		isValidFormat = true;
+		insideQuotes = str.substr(2, str.size() - 4);
+	}
+
+	if (isValidFormat == false) {
+		return false;
+	}
+
+	insideQuotes = removeSpace(insideQuotes);
+	vector<string> expr = toExprVector(insideQuotes);
+	if (isOperation(expr[0]) || isOperation(expr[expr.size() - 1])) {
+		return false;
+	}
+	if (!isValidChar(expr)) {
+		return false;
+	}
+	if (!isValidBracket(str)) {
+		return false;
+	}
+
+	for (int i = 0; i<expr.size(); i++) {
+		int last = expr.size() - 1;
+
+		if (expr[i] == "(") {
+			if (i != 0 && !(expr[i - 1] == "(" || isOperation(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == "(" || isValidName(expr[i + 1]) || isInteger(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (expr[i] == ")") {
+			if (i != 0 && !(expr[i - 1] == ")" || isValidName(expr[i - 1]) || isInteger(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == ")" || isOperation(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (isOperation(expr[i])) {
+			if (i != 0 && !(expr[i - 1] == ")" || isValidName(expr[i - 1]) || isInteger(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == "(" || isValidName(expr[i + 1]) || isInteger(expr[i + 1]))) {
+				return false;
+			}
+		}
+		else if (isValidName(expr[i]) || isInteger(expr[i])) {
+			if (i != 0 && !(expr[i - 1] == "(" || isOperation(expr[i - 1]))) {
+				return false;
+			}
+			if (i != last && !(expr[i + 1] == ")" || isOperation(expr[i + 1]))) {
+				return false;
+			}
 		}
 	}
 
-	if (str.size() <= 4) {
-		return false;
-	}
+	return true;
+}
 
-	if (!(str.at(0) == '_'&& str.at(1) == '\"' && str.at(str.size() - 1) == '_' && str.at(str.size() - 2) == '\"')) {
-		return false;
+bool QueryTree::isValidBracket(string str) {
+	vector<string> brackets;
+	for (int i = 0; i<str.size(); i++) {
+		if (str.at(i) == '(') {
+			brackets.push_back("(");
+		}
+		if (str.at(i) == ')') {
+			if (brackets.size() == 0) {
+				return false;
+			}
+			else {
+				brackets.pop_back();
+			}
+		}
 	}
-
-	string insideQuotes = str.substr(2, str.size() - 4);
-	if (isValidName(insideQuotes) || isInteger(insideQuotes)) {
+	if (brackets.size() == 0) {
 		return true;
 	}
-	if (insideQuotes.find('+') == insideQuotes.rfind('+')) {
-		string first = insideQuotes.substr(0, insideQuotes.find('+'));
-		first = trim(first);
-		string second = insideQuotes.substr(insideQuotes.find('+')+1);
-		second = trim(second);
-		if ((isValidName(first) || isInteger(first)) && (isValidName(second) || isInteger(second)))
-			return true;
-	}
-
 	return false;
+}
+
+bool QueryTree::isValidChar(vector<string> vec) {
+	for (int i = 0; i<vec.size(); i++) {
+		if (!isValidName(vec[i]) && !isOperation(vec[i]) && !isInteger(vec[i]) && vec[i] != "(" && vec[i] != ")") {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool QueryTree::isOperation(string str) {
+	if (str == "*" || str == "+" || str == "-") {
+		return true;
+	}
+	return false;
+}
+
+vector<string> QueryTree::toExprVector(string str) {
+	vector<string> expr;
+	for (int i = 0; i<str.size(); i++) {
+		if (!isalnum(str.at(i))) {
+			string symbol = "";
+			symbol = symbol + str.at(i);
+			expr.push_back(symbol);
+		}
+		else {
+			string num_var = "";
+			for (int k = i; k<str.size() && isalnum(str.at(k)); k++) {
+				num_var = num_var + str.at(k);
+				i = k;
+			}
+			expr.push_back(num_var);
+		}
+	}
+	return expr;
 }
 
 bool QueryTree::isInteger(string str) {
@@ -511,3 +1006,7 @@ void QueryTree::printDoubleTable(vector< vector<string> > table) {
 	}
 }
 
+int QueryTree::countWords(string str, string delimiter) {
+	vector<string> words = stringToVector(str, delimiter);
+	return words.size();
+}

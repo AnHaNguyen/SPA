@@ -1,6 +1,10 @@
 #include "ParentTable.h"
 #include <vector>
 #include <string>
+#include "ParentSTable.h"
+#include <queue>
+#include "PKB.h"
+#include "ProgLine.h"
 
 ParentTable::ParentTable() {
 }
@@ -39,7 +43,7 @@ vector <string> ParentTable::getChild(string parent) {
 	return returnList;
 }
 
-string ParentTable::getParent(string child) {
+/*string ParentTable::getParentSlow(string child) {
 	for (unsigned i = 0; i < parentTable.size(); i++) {
 		for (unsigned j = 0; j < parentTable.at(i).child.size(); j++) {
 			if (parentTable.at(i).child.at(j) == child) {
@@ -47,8 +51,10 @@ string ParentTable::getParent(string child) {
 			}
 		}
 	}
-	return "";
-}
+	int line = atoi(child.c_str());
+	ProgLine* pl = PKB::getProgLine();
+	return pl->getParent(line);
+}*/
 
 int ParentTable::size() {
 	return parentTable.size();
@@ -78,4 +84,15 @@ bool ParentTable::isParent(string lineNo, string child) {
 		}
 	}
 	return false;
+}
+
+string ParentTable::getParent(string child) {
+	for (unsigned i = 0; i < parentTable.size(); i++) {
+		for (unsigned j = 0; j < parentTable.at(i).child.size(); j++) {
+			if (parentTable.at(i).child.at(j) == child) {
+				return parentTable.at(i).lineNo;
+			}
+		}
+	}
+	return "";
 }

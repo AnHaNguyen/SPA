@@ -1,0 +1,60 @@
+1 - v, m(c,c)
+assign a;
+Select a such that Modifies(1, "i")
+1, 2, 3, 6, 8, 10, 13, 14, 15, 17, 18, 19, 20,21,24,25,27,28,29,30,31,32,33,35,37,38,43
+5000
+2 - v, m(c,c)
+assign a;
+Select a such that Modifies(1, "o")
+none
+5000
+3 - v, m(c,v)
+variable v;
+Select v such that Modifies(4, v)
+oSCar, x, Romeo, b, c, a, w
+5000
+4 - v, m(v,c)
+stmt s;
+Select s such that Modifies(s, "oSCar")
+4, 5, 6, 7, 8,22,34,36,39,40,41,42,44
+5000
+5 - v, m(c,v)
+variable v;
+Select v such that Modifies(3, v)
+c
+5000
+6 - v, m(c,c)
+stmt s;
+Select s such that Modifies(4, "x")
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44
+5000
+7 - v, m(c,v)
+variable v;
+Select v such that Modifies(10, v)
+x
+5000
+8 - v, m(v,c)
+assign a;
+Select a such that Modifies(a, "oSCar")
+6, 8
+5000
+9- s, m(s,v)
+stmt s; variable v;
+Select s such that Modifies(s,v);
+1,10,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,28,29,3,30,31,32,33,34,35,36,37,38,39,4,40,41,42,43,44,5,6,7,8,9
+5000
+10- v, m(s,v)
+assign a; variable v;
+Select v such that Modifies(a,v);
+Romeo,a,b,beta,c,cc,delta,had,i,k,oSCar,prop,w,x,xx
+5000
+11- v, m(s,v)
+assign a; variable v;
+Select a such that Modifies(a,v);
+1,10,13,14,15,17,18,19,2,20,21,24,25,27,28,29,3,30,31,32,33,35,37,38,43,6,8
+5000
+12 - v, m(v,c)
+stmt s;
+Select s such that Modifies(s, "oSCar")
+4, 5, 6, 7, 8,22,34,36,39,40,41,42,44
+5000

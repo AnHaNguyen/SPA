@@ -26,6 +26,16 @@
     <ClCompile Include="..\source\main.cpp" />
     <ClCompile Include="..\Source\ProgLine.cpp" />
     <ClCompile Include="..\source\NextTable.cpp" />
+    <ClCompile Include="..\source\Preprocessor\AttrRef.cpp" />
+    <ClCompile Include="..\source\Preprocessor\PreWithNode.cpp" />
+    <ClCompile Include="..\source\ParentSTable.cpp" />
+    <ClCompile Include="..\source\FollowSTable.cpp" />
+    <ClCompile Include="..\source\CallSTable.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandlePT.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleRS.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleST.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HUtility.cpp" />
+    <ClCompile Include="..\source\QueryProcessor\HandleWith.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AST.h" />
@@ -52,5 +62,16 @@
     <ClInclude Include="..\source\PKB.h" />
     <ClInclude Include="..\Source\ProgLine.h" />
     <ClInclude Include="..\source\NextTable.h" />
+    <ClInclude Include="..\source\Preprocessor\AttrRef.h" />
+    <ClInclude Include="..\source\Preprocessor\PreWithNode.h" />
+    <ClInclude Include="..\source\ParentSTable.h" />
+    <ClInclude Include="..\source\FollowSTable.h" />
+    <ClInclude Include="..\source\CallSTable.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlePT.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleRS.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleST.h" />
+    <ClInclude Include="..\source\QueryProcessor\HUtility.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandlerStruct.h" />
+    <ClInclude Include="..\source\QueryProcessor\HandleWith.h" />
   </ItemGroup>
 </Project>
