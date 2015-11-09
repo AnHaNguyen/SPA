@@ -85,7 +85,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			ST = queryST->getSynonym();
 			stFirst = queryST->getFirstAttr();
 			stSecond = queryST->getSecondAttr();
-		
+
 			//Handle follows
 			if (ST == "Follows") {
 				handleST.handleFollows(stFirst, stSecond, folVec);
@@ -125,7 +125,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					}
 				}
 			}
-			
+
 			//Handle modifies
 			if (ST == "Modifies") {
 				handleST.handleModifies(stFirst, stSecond, modVec);
@@ -229,17 +229,17 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								nextVec = nextTab->getPrevS(stSecond);
 							}
-							//Case Next*(s, s)
-							if (stFirst == stSecond) {
-								vector<NextEntry_t> nextSTable = PKB::getNextTable()->getNextSTable();
-								for (size_t i = 0; i < nextSTable.size(); i++) {
-									nextVec.clear();
-									if (HUtility().contain(nextSTable[i].nextStmts, nextSTable[i].lineNo)) {
-										nextVec.push_back(nextSTable[i].lineNo);
-									}
-								}
-							}
 							handleRS.checkSS(nextVec, stFirst, stSecond);
+						}
+					}
+					//Case Next*(s, s)
+					else if (stFirst == stSecond) {
+						nextVec.clear();
+						vector<NextEntry_t> nextSTable = PKB::getNextTable()->getNextSTable();
+						for (size_t i = 0; i < nextSTable.size(); i++) {
+							if (HUtility().contain(nextSTable[i].nextStmts, nextSTable[i].lineNo)) {
+								nextVec.push_back(nextSTable[i].lineNo);
+							}
 						}
 					}
 				}
@@ -282,16 +282,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								callVec = callSTab->getCallerS(stSecond);
 							}
-							//Case Calls*(s, s)
-							if (stFirst == stSecond) {
-								vector<CallSEntry_t> callSTable = PKB::getCallSTable()->getTable();
-								for (size_t i = 0; i < callSTable.size(); i++) {
-									callVec.clear();
-									if (HUtility().contain(callSTable[i].callees, callSTable[i].caller)) {
-										callVec.push_back(callSTable[i].caller);
-									}
-								}
-							}
 						}
 					}
 				}
@@ -306,7 +296,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 
 			//Handle affects*
-		
+
 			if (ST == "Affects*") {
 				//Check case Affect*(1, 2)
 				if (HUtility().isInt(stFirst) && HUtility().isInt(stSecond)) {
@@ -325,6 +315,16 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							}
 							if (HUtility().isInt(stSecond)) {
 								affVec = PKB::affectS("_", stSecond);
+							}
+						}
+					}
+					//Case Affects*(s, s)
+					else if (stFirst == stSecond) {
+						affVec.clear();
+						vector<pair<string, vector<string>>> affTable = PKB::affectS();
+						for (size_t i = 0; i < affTable.size(); i++) {
+							if (HUtility().contain(affTable[i].second, affTable[i].first)) {
+								affVec.push_back(affTable[i].first);
 							}
 						}
 					}
@@ -348,7 +348,10 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			else {
 				currentRS.secondAtt = "";
 			}
-
+			//Check case (n, n)
+			if (stFirst == stSecond && stFirst != "_") {
+				currentRS.synCount = 1;
+			}
 			for (int i = 0; i < 14; i++) {
 				STCheck.push_back(0);
 			}
@@ -400,7 +403,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				STCheck[11] = 1;
 				currentRS.table = callTable;
 			}
-			if (!affVec.empty() && affVec.front() != "all" && affVec.front() != "") {
+			if (!affVec.empty() && affVec.front() != "all" && affVec.front() != ""&& affVec.front() != "false") {
 				STCheck[12] = 1;
 				currentRS.vec = affVec;
 			}
@@ -768,37 +771,37 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 		}
-	/*	for (int w5 = 0; w5 < 4; w5++) {
-			temp+=" | "+to_string(w5)+" sizeVec "+to_string(queryRS[w5].vec.size())+" sizeTab " + to_string(queryRS[w5].table.size());
-			final.push_back(temp);
-		}
-		return final;*/
-		/*temp += to_string(w) + " handled " + attList[i].att +" ";
-		temp += "-c1: ";
-		for (size_t w1 = 0; w1 < queryRS[0].vec.size(); w1++) {
-			temp += queryRS[0].vec[w1] += " ";
-		}
-		temp += "-c2: ";
-		for (size_t w1 = 0; w1 < queryRS[1].table.size(); w1++) {
-			temp += "("+queryRS[1].table[w1].first + "|";
-			for (size_t w2 = 0; w2 < queryRS[1].table[w1].second.size(); w2++) {
-				temp += queryRS[1].table[w1].second[w2];
+		/*	for (int w5 = 0; w5 < 4; w5++) {
+				temp+=" | "+to_string(w5)+" sizeVec "+to_string(queryRS[w5].vec.size())+" sizeTab " + to_string(queryRS[w5].table.size());
+				final.push_back(temp);
 			}
-			temp += ")";
-		}
-		temp += "-c3: ";
-		for (size_t w1 = 0; w1 < queryRS[2].vec.size(); w1++) {
-			temp += queryRS[2].vec[w1] += " ";
-		}
-		temp += "-c4: ";
-		for (size_t w1 = 0; w1 < queryRS[3].table.size(); w1++) {
-			temp += "("+queryRS[3].table[w1].first+"|";
-			for (size_t w2 = 0; w2 < queryRS[3].table[w1].second.size(); w2++) {
-				temp += queryRS[3].table[w1].second[w2];
+			return final;*/
+			/*temp += to_string(w) + " handled " + attList[i].att +" ";
+			temp += "-c1: ";
+			for (size_t w1 = 0; w1 < queryRS[0].vec.size(); w1++) {
+				temp += queryRS[0].vec[w1] += " ";
 			}
-			temp += ")";
-		}
-		final.push_back(temp);*/
+			temp += "-c2: ";
+			for (size_t w1 = 0; w1 < queryRS[1].table.size(); w1++) {
+				temp += "("+queryRS[1].table[w1].first + "|";
+				for (size_t w2 = 0; w2 < queryRS[1].table[w1].second.size(); w2++) {
+					temp += queryRS[1].table[w1].second[w2];
+				}
+				temp += ")";
+			}
+			temp += "-c3: ";
+			for (size_t w1 = 0; w1 < queryRS[2].vec.size(); w1++) {
+				temp += queryRS[2].vec[w1] += " ";
+			}
+			temp += "-c4: ";
+			for (size_t w1 = 0; w1 < queryRS[3].table.size(); w1++) {
+				temp += "("+queryRS[3].table[w1].first+"|";
+				for (size_t w2 = 0; w2 < queryRS[3].table[w1].second.size(); w2++) {
+					temp += queryRS[3].table[w1].second[w2];
+				}
+				temp += ")";
+			}
+			final.push_back(temp);*/
 		loopList.erase(loopList.begin());
 		//If some the item's reClauses change then enqueue all reAtt that are not inside the list already (some of these will change too)
 		if (changed > 0) {

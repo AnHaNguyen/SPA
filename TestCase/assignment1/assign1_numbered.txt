@@ -1,0 +1,41 @@
+procedure Planet {
+1 x = 8;
+2 z = x + 4;
+3 m = x * 4;
+4 d = x * z + 6;
+5 call Sun;
+6 a = x + z * a;
+7 call Moon;
+8 y = a * x + z;
+9 If m then {
+10 y = a + z;
+11 while t {
+12 y = y + x;
+13 x = x - 1; }
+14 z = x + a; }
+   else {
+15 z = x + a;
+16 call Moon;
+17 m = m + 6; }
+18 call Earth; }
+
+procedure Earth {
+19 while t {
+20 x = d + 5 * y + z;
+21 call Sun;
+22 t = t - 1; }
+23 d = x + d; }
+
+procedure Moon {
+24 If a then {
+25 x = x * a; }
+   else {
+26 x = x + a; }
+27 y = x + 2; }
+procedure Sun {
+
+28 while y {
+29 if t then {
+30 z = x + 30; }
+   else {
+31 x = x * y + d + y * a; } } }
