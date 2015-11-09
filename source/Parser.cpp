@@ -19,9 +19,9 @@ Parser::~Parser() {
 }
 
 vector<string> Parser::parseInput(string fName) {
-	return result(fName);
+	//return result(fName);
 	DesignExtractor ext = DesignExtractor(result(fName));
-
+	return result(fName);
 }
 
 vector<string> Parser::result(string fName) {
