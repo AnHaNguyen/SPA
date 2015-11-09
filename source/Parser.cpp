@@ -1,5 +1,5 @@
 #include "Parser.h"
-//#include "DesignExtractor.h"
+#include "DesignExtractor.h"
 #include <string>
 #include <stdlib.h>
 #include <algorithm>
@@ -19,9 +19,9 @@ Parser::~Parser() {
 }
 
 vector<string> Parser::parseInput(string fName) {
+	//return result(fName);
+	DesignExtractor ext = DesignExtractor(result(fName));
 	return result(fName);
-	//DesignExtractor ext = DesignExtractor(result(fName));
-
 }
 
 vector<string> Parser::result(string fName) {
@@ -741,7 +741,7 @@ bool Parser::isEqualVector(vector<string> v1, vector<string> v2) {
 void Parser::error(string errorType) {
 	if (errorType.size() != 0) {
 		cout << errorType + " ERROR";
-		//exit(1);
+		exit(1);
 	}
 }
 
