@@ -772,6 +772,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		return final;
 	}
 
+
 	//Case normal select
 	vector<vector<string>> finalVec;
 	//Case 2 control parameters
@@ -855,228 +856,277 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				vertices.push_back(i);
 			}
 		}
-		size_t maxSize = queryRS.size();
+		
+		if (!controlV1.empty() && !controlV2.empty()) {
+			size_t maxSize = queryRS.size();
 
-		//Initializing adjList
-		vector<vector<int>> adjList;
-		for (size_t i = 0; i < maxSize; i++) {
-			vector<int> temp;
-			adjList.push_back(temp);
-		}
-		for (size_t i = 0; i < vertices.size(); i++) {
-			for (size_t j = 0; j < vertices.size(); j++) {
-				if (j != i && (queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].firstAtt
-					|| queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].secondAtt
-					|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].firstAtt
-					|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].secondAtt)) {
-					adjList[vertices[i]].push_back(vertices[j]);
+			//Initializing adjList
+			vector<vector<int>> adjList;
+			for (size_t i = 0; i < maxSize; i++) {
+				vector<int> temp;
+				adjList.push_back(temp);
+			}
+			for (size_t i = 0; i < vertices.size(); i++) {
+				for (size_t j = 0; j < vertices.size(); j++) {
+					if (j != i && (queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].firstAtt
+						|| queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].secondAtt
+						|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].firstAtt
+						|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].secondAtt)) {
+						adjList[vertices[i]].push_back(vertices[j]);
+					}
 				}
 			}
-		}
 
-		//BFS
-		vector<int> visited;
-		vector<int> parent;
-		for (size_t i = 0; i < maxSize; i++) {
-			visited.push_back(0);
-			parent.push_back(-1);
-		}
-		for (size_t i = 0; i < controlV1.size(); i++) {
-			begin = controlV1[i];
-			visited[begin] = 1;
-			vector<int> qV;
-			qV.push_back(begin);
-			while (!qV.empty()) {
-				curV = qV.front();
-				qV.erase(qV.begin());
-				for (size_t j = 0; j < adjList[curV].size(); j++) {
-					if (visited[adjList[curV][j]] == 0) {
-						visited[adjList[curV][j]] = 1;
-						parent[adjList[curV][j]] = curV;
-						if (HUtility().contain(controlV2, adjList[curV][j])) {
-							end = adjList[curV][j];
-							break;
-						}
-						else {
-							qV.push_back(adjList[curV][j]);
+			//BFS
+			vector<int> visited;
+			vector<int> parent;
+			for (size_t i = 0; i < maxSize; i++) {
+				visited.push_back(0);
+				parent.push_back(-1);
+			}
+			for (size_t i = 0; i < controlV1.size(); i++) {
+				begin = controlV1[i];
+				visited[begin] = 1;
+				vector<int> qV;
+				qV.push_back(begin);
+				while (!qV.empty()) {
+					curV = qV.front();
+					qV.erase(qV.begin());
+					for (size_t j = 0; j < adjList[curV].size(); j++) {
+						if (visited[adjList[curV][j]] == 0) {
+							visited[adjList[curV][j]] = 1;
+							parent[adjList[curV][j]] = curV;
+							if (HUtility().contain(controlV2, adjList[curV][j])) {
+								end = adjList[curV][j];
+								break;
+							}
+							else {
+								qV.push_back(adjList[curV][j]);
+							}
 						}
 					}
 				}
+				//Backtracking
+				curV = end;
+				while (curV != begin) {
+					curP.push_back(curV);
+					curV = parent[curV];
+				}
+				curP.push_back(begin);
+				if (SSSP.empty() || curP.size() < SSSP.size()) {
+					SSSP = curP;
+				}
 			}
-			//Backtracking
-			curV = end;
-			while (curV != begin) {
-				curP.push_back(curV);
-				curV = parent[curV];
+			//Check if there exist a SSSP
+			if (!SSSP.empty()) {
+				checkSC = false;
 			}
-			if (SSSP.empty() || curP.size() < SSSP.size()) {
-				SSSP = curP;
-			}
-		}
-		//Processing from SSSP
-		vector<pair<vector<string>, vector<string>>> finalVec;
-		string comAtt;
-		int startPos;
-		vector<string> tempVec;
+			//Processing from SSSP
+			vector<pair<vector<string>, vector<string>>> finalVec;
+			string comAtt;
+			int startPos;
+			vector<string> tempVec;
 
-		//Find common att
-		if (queryRS[SSSP[SSSP.size() - 1]].firstAtt == var1) {
-			startPos = 1;
-			comAtt == queryRS[SSSP[SSSP.size() - 1]].secondAtt;
-		}
-		else {
-			startPos = 2;
-			comAtt = queryRS[SSSP[SSSP.size() - 1]].firstAtt;
-		}
-		if (!queryRS[SSSP[SSSP.size() - 1]].table.empty()) {
-			pair<vector<string>, vector<string>> temp;
-			vector<pair<string, vector<string>>> table = queryRS[SSSP[SSSP.size() - 1]].table;
-			for (size_t i = 0; i < table.size(); i++) {
-				temp.first.push_back(table[i].first);
-				temp.second = table[i].second;
+			//Find common att
+			if (queryRS[SSSP[SSSP.size() - 1]].firstAtt == var1) {
+				startPos = 1;
+				comAtt = queryRS[SSSP[SSSP.size() - 1]].secondAtt;
 			}
-		}
-		else {
-			pair<vector<string>, vector<string>> temp;
-			vector<pair<string, string>> ssTable = queryRS[SSSP[SSSP.size() - 1]].ssTable;
-			for (size_t i = 0; i < ssTable.size(); i++) {
-				temp.first.push_back(ssTable[i].first);
-				temp.second.push_back(ssTable[i].second);
+			else {
+				startPos = 2;
+				comAtt = queryRS[SSSP[SSSP.size() - 1]].firstAtt;
 			}
-		}
-		for (size_t i = SSSP.size() - 2; i >= 0; i++) {
-			if (queryRS[SSSP[i]].firstAtt == comAtt) {
-				//Case (n1, n2) (n2, n3)
-				if (startPos == 1) {
-					//Replacing finalVec.second with new values
-					if (!queryRS[SSSP[i]].table.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
-								if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].first)) {
-									for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
-										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
-											tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+			if (!queryRS[SSSP[SSSP.size() - 1]].table.empty()) {
+				pair<vector<string>, vector<string>> temp;
+				vector<pair<string, vector<string>>> table = queryRS[SSSP[SSSP.size() - 1]].table;
+				for (size_t i = 0; i < table.size(); i++) {
+					temp.first.push_back(table[i].first);
+					temp.second = table[i].second;
+					finalVec.push_back(temp);
+					temp.first.clear();
+					temp.second.clear();
+				}
+			}
+			else {
+				pair<vector<string>, vector<string>> temp;
+				vector<pair<string, string>> ssTable = queryRS[SSSP[SSSP.size() - 1]].ssTable;
+				for (size_t i = 0; i < ssTable.size(); i++) {
+					temp.first.push_back(ssTable[i].first);
+					temp.second.push_back(ssTable[i].second);
+					finalVec.push_back(temp);
+					temp.first.clear();
+					temp.second.clear();
+				}
+			}
+
+			//Bridging clauses
+			for (size_t i = SSSP.size() - 2; i >= 0; i--) {
+				if (queryRS[SSSP[i]].firstAtt == comAtt) {
+					//Case (n1, n2) (n2, n3)
+					if (startPos == 1) {
+						//Replacing finalVec.second with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].first)) {
+										for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+											}
 										}
 									}
 								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
 							}
-							finalVec[j].second = tempVec;
-							tempVec.clear();
 						}
-					}
-					else if (!queryRS[SSSP[i]].ssTable.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
-								if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
-									if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
-										tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
-									}
-								}
-							}
-							finalVec[j].second = tempVec;
-							tempVec.clear();
-						}
-					}
-				}
-				//Case (n2, n1) (n2, n3)
-				else if (startPos == 2) {
-					//Replacing finalVec.first with new values
-					if (!queryRS[SSSP[i]].table.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
-								if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].first)) {
-									for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
-										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
-											tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
 										}
 									}
 								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
 							}
-							finalVec[j].first = tempVec;
-							tempVec.clear();
 						}
 					}
-					else if (!queryRS[SSSP[i]].ssTable.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
-								if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
-									if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
-										tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
+					//Case (n2, n1) (n2, n3)
+					else if (startPos == 2) {
+						//Replacing finalVec.first with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].first)) {
+										for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+											}
+										}
 									}
 								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
 							}
-							finalVec[j].first = tempVec;
-							tempVec.clear();
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+				}
+				else if (queryRS[SSSP[i]].secondAtt == comAtt) {
+					//Case (n1, n2) (n3, n2)
+					if (startPos == 1) {
+						//Replacing finalVec.second with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
+										if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].second[k])) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].first);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].second)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+					//Case (n2, n1) (n3, n2)
+					else if (startPos == 2) {
+						//Replacing finalVec.first with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
+										if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].second[k])) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].first);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].ssTable[m].second)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+				}
+				if (i == 0) {
+					break;
+				}
+			}
+			if (startPos == 1) {
+				for (size_t i = 0; i < finalVec.size(); i++) {
+					for (size_t j = 0; j < finalVec[i].first.size(); j++) {
+						for (size_t k = 0; k < finalVec[i].second.size(); k++) {
+							final.push_back(finalVec[i].first[j] + " " + finalVec[i].second[k]);
 						}
 					}
 				}
 			}
-			else if (queryRS[SSSP[i]].secondAtt == comAtt) {
-				//Case (n1, n2) (n3, n2)
-				if (startPos == 1) {
-					//Replacing finalVec.second with new values
-					if (!queryRS[SSSP[i]].table.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
-								for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
-									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].second[k])) {
-										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
-											tempVec.push_back(queryRS[SSSP[i]].table[m].first);
-										}
-									}
-								}
-							}
-							finalVec[j].second = tempVec;
-							tempVec.clear();
-						}
-					}
-					else if (!queryRS[SSSP[i]].ssTable.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
-								if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].second)) {
-									if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
-										tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
-									}
-								}
-							}
-							finalVec[j].second = tempVec;
-							tempVec.clear();
-						}
-					}
-				}
-				//Case (n2, n1) (n3, n2)
-				else if (startPos == 2) {
-					//Replacing finalVec.first with new values
-					if (!queryRS[SSSP[i]].table.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
-								for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
-									if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].second[k])) {
-										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
-											tempVec.push_back(queryRS[SSSP[i]].table[m].first);
-										}
-									}
-								}
-							}
-							finalVec[j].first = tempVec;
-							tempVec.clear();
-						}
-					}
-					else if (!queryRS[SSSP[i]].ssTable.empty()) {
-						for (size_t j = 0; j < finalVec.size(); j++) {
-							for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
-								if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].ssTable[m].second)) {
-									if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
-										tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
-									}
-								}
-							}
-							finalVec[j].first = tempVec;
-							tempVec.clear();
+			if (startPos == 2) {
+				for (size_t i = 0; i < finalVec.size(); i++) {
+					for (size_t j = 0; j < finalVec[i].second.size(); j++) {
+						for (size_t k = 0; k < finalVec[i].first.size(); k++) {
+							final.push_back(finalVec[i].second[j] + " " + finalVec[i].first[k]);
 						}
 					}
 				}
 			}
+		}
+		if (!checkSC) {
+			return final;
 		}
 	}
 
