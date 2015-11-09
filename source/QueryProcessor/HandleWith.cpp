@@ -154,24 +154,40 @@ void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, string>
 		//Case call
 		if (HUtility().getSymMean(firstAtt) == "call") {
 			pair<string, string> temp;
-			CallTable* callTable = PKB::getCallTable();
-			vector<string> caller = progLine->getLinesOfType("call");
+			CallLine* callLine = PKB::getCallLine();
+			vector<string> callers;
 
 			//Case secondAtt is not a syn
 			if (HUtility().getSymMean(secondAtt) == "") {
 				if (HUtility().isInt(secondAtt)) {
+					temp.first = callLine->getCallee(secondAtt);
+					temp.second = secondAtt;
+					withCall.push_back(temp);
+				}
+				else{
+					temp.first = firstAtt;
+					callers = callLine->getCallers(firstAtt);
+					for (size_t i = 0; i < callers.size(); i++) {
+						temp.second = callers[i];
+						withCall.push_back(temp);
+					}
 				}
 			}
+
+			//Other cases
 			if (HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "prog_line") {
-				withVec = progLine->getLinesOfType("call");
-				HUtility().intersectionSS(withVec, progLine->getLinesOfType("prog_line"), 1);
+				withCall = callLine->getTable();
 			}
 			if (HUtility().getSymMean(secondAtt) == "variable") {
-				for (size_t i = 0; i < caller.size(); i++) {
-					for (size_t j = 0; j < callTable->getCallees(caller[i]).size(); j++) {
-						if (!HUtility().contain(withVec, callTable->getCallees(caller[i])[j])) {
-							withVec.push_back(callTable->getCallees(caller[i])[j]);
-						}
+				callers = progLine->getLinesOfType("calls");
+				vector<string> varTab = PKB::getVarTable()->getTable();
+				string callee;
+				for (size_t i = 0; i < callers.size(); i++) {
+					callee = callLine->getCallee(callers[i]);
+					if (HUtility().contain(varTab, callee)) {
+						temp.first = callers[i];
+						temp.second = callee;
+						withCall.push_back(temp);
 					}
 				}
 			}

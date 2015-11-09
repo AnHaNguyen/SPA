@@ -7,6 +7,9 @@ string HandleRS::handleSelect(QueryTree * query, PreResultNode * &result) {
 	if (query->getResult() != NULL) {
 		result = query->getResult();
 		string rs = result->getResult().getSynonym();
+		if (rs == "BOOLEAN") {
+			return rs;
+		}
 		return utility.getSymMean(rs);
 	}
 	else return "";
