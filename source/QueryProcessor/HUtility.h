@@ -28,6 +28,8 @@ public:
 	bool isInt(string att);
 	bool contain(vector<string> vec, string str);
 	bool contain(vector<int> vec, int str);
+	bool contain(vector<pair<string, string>> vec, pair<string, string> str);
+
 	int contain(vector<attEntry_t> vec, string str);
 
 	//Set symTable

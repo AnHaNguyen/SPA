@@ -4,8 +4,15 @@ HandleWith::~HandleWith() {}
 
 void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, vector<string>>> &withCall, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
+	pair<string, bool> secondAttQ;
+	HUtility().checkQuotation(secondAttQ, secondAtt);
 	if (HUtility().getSymMean(secondAtt) == "" && HUtility().getSymMean(firstAtt) != "call") {
-		withVec.push_back(secondAtt);
+		if (HUtility().isInt(secondAtt)) {
+			withVec.push_back(secondAtt);
+		}
+		else {
+			withVec.push_back(secondAttQ.first);
+		}
 	}
 	else {
 		//Case stmt
@@ -156,8 +163,7 @@ void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, vector<
 			pair<string, vector<string>> temp;
 			CallLine* callLine = PKB::getCallLine();
 			vector<string> callers;
-			pair<string, bool> secondAttQ;
-			HUtility().checkQuotation(secondAttQ, secondAtt);
+		
 
 			//Case secondAtt is not a syn
 			if (HUtility().getSymMean(secondAtt) == "") {

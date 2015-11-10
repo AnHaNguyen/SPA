@@ -9,6 +9,7 @@ typedef struct RSEntry_t {
 	string firstAtt;
 	string secondAtt;
 	int synCount;
+	bool extension;
 	vector<string> vec;
 	vector < pair<string, vector<string>>> table;
 	vector <pair<string, string>> ssTable;

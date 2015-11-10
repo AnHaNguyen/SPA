@@ -179,6 +179,15 @@ bool HUtility::contain(vector<int> vec, int str) {
 	return false;
 }
 
+bool HUtility::contain(vector<pair<string, string>> vec, pair<string, string> str) {
+	for (size_t i = 0; i < vec.size(); i++) {
+		if (vec[i].first == str.first && vec[i].second == str.second) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int HUtility::contain(vector<attEntry_t> vec, string str) {
 	if (str == "") {
 		return -2;
@@ -327,9 +336,12 @@ int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>>
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec2[j].first == vec1[i]) {
-					ansVec1.push_back(vec1[i]);
-					ansVec2.push_back(vec2[j]);
-					break;
+					if (!HUtility().contain(ansVec1, vec1[i])) {
+						ansVec1.push_back(vec1[i]);
+					}
+					if (!HUtility().contain(ansVec2, vec2[i])) {
+						ansVec2.push_back(vec2[j]);
+					}
 				}
 			}
 		}
@@ -338,19 +350,22 @@ int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>>
 		for (size_t i = 0; i < vec1.size(); i++) {
 			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec2[j].second == vec1[i]) {
-					ansVec1.push_back(vec1[i]);
-					ansVec2.push_back(vec2[j]);
-					break;
+					if (!HUtility().contain(ansVec1, vec1[i])) {
+						ansVec1.push_back(vec1[i]);
+					}
+					if (!HUtility().contain(ansVec2, vec2[i])) {
+						ansVec2.push_back(vec2[j]);
+					}
 				}
 			}
 		}
 	}
-	if (vec1.size() == ansVec1.size() && vec2.size() == ansVec2.size()) {
-		return 0;
+	if (vec1.size() != ansVec1.size() || vec2.size() != ansVec2.size()) {
+		vec1 = ansVec1;
+		vec2 = ansVec2;
+		return 1;
 	}
-	vec1 = ansVec1;
-	vec2 = ansVec2;
-	return 1;
+	return 0;
 }
 
 int HUtility::intersectionPSV(vector<string> &vec1, vector<pair<string, vector<string>>> &vec2, int check) {

@@ -825,7 +825,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 
-		loopList.erase(loopList.begin());
 		//If some the item's reClauses change then enqueue all reAtt that are not inside the list already (some of these will change too)
 		if (changed > 0) {
 			for (size_t j = 0; j < attList[i].reAtt.size(); j++) {
@@ -834,6 +833,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 		}
+		loopList.erase(loopList.begin());
 	}
 	//return final;
 
@@ -927,7 +927,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 		//Find all clauses that have 2 syns and those that have begin and end nodes
 		for (size_t i = 0; i < queryRS.size(); i++) {
-			if (queryRS[i].synCount == 2 && !queryRS[i].table.empty()) {
+			if (queryRS[i].synCount == 2 && 
+				(!queryRS[i].table.empty()||!queryRS[i].ssTable.empty())) {
 				if (queryRS[i].firstAtt == var1 || queryRS[i].secondAtt == var1) {
 					controlV1.push_back(i);
 				}
@@ -937,7 +938,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				vertices.push_back(i);
 			}
 		}
-
+		
 		if (!controlV1.empty() && !controlV2.empty()) {
 			size_t maxSize = queryRS.size();
 
