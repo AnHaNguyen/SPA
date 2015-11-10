@@ -1,0 +1,63 @@
+1 
+stmt s,s1;
+Select s such that Parent (s, s1) with s1.stmt# = 2
+none
+5000
+2 
+stmt s,s1;
+Select s such that Parent (s, s1) with s1.stmt# = 12
+11
+5000
+3  
+stmt s,s1;
+Select s such that Parent (s, s1) with s1.stmt# = 26
+24
+5000
+4 
+stmt s,s1;
+Select s such that Parent (s, s1) with s1.stmt# = 31
+29
+5000
+35
+stmt s; while w;
+Select w such that Follows* (w, s)
+11,19
+5000
+57
+variable v;
+Select v such that Modifies ("Earth", v)
+d,t,x,z
+5000
+71
+assign a; while w;
+Select a such that Modifies (a, "x") and Parent (w, a)
+13,20
+5000
+72
+assign a; while w;
+Select a such that Parent (w, a) and Modifies (a, "x")
+13,20
+5000
+73
+assign a; while w;
+Select a such that Modifies (a, "x") such that Parent (w, a)
+13,20
+5000
+74
+procedure p;
+Select p such that Calls* (p, "Sun")
+Planet,Earth
+5000
+76
+procedure p;
+Select p such that Calls* ("Planet", p) and Modifies (p, "z")
+Earth,Sun
+5000
+77
+assign a;
+Select a pattern a ("m", _)
+3,17
+5000
+
+
+

@@ -25,6 +25,7 @@ ProgLine* PKB::progLine;
 FollowSTable* PKB::followSTable;
 CallSTable* PKB::callSTable;
 ParentSTable* PKB::parentSTable;
+CallLine* PKB::callLine;
 
 PKB::PKB() {
 }
@@ -338,14 +339,15 @@ vector<string> PKB::affect(string n1, string n2) {
 		// for all assign in this procedure
 		//		if (isUsed(assign, modVar) && exist...(n1,assign, var)
 		//			add assign
-		string curProc = progLine->getProcedure(n1);
+		/*string curProc = progLine->getProcedure(n1);
 		vector<string> assignList = progLine->getAssignsOfProc(curProc);
 		for (unsigned i = 0; i < assignList.size(); i++) {
 			if (useTable->isUsed(assignList.at(i), modVar) &&
 				checkExistMod(n1, assignList.at(i), modVar,processed)) {
 				returnList.push_back(assignList.at(i));
 			}
-		}
+		}*/
+		returnList = getExistMod(n1, modVar, processed);
 		return returnList;
 		//find all assignments 1->as and no modify of modVar in that path and as uses modVar
 	}
@@ -457,8 +459,9 @@ vector<string> PKB::getAffectS(string n1) {
 	queue<string> q;
 	q.push(n1);
 	while (!q.empty()) {
-		vector<string> affectStmts = affect(q.front(), "_");
+		string cur = q.front();
 		q.pop();
+		vector<string> affectStmts = affect(cur, "_");
 		for (unsigned i = 0; i < affectStmts.size(); i++) {
 			if (!processed.at(atoi(affectStmts.at(i).c_str()) -1)) {
 				processed.at(atoi(affectStmts.at(i).c_str()) -1) = true;
@@ -548,3 +551,43 @@ vector<string> PKB::getAffectSReverse(string n2) {
 	}
 	//exit(EXIT_FAILURE);
 }*/
+
+CallLine* PKB::getCallLine() {
+	return callLine;
+}
+
+void PKB::setCallLine(CallLine* callLine) {
+	PKB::callLine = callLine;
+}
+
+vector<string> PKB::getExistMod(string start, string var, vector<string> processed) {
+	vector<string> returnList;
+	vector<string> temp = nextTable->getNext(start);
+	vector<string> nextStmts;
+	for (unsigned i = 0; i < temp.size(); i++) {
+		if (find(processed.begin(), processed.end(), temp.at(i)) == processed.end()) {
+			nextStmts.push_back(temp.at(i));
+		}
+	}
+	if (nextStmts.size() == 0) {
+		return returnList;
+	}
+	for (unsigned i = 0; i < nextStmts.size(); i++) {
+		string nextLine = nextStmts.at(i);
+		processed.push_back(nextLine);
+		if (progLine->getType(nextLine) == "assign") {
+			if (useTable->isUsed(nextLine, var)) {
+				returnList.push_back(nextLine);
+			}
+			if (!modifyTable->isModified(nextLine, var)) {
+				vector<string> result = getExistMod(nextLine, var, processed);
+				returnList.insert(returnList.end(), result.begin(), result.end());
+			}
+		}
+		else {
+			vector<string> result = getExistMod(nextLine, var, processed);
+			returnList.insert(returnList.end(), result.begin(), result.end());
+		}
+	}
+	return returnList;
+}

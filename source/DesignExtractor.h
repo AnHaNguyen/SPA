@@ -21,6 +21,7 @@
 #include "ParentSTable.h"
 #include "FollowSTable.h"
 #include "CallSTable.h"
+#include "CallLine.h"
 
 using namespace std;
 
@@ -87,6 +88,7 @@ private:
 	ParentSTable* parentSTable;
 	FollowSTable* followSTable;
 	CallSTable* callSTable;
+	CallLine* callLine;
 
 	int lineNumber;
 	int stmtLstNumber;
@@ -134,6 +136,7 @@ private:
 	void generateCallSTable();
 	void generateFollowSTable();
 	void generateParentSTable();
+	void generateCallLine();
 
 public:
 	DesignExtractor();

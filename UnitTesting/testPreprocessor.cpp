@@ -126,9 +126,9 @@ namespace TestPreprocessor
 		{
 			QueryPreprocessor pro5;
 			string declare5 = "assign   a1 ,  a2 ,  a3  ;  while  w ;   stmt s1  ,  s2    ;  variable  v1  ; ";
-			string input5 = "  Select w such  that   Modifies  (  a1  , v1  )   pattern  a1(  _  ,  _ \"   x   +   y  \" _   )";
+			string input5 = "  Select w such  that   Modifies  (  a1  ,  v1  )   pattern  a1(  _   ,  _  \"   x   +   y  \"  _   )   with   s1  .  stmt#   =   6";
 			QueryTree* tree5 = pro5.startProcess(declare5, input5);
-			Assert::AreEqual(true, tree5->getValidity());
+			//Assert::AreEqual(true, tree5->getValidity());
 			Assert::AreEqual((string)"w", tree5->getResult()->getResult().getSynonym());
 			Assert::AreEqual((string)"Modifies", tree5->getSuchThat()->getSynonym());
 			Assert::AreEqual((string)"a1", tree5->getSuchThat()->getFirstAttr());
@@ -136,6 +136,9 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"a1", tree5->getPattern()->getSynonym());
 			Assert::AreEqual((string)"_", tree5->getPattern()->getFirstAttr());
 			Assert::AreEqual((string)"_\"x+y\"_", tree5->getPattern()->getSecondAttr());
+			Assert::AreEqual((string)"s1", tree5->getWith()->getLeftAttrRef().getSynonym());
+			Assert::AreEqual((string)"stmt#", tree5->getWith()->getLeftAttrRef().getAttr());
+			Assert::AreEqual((string)"6", tree5->getWith()->getRightType());
 		}
 
 		TEST_METHOD(such_that_attr_not_appear_in_declaration)
@@ -894,5 +897,65 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"2", tree76->getWith()->getRightType());
 		}
 
+		TEST_METHOD(duplicated_such_that_clause) {
+			QueryPreprocessor pro77;
+			string declare77 = "assign a; variable v; procedure p1, p2; stmt s;";
+			string input77 = "Select s such that Follows(1,s) and Follows(1,s)";
+			QueryTree* tree77 = pro77.startProcess(declare77, input77);
+			Assert::AreEqual(true, tree77->getValidity());
+			Assert::AreEqual((string)"Follows", tree77->getSuchThat()->getSynonym());
+			Assert::IsNull(tree77->getSuchThat()->getNext());
+		}
+
+		TEST_METHOD(duplicated_delclaration) {
+			QueryPreprocessor pro78;
+			string declare78 = "assign a; variable a; procedure p1, p2; stmt s;";
+			string input78 = "Select s such that Follows(1,s)";
+			QueryTree* tree78 = pro78.startProcess(declare78, input78);
+			Assert::AreEqual(false, tree78->getValidity());
+		}
+
+		TEST_METHOD(extra_word_between_clause) {
+			QueryPreprocessor pro79;
+			string declare79 = "assign a1,a2; variable v; procedure p1, p2; stmt s;";
+			string input79 = "Select s such that Follows(1,s) pattern a2(_,_) yyy such that Next(a1,a2)";
+			QueryTree* tree79 = pro79.startProcess(declare79, input79);
+			Assert::AreEqual(false, tree79->getValidity());
+		}
+
+		TEST_METHOD(such_that_contain_sibling) {
+			QueryPreprocessor pro80;
+			string declare80 = "assign a1,a2; variable v; procedure p1, p2; stmt s;plus add;";
+			string input80 = "Select s such that Contains*(a1,add)   and   Sibling(p1,6)";
+			QueryTree* tree80 = pro80.startProcess(declare80, input80);
+			Assert::AreEqual(true, tree80->getValidity());
+			Assert::AreEqual((string)"Contains*", tree80->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"a1", tree80->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"add", tree80->getSuchThat()->getSecondAttr());
+			Assert::AreEqual((string)"Sibling", tree80->getSuchThat()->getNext()->getSynonym());
+			Assert::AreEqual((string)"p1", tree80->getSuchThat()->getNext()->getFirstAttr());
+			Assert::AreEqual((string)"6", tree80->getSuchThat()->getNext()->getSecondAttr());
+
+		}
+
+		TEST_METHOD(empty_declaration) {
+			QueryPreprocessor pro81;
+			string declare81 = "\n";
+			string input81 = "Select BOOLEAN such that Next(1,2)";
+			QueryTree* tree81 = pro81.startProcess(declare81, input81);
+			Assert::AreEqual(true, tree81->getValidity());
+			Assert::AreEqual((string)"Next", tree81->getSuchThat()->getSynonym());
+			Assert::AreEqual((string)"1", tree81->getSuchThat()->getFirstAttr());
+			Assert::AreEqual((string)"2", tree81->getSuchThat()->getSecondAttr());
+
+		}
+
+		TEST_METHOD(empty_clause) {
+			QueryPreprocessor pro82;
+			string declare82 = "prog_line n;";
+			string input82 = "Select BOOLEAN with such that Follows(1,2)";
+			QueryTree* tree82 = pro82.startProcess(declare82, input82);
+			Assert::AreEqual(false, tree82->getValidity());
+		}
 	};
 }

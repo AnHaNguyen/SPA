@@ -34,13 +34,14 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 	//check validity
 	if (queryTree->getValidity() == false) {
+		//final.push_back("invalid1");
 		return final;
 	}
-	/*final.push_back("valid");
-	return final;*/
+
 
 	//Initialize symtable for HUtility
 	if (queryTree->getSymbolTable().empty()) {
+		//final.push_back("invalid2");
 		return final;
 	}
 	else {
@@ -50,6 +51,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	//Handle select
 	string selType = HandleRS().handleSelect(queryTree, result);
 	if (selType == "") {
+		//final.push_back("invalid3");
 		return final;
 	}
 
@@ -227,17 +229,17 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								nextVec = nextTab->getPrevS(stSecond);
 							}
-							//Case Next*(s, s)
-							if (stFirst == stSecond) {
-								vector<NextEntry_t> nextSTable = PKB::getNextTable()->getNextSTable();
-								for (size_t i = 0; i < nextSTable.size(); i++) {
-									nextVec.clear();
-									if (HUtility().contain(nextSTable[i].nextStmts, nextSTable[i].lineNo)) {
-										nextVec.push_back(nextSTable[i].lineNo);
-									}
-								}
-							}
 							handleRS.checkSS(nextVec, stFirst, stSecond);
+						}
+					}
+					//Case Next*(s, s)
+					else if (stFirst == stSecond) {
+						nextVec.clear();
+						vector<NextEntry_t> nextSTable = PKB::getNextTable()->getNextSTable();
+						for (size_t i = 0; i < nextSTable.size(); i++) {
+							if (HUtility().contain(nextSTable[i].nextStmts, nextSTable[i].lineNo)) {
+								nextVec.push_back(nextSTable[i].lineNo);
+							}
 						}
 					}
 				}
@@ -280,16 +282,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 							if (utility.isInt(stSecond)) {
 								callVec = callSTab->getCallerS(stSecond);
 							}
-							//Case Calls*(s, s)
-							if (stFirst == stSecond) {
-								vector<CallSEntry_t> callSTable = PKB::getCallSTable()->getTable();
-								for (size_t i = 0; i < callSTable.size(); i++) {
-									callVec.clear();
-									if (HUtility().contain(callSTable[i].callees, callSTable[i].caller)) {
-										callVec.push_back(callSTable[i].caller);
-									}
-								}
-							}
 						}
 					}
 				}
@@ -304,6 +296,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 
 			//Handle affects*
+
 			if (ST == "Affects*") {
 				//Check case Affect*(1, 2)
 				if (HUtility().isInt(stFirst) && HUtility().isInt(stSecond)) {
@@ -315,14 +308,24 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 						if (affVec.size() > 0 && affVec.front() == "all") {
 							affTable = PKB::affectS();
 						}
-					}
-					else {
-						//Case Affect*(1, n)
-						if (HUtility().isInt(stFirst)) {
-							affVec = PKB::affectS(stFirst, "_");
+						else {
+							//Case Affect*(1, n)
+							if (HUtility().isInt(stFirst)) {
+								affVec = PKB::affectS(stFirst, "_");
+							}
+							if (HUtility().isInt(stSecond)) {
+								affVec = PKB::affectS("_", stSecond);
+							}
 						}
-						if (HUtility().isInt(stSecond)) {
-							affVec = PKB::affectS("_", stSecond);
+					}
+					//Case Affects*(s, s)
+					else if (stFirst == stSecond) {
+						affVec.clear();
+						vector<pair<string, vector<string>>> affTable = PKB::affectS();
+						for (size_t i = 0; i < affTable.size(); i++) {
+							if (HUtility().contain(affTable[i].second, affTable[i].first)) {
+								affVec.push_back(affTable[i].first);
+							}
 						}
 					}
 				}
@@ -345,7 +348,10 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			else {
 				currentRS.secondAtt = "";
 			}
-
+			//Check case (n, n)
+			if (stFirst == stSecond && stFirst != "_") {
+				currentRS.synCount = 1;
+			}
 			for (int i = 0; i < 14; i++) {
 				STCheck.push_back(0);
 			}
@@ -397,7 +403,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				STCheck[11] = 1;
 				currentRS.table = callTable;
 			}
-			if (!affVec.empty() && affVec.front() != "all" && affVec.front() != "") {
+			if (!affVec.empty() && affVec.front() != "all" && affVec.front() != ""&& affVec.front() != "false") {
 				STCheck[12] = 1;
 				currentRS.vec = affVec;
 			}
@@ -610,6 +616,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		loopList.push_back(i);
 	}
 
+
 	//Each iteration processes the 1st item in the queue
 	while (loopList.size() > 0) {
 		int i = loopList.front();
@@ -645,7 +652,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 			//Case 2 syns
 			if (queryRS[pos[j]].synCount == 2) {
-				for (size_t k = j+1; k < pos.size(); k++) {
+				for (size_t k = j + 1; k < pos.size(); k++) {
 					if (queryRS[pos[k]].synCount == 1) {
 						if (queryRS[pos[j]].table.size()>0 && var == queryRS[pos[j]].firstAtt) {
 							changed += utility.intersectionPSV(queryRS[pos[k]].vec, queryRS[pos[j]].table, 1);
@@ -736,6 +743,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 		}
+
 		loopList.erase(loopList.begin());
 		//If some the item's reClauses change then enqueue all reAtt that are not inside the list already (some of these will change too)
 		if (changed > 0) {
@@ -746,6 +754,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 		}
 	}
+	//return final;
 
 	//Check if any intersection results in empty vector
 	for (size_t i = 0; i < queryRS.size(); i++) {
@@ -762,10 +771,11 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		final.push_back("true");
 		return final;
 	}
-	
+
+
 	//Case normal select
 	vector<vector<string>> finalVec;
-	//Check case both control parameters are in the same clause
+	//Case 2 control parameters
 	bool checkSC = true;
 	if (result->getNext() != NULL) {
 		string var1 = result->getResult().getSynonym();
@@ -773,6 +783,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		vector<string> finalPart1;
 		vector<string> finalPart2;
 
+		//Check case both control parameters are in the same clause
 		for (size_t i = 0; i < queryRS.size(); i++) {
 			if (queryRS[i].firstAtt == var1 && queryRS[i].secondAtt == var2) {
 				if (!queryRS[i].vec.empty()) {
@@ -815,6 +826,303 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 				checkSC = false;
 				break;
+			}
+		}
+		if (!checkSC) {
+			return final;
+		}
+
+
+		//Case 1 para is found in 2 syn clause and the other found in another (n1, n2) (n2, n3)
+		vector<int> vertices;
+		vector<int> controlV1;
+		vector<int> controlV2;
+		vector<int> SSSP;
+		vector<int> curP;
+		int curV;
+		int begin;
+		int end;
+
+
+		//Find all clauses that have 2 syns and those that have begin and end nodes
+		for (size_t i = 0; i < queryRS.size(); i++) {
+			if (queryRS[i].synCount == 2 && !queryRS[i].table.empty()) {
+				if (queryRS[i].firstAtt == var1 || queryRS[i].secondAtt == var1) {
+					controlV1.push_back(i);
+				}
+				else if (queryRS[i].firstAtt == var2 || queryRS[i].secondAtt == var2) {
+					controlV2.push_back(i);
+				}
+				vertices.push_back(i);
+			}
+		}
+		
+		if (!controlV1.empty() && !controlV2.empty()) {
+			size_t maxSize = queryRS.size();
+
+			//Initializing adjList
+			vector<vector<int>> adjList;
+			for (size_t i = 0; i < maxSize; i++) {
+				vector<int> temp;
+				adjList.push_back(temp);
+			}
+			for (size_t i = 0; i < vertices.size(); i++) {
+				for (size_t j = 0; j < vertices.size(); j++) {
+					if (j != i && (queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].firstAtt
+						|| queryRS[vertices[i]].firstAtt == queryRS[vertices[j]].secondAtt
+						|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].firstAtt
+						|| queryRS[vertices[i]].secondAtt == queryRS[vertices[j]].secondAtt)) {
+						adjList[vertices[i]].push_back(vertices[j]);
+					}
+				}
+			}
+
+			//BFS
+			vector<int> visited;
+			vector<int> parent;
+			for (size_t i = 0; i < maxSize; i++) {
+				visited.push_back(0);
+				parent.push_back(-1);
+			}
+			for (size_t i = 0; i < controlV1.size(); i++) {
+				begin = controlV1[i];
+				visited[begin] = 1;
+				vector<int> qV;
+				qV.push_back(begin);
+				while (!qV.empty()) {
+					curV = qV.front();
+					qV.erase(qV.begin());
+					for (size_t j = 0; j < adjList[curV].size(); j++) {
+						if (visited[adjList[curV][j]] == 0) {
+							visited[adjList[curV][j]] = 1;
+							parent[adjList[curV][j]] = curV;
+							if (HUtility().contain(controlV2, adjList[curV][j])) {
+								end = adjList[curV][j];
+								break;
+							}
+							else {
+								qV.push_back(adjList[curV][j]);
+							}
+						}
+					}
+				}
+				//Backtracking
+				curV = end;
+				while (curV != begin) {
+					curP.push_back(curV);
+					curV = parent[curV];
+				}
+				curP.push_back(begin);
+				if (SSSP.empty() || curP.size() < SSSP.size()) {
+					SSSP = curP;
+				}
+			}
+			//Check if there exist a SSSP
+			if (!SSSP.empty()) {
+				checkSC = false;
+			}
+			//Processing from SSSP
+			vector<pair<vector<string>, vector<string>>> finalVec;
+			string comAtt;
+			int startPos;
+			vector<string> tempVec;
+
+			//Find common att
+			if (queryRS[SSSP[SSSP.size() - 1]].firstAtt == var1) {
+				startPos = 1;
+				comAtt = queryRS[SSSP[SSSP.size() - 1]].secondAtt;
+			}
+			else {
+				startPos = 2;
+				comAtt = queryRS[SSSP[SSSP.size() - 1]].firstAtt;
+			}
+			if (!queryRS[SSSP[SSSP.size() - 1]].table.empty()) {
+				pair<vector<string>, vector<string>> temp;
+				vector<pair<string, vector<string>>> table = queryRS[SSSP[SSSP.size() - 1]].table;
+				for (size_t i = 0; i < table.size(); i++) {
+					temp.first.push_back(table[i].first);
+					temp.second = table[i].second;
+					finalVec.push_back(temp);
+					temp.first.clear();
+					temp.second.clear();
+				}
+			}
+			else {
+				pair<vector<string>, vector<string>> temp;
+				vector<pair<string, string>> ssTable = queryRS[SSSP[SSSP.size() - 1]].ssTable;
+				for (size_t i = 0; i < ssTable.size(); i++) {
+					temp.first.push_back(ssTable[i].first);
+					temp.second.push_back(ssTable[i].second);
+					finalVec.push_back(temp);
+					temp.first.clear();
+					temp.second.clear();
+				}
+			}
+
+			//Bridging clauses
+			for (size_t i = SSSP.size() - 2; i >= 0; i--) {
+				if (queryRS[SSSP[i]].firstAtt == comAtt) {
+					//Case (n1, n2) (n2, n3)
+					if (startPos == 1) {
+						//Replacing finalVec.second with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].first)) {
+										for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+					//Case (n2, n1) (n2, n3)
+					else if (startPos == 2) {
+						//Replacing finalVec.first with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].first)) {
+										for (size_t n = 0; n < queryRS[SSSP[i]].table[m].second.size(); n++) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].second[n])) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].second[n]);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].first)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].second)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].second);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].secondAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+				}
+				else if (queryRS[SSSP[i]].secondAtt == comAtt) {
+					//Case (n1, n2) (n3, n2)
+					if (startPos == 1) {
+						//Replacing finalVec.second with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
+										if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].table[m].second[k])) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].first);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].second, queryRS[SSSP[i]].ssTable[m].second)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].second = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+					//Case (n2, n1) (n3, n2)
+					else if (startPos == 2) {
+						//Replacing finalVec.first with new values
+						if (!queryRS[SSSP[i]].table.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].table.size(); m++) {
+									for (size_t k = 0; k < queryRS[SSSP[i]].table[m].second.size(); k++) {
+										if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].table[m].second[k])) {
+											if (!HUtility().contain(tempVec, queryRS[SSSP[i]].table[m].first)) {
+												tempVec.push_back(queryRS[SSSP[i]].table[m].first);
+											}
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+						else if (!queryRS[SSSP[i]].ssTable.empty()) {
+							for (size_t j = 0; j < finalVec.size(); j++) {
+								for (size_t m = 0; m < queryRS[SSSP[i]].ssTable.size(); m++) {
+									if (HUtility().contain(finalVec[j].first, queryRS[SSSP[i]].ssTable[m].second)) {
+										if (!HUtility().contain(tempVec, queryRS[SSSP[i]].ssTable[m].first)) {
+											tempVec.push_back(queryRS[SSSP[i]].ssTable[m].first);
+										}
+									}
+								}
+								comAtt = queryRS[SSSP[i]].firstAtt;
+								finalVec[j].first = tempVec;
+								tempVec.clear();
+							}
+						}
+					}
+				}
+				if (i == 0) {
+					break;
+				}
+			}
+			if (startPos == 1) {
+				for (size_t i = 0; i < finalVec.size(); i++) {
+					for (size_t j = 0; j < finalVec[i].first.size(); j++) {
+						for (size_t k = 0; k < finalVec[i].second.size(); k++) {
+							final.push_back(finalVec[i].first[j] + " " + finalVec[i].second[k]);
+						}
+					}
+				}
+			}
+			if (startPos == 2) {
+				for (size_t i = 0; i < finalVec.size(); i++) {
+					for (size_t j = 0; j < finalVec[i].second.size(); j++) {
+						for (size_t k = 0; k < finalVec[i].first.size(); k++) {
+							final.push_back(finalVec[i].second[j] + " " + finalVec[i].first[k]);
+						}
+					}
+				}
 			}
 		}
 		if (!checkSC) {

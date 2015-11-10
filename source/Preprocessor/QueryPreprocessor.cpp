@@ -26,7 +26,7 @@ vector<string> QueryPreprocessor::start(string line) {
 	}
 	QueryTree* tree = startProcess(declare, input);
 	if (tree->getValidity() == false) {
-		cout << "================== Invalid QueryTree ===================" << endl;
+		//cout << "================== Invalid QueryTree ===================" << endl;
 	}
 	//vector<string> result;
 	//return result;
@@ -36,9 +36,11 @@ vector<string> QueryPreprocessor::start(string line) {
 
 QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 	declare = trim(declare);
-	declare = removeMultipleSpace(declare);
 	input = trim(input);
-	input = removeMultipleSpace(input);
+	if (declare.length() > 0 && input.length() > 0) {
+		declare = removeMultipleSpace(declare);
+		input = removeMultipleSpace(input);
+	}
 
 
 	QueryTree* tree = new QueryTree();
@@ -60,7 +62,7 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 		//	printTable(selections);
 	}
 	else {
-		cout << "wrong select" << endl;
+		//cout << "wrong select" << endl;
 		tree->setValidity(false);
 		return tree;
 	}
@@ -91,6 +93,9 @@ QueryTree* QueryPreprocessor::startProcess(string declare, string input) {
 
 bool QueryPreprocessor::isValidDeclaration(string declare){
 	string str = declare;
+	if (str.length() == 0 || str=="\n") {
+		return true;
+	}
 	if (str.find(";") == string::npos) {
 		return false;
 	}
@@ -160,18 +165,27 @@ bool QueryPreprocessor::isValidSelection(string input){
 }
 
 bool QueryPreprocessor::isValidSuchThat(){
+
 	for (int i = 0; i < relations.size(); i++) {
 		string clause = relations[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong such that 1" << endl;
+			//cout << "wrong such that 1" << endl;
 			return false;
 		}
 		if (countWords(clause, ",")>2) {
-			cout << "wrong such that 2" << endl;
+			//cout << "wrong such that 2" << endl;
 			return false;
 		}
+		vector <string> seperate = stringToVector(clause, ")");
+		if (seperate.size() > 0) {
+			if (trim(seperate[1]) != "") {
+				//cout << " extra word: " << seperate[1] << endl;
+				return false;
+			}
+		}
 	}
+
 	return true;
 }
 
@@ -180,12 +194,19 @@ bool QueryPreprocessor::isValidPattern(){
 		string clause = patterns[i];
 		if (clause.find("(") == string::npos || clause.find(")") == string::npos
 			|| clause.find(",") == string::npos) {
-			cout << "wrong pattern 1" << endl;
+			//cout << "wrong pattern 1" << endl;
 			return false;
 		}
 		if (countWords(clause, ",")>3) {
-			cout << "wrong pattern 2" << endl;
+			//cout << "wrong pattern 2" << endl;
 			return false;
+		}
+		vector <string> seperate = stringToVector(clause, ")");
+		if (seperate.size() > 0) {
+			if (trim(seperate[1]) != "") {
+				//cout << " extra word: " << seperate[1] << endl;
+				return false;
+			}
 		}
 	}
 	return true;
@@ -276,6 +297,7 @@ vector<string> QueryPreprocessor::setClauseTable(vector< vector<string> > table)
 }
 
 vector<string> QueryPreprocessor::setClauseTableForSuchThat(vector< vector<string> > table) {
+
 	vector<string> newTable;
 	for (int i = 0; i<table.size(); i++) {
 		string str = table[i][1];
@@ -288,6 +310,7 @@ vector<string> QueryPreprocessor::setClauseTableForSuchThat(vector< vector<strin
 
 	newTable = sortAttribute(newTable);
 	newTable = sortRelation(newTable);
+
 	return newTable;
 }
 
@@ -304,11 +327,11 @@ void QueryPreprocessor::setDeclarationTable(string declare){
     declarations.pop_back();
 }
 
-void QueryPreprocessor::setSuchThatTable(string input){
+void QueryPreprocessor::setSuchThatTable(string input) {
 
-    string str = removeMultipleSpace(input);
+	string str = removeMultipleSpace(input);
 	vector< vector<string> > suchThatClauses = seperateClause(str, "such that");
-	relations = setClauseTableForSuchThat(suchThatClauses);	
+	relations = setClauseTableForSuchThat(suchThatClauses);
 }
 
 vector<string> QueryPreprocessor::sortAttribute(vector<string> table) {
@@ -371,6 +394,9 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	vector<string> NextS;
 	vector<string> Affects;
 	vector<string> AffectsS;
+	vector<string> Contains;
+	vector<string> ContainsS;
+	vector<string> Sibling;
 	vector<string> others;
 	vector<string> sorted;
 
@@ -417,6 +443,15 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 		else if (syn == "Affects*") {
 			AffectsS.push_back(str);
 		}
+		else if (syn == "Contains") {
+			Contains.push_back(str);
+		}
+		else if (syn == "Contains*") {
+			ContainsS.push_back(str);
+		}
+		else if (syn == "Sibling") {
+			Sibling.push_back(str);
+		}
 		else {
 			others.push_back(str);
 		}
@@ -458,10 +493,36 @@ vector<string> QueryPreprocessor::sortRelation(vector<string> table) {
 	for (int i = 0; i < AffectsS.size(); i++) {
 		sorted.push_back(AffectsS[i]);
 	}
+	for (int i = 0; i < Contains.size(); i++) {
+		sorted.push_back(Contains[i]);
+	}
+	for (int i = 0; i < ContainsS.size(); i++) {
+		sorted.push_back(ContainsS[i]);
+	}
+	for (int i = 0; i < Sibling.size(); i++) {
+		sorted.push_back(Sibling[i]);
+	}
+
+
 	for (int i = 0; i < others.size(); i++) {
 		sorted.push_back(others[i]);
 	}
-	return sorted;
+
+	if (sorted.size() > 1) {
+		for (int i = 0; i < sorted.size() - 1; i++) {
+			if (sorted[i] == sorted[i + 1]) {
+				sorted[i + 1] = "This is duplicated";
+			}
+		}
+	}
+	vector<string> removeDuplicate;
+	for (int i = 0; i < sorted.size(); i++) {
+		if (sorted[i] != "This is duplicated") {
+			removeDuplicate.push_back(sorted[i]);
+		}
+	}
+
+	return removeDuplicate;
 }
 
 void QueryPreprocessor::setPatternTable(string input){
@@ -544,6 +605,9 @@ string QueryPreprocessor::trim(string str){
 }
 
 string QueryPreprocessor::removeMultipleSpace(string str){
+	if (str.length() < 1) {
+		return str;
+	}
 
     string result = "";
     for(int i=0; i<str.size()-1; i++){
@@ -558,6 +622,9 @@ string QueryPreprocessor::removeMultipleSpace(string str){
 }
 
 string QueryPreprocessor::removeSpace(string str) {
+	if (str.length() < 1) {
+		return str;
+	}
 	string result = "";
 	for (int i = 0; i<str.size(); i++) {
 		if (str.at(i) != ' ') {

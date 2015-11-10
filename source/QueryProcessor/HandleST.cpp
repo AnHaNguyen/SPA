@@ -6,7 +6,7 @@ void HandleST::handleFollows(string &firstAtt, string &secondAtt, vector<string>
 	FollowTable* folTab = PKB::getFollowTable();
 	//Case 1st: n/s
 	if (firstAtt == "_" || HUtility().getSymMean(firstAtt) == "prog_line" || HUtility().getSymMean(firstAtt) == "stmt"
-		|| HUtility().getSymMean(firstAtt) == "assign") {
+		|| HUtility().getSymMean(firstAtt) == "assign" || HUtility().getSymMean(firstAtt) == "if" || HUtility().getSymMean(firstAtt) == "while") {
 		//Case 2nd: n/s
 		if (secondAtt == "_" || HUtility().getSymMean(secondAtt) == "prog_line" || HUtility().getSymMean(secondAtt) == "stmt"
 			|| HUtility().getSymMean(secondAtt) == "assign" || HUtility().getSymMean(secondAtt) == "if" || HUtility().getSymMean(secondAtt) == "while") {
@@ -49,9 +49,11 @@ void HandleST::handleModifies(string &firstAtt, string &secondAtt, vector<string
 		}
 	}
 	//Case 1st: 1, 2
-	else if (HUtility().isInt(firstAtt)) {
+	else {
+		pair<string, bool> firstAttQ;
+		HUtility().checkQuotation(firstAttQ, firstAtt);
 		if (HUtility().getSymMean(secondAtt) == "variable" || secondAtt == "_") {
-			modVec = modTab->getModified(firstAtt);
+			modVec = modTab->getModified(firstAttQ.first);
 		}
 		else if (modTab->isModified(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
 			modVec.push_back("true");
@@ -111,9 +113,11 @@ void HandleST::handleUses(string &firstAtt, string &secondAtt, vector<string> &u
 		}
 	}
 	//Case 1st: 123
-	else if (HUtility().isInt(firstAtt)) {
+	else {
+		pair<string, bool> firstAttQ;
+		HUtility().checkQuotation(firstAttQ, firstAtt);
 		if (HUtility().getSymMean(secondAtt) == "variable" || HUtility().getSymMean(secondAtt) == "_") {
-			useVec = useTab->getUsed(firstAtt);
+			useVec = useTab->getUsed(firstAttQ.first);
 		}
 		else if (useTab->isUsed(firstAtt, secondAtt.substr(1, secondAtt.size() - 2))) {
 			useVec.push_back("true");
