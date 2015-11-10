@@ -30,6 +30,7 @@
 # Build result
 Debug/
 Release/
+testing_molin/
 **/Debug/**
 **/Release/**
 **/Debug/analysis.xsl

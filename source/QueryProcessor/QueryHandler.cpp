@@ -336,6 +336,19 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					}
 				}
 			}
+			//Handle contains
+			if (ST == "Contains") {
+				handleST.handleContain(conVec, conTable, stFirst, stSecond);
+			}
+			//Handle contains*
+			if (ST == "Contains*") {
+				handleST.handleContain(conVec, conTable, stFirst, stSecond);
+			}
+
+			//Handle sibling
+			if (ST == "Sibling") {
+				handleST.handleSibling(sibVec, sibTable, stFirst, stSecond);
+			}
 
 			//Populate queryRS
 			RSEntry_t currentRS;

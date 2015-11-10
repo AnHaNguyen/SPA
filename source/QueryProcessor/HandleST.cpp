@@ -241,8 +241,97 @@ void HandleST::handleAffect(string firstAtt, string secondAtt, vector<string> &a
 	}
 }
 
-void HandleST::handleContain(vector<string> &conVec, vector<pair<string, string>> &sibVec, string firstAtt, string secondAtt) {
+void HandleST::handleContain(vector<string> &conVec, vector<pair<string, string>> &conTable, string firstAtt, string secondAtt) {
+	if (HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		conVec = PKB::contains(firstAtt, HUtility().isInt(firstAtt), secondAtt, HUtility().isInt(secondAtt));
+	}
+	if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		conVec = PKB::contains(firstAtt, HUtility().isInt(firstAtt), sym2, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		conVec = PKB::contains(HUtility().getSymMean(firstAtt), HUtility().isInt(firstAtt), sym1, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		conTable = PKB::contains(sym1, sym2);
+	}
+}
 
+void HandleST::handleContainS(vector<string> &conVec, vector<pair<string, string>> &conTable, string firstAtt, string secondAtt) {
+	if (HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		conVec = PKB::containsS(firstAtt, HUtility().isInt(firstAtt), secondAtt, HUtility().isInt(secondAtt));
+	}
+	if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		conVec = PKB::containsS(firstAtt, HUtility().isInt(firstAtt), sym2, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		conVec = PKB::containsS(HUtility().getSymMean(firstAtt), HUtility().isInt(firstAtt), sym1, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		conTable = PKB::containsS(sym1,sym2);
+	}
+}
+
+void HandleST::handleSibling(vector<string> &sibVec, vector<pair<string, string>> &sibTable, string firstAtt, string secondAtt) {
+	if (HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		sibVec = PKB::contains(firstAtt, HUtility().isInt(firstAtt), secondAtt, HUtility().isInt(secondAtt));
+	}
+	if (HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		sibVec = PKB::contains(firstAtt, HUtility().isInt(firstAtt), sym2, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		sibVec = PKB::contains(HUtility().getSymMean(firstAtt), HUtility().isInt(firstAtt), sym1, HUtility().isInt(secondAtt));
+	}
+	if (!HUtility().isInt(firstAtt) && !HUtility().isInt(secondAtt)) {
+		string sym1 = HUtility().getSymMean(secondAtt);
+		if (sym1 == "prog_line") {
+			sym1 = "stmt";
+		}
+		string sym2 = HUtility().getSymMean(secondAtt);
+		if (sym2 == "prog_line") {
+			sym2 = "stmt";
+		}
+		sibTable = PKB::contains(sym1, sym2);
+	}
 }
 
 bool HandleST::isFollowsS(string firstAtt, string secondAtt) {
