@@ -151,6 +151,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				if (parVec.size() > 0 && parVec.front() == "all") {
 					utility.getParentTable(parTable);
 					handleRS.checkPSV(parTable, stFirst, stSecond);
+					/*final.push_back(to_string(parTable.size()));
+					return final;*/
 				}
 				else if (parVec.size() > 0 && parVec.front() != "true" && parVec.front() != "") {
 					handleRS.checkSS(parVec, stFirst, stSecond);
@@ -371,7 +373,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			if (stFirst == stSecond && stFirst != "_") {
 				currentRS.synCount = 1;
 			}
-			for (int i = 0; i < 14; i++) {
+			for (int i = 0; i < 18; i++) {
 				STCheck.push_back(0);
 			}
 			if (!folVec.empty() && folVec.front() != "all" && folVec.front() != "") {
@@ -429,6 +431,22 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			if (!affTable.empty()) {
 				STCheck[13] = 1;
 				currentRS.table = affTable;
+			}
+			if (!conVec.empty() && conVec.front() != "all" && conVec.front() != ""&& conVec.front() != "false") {
+				STCheck[14] = 1;
+				currentRS.vec = conVec;
+			}
+			if (!conTable.empty()) {
+				STCheck[15] = 1;
+				currentRS.ssTable = conTable;
+			}
+			if (!sibVec.empty() && sibVec.front() != "all" && sibVec.front() != ""&& sibVec.front() != "false") {
+				STCheck[16] = 1;
+				currentRS.vec = sibVec;
+			}
+			if (!sibTable.empty()) {
+				STCheck[17] = 1;
+				currentRS.ssTable = sibTable;
 			}
 
 			//Check if all empty
