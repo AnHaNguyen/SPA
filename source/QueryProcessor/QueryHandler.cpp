@@ -824,6 +824,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 		}
+		loopList.erase(loopList.begin());
 
 		//If some the item's reClauses change then enqueue all reAtt that are not inside the list already (some of these will change too)
 		if (changed > 0) {
@@ -833,7 +834,6 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				}
 			}
 		}
-		loopList.erase(loopList.begin());
 	}
 	//return final;
 
