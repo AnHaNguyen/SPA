@@ -675,14 +675,20 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 		loopList.push_back(i);
 	}
 
-
+	int w = 0;
 	//Each iteration processes the 1st item in the queue
 	while (loopList.size() > 0) {
 		int i = loopList.front();
 		string var = attList[i].att;
 		vector<int> pos = attList[i].reClause;
 		int changed = 0;
-
+		/*string temp;
+		temp += to_string(w) + " " + "a: ";
+		for (size_t w1 = 0; w1 < queryRS[0].ssTable.size(); w1++) {
+			temp += " " + queryRS[0].ssTable[w1].first;
+		}
+		final.push_back(temp);
+		w++;*/
 		for (size_t j = 0; j < pos.size(); j++) {
 			//Case 1 syn
 			if (queryRS[pos[j]].synCount == 1) {
@@ -854,6 +860,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 	}
 
 
+
 	//Case normal select
 	vector<vector<string>> finalVec;
 	//Case 2 control parameters
@@ -927,8 +934,8 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 		//Find all clauses that have 2 syns and those that have begin and end nodes
 		for (size_t i = 0; i < queryRS.size(); i++) {
-			if (queryRS[i].synCount == 2 && 
-				(!queryRS[i].table.empty()||!queryRS[i].ssTable.empty())) {
+			if (queryRS[i].synCount == 2 &&
+				(!queryRS[i].table.empty() || !queryRS[i].ssTable.empty())) {
 				if (queryRS[i].firstAtt == var1 || queryRS[i].secondAtt == var1) {
 					controlV1.push_back(i);
 				}
@@ -938,7 +945,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 				vertices.push_back(i);
 			}
 		}
-		
+
 		if (!controlV1.empty() && !controlV2.empty()) {
 			size_t maxSize = queryRS.size();
 
@@ -1254,6 +1261,18 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			if (selType == "if") {
 				finalPart = progLine->getLinesOfType("if");
 			}
+			if (selType == "call") {
+				if (result->getResult().getAttr() == "stmt#") {
+					finalPart = progLine->getLinesOfType("call");
+				}
+				else {
+					for (size_t i = 0; i < progLine->getLinesOfType("call").size(); i++) {
+						if (!HUtility().contain(finalPart, PKB::getCallLine()->getCallee(progLine->getLinesOfType("call")[i]))) {
+							finalPart.push_back(PKB::getCallLine()->getCallee(progLine->getLinesOfType("call")[i]));
+						}
+					}
+				}
+			}
 		}
 		else {
 			//Return normal case
@@ -1279,6 +1298,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 										for (size_t k = 0; k < queryRS[attList[i].reClause[j]].table.size(); k++) {
 											for (size_t m = 0; m < queryRS[attList[i].reClause[j]].table[k].second.size(); m++) {
 												finalPart.push_back(queryRS[attList[i].reClause[j]].table[k].second[m]);
+												
 											}
 										}
 										found = true;

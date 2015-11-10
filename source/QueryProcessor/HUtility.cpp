@@ -353,7 +353,7 @@ int HUtility::intersectionPSS(vector<string> &vec1, vector<pair<string, string>>
 					if (!HUtility().contain(ansVec1, vec1[i])) {
 						ansVec1.push_back(vec1[i]);
 					}
-					if (!HUtility().contain(ansVec2, vec2[i])) {
+					if (!HUtility().contain(ansVec2, vec2[j])) {
 						ansVec2.push_back(vec2[j]);
 					}
 				}
