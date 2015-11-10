@@ -338,7 +338,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			}
 			//Handle contains*
 			if (ST == "Contains*") {
-				handleST.handleContain(conVec, conTable, stFirst, stSecond);
+				handleST.handleContainS(conVec, conTable, stFirst, stSecond);
 			}
 
 			//Handle sibling
@@ -729,78 +729,96 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 					if (queryRS[pos[k]].synCount == 2) {
 						//case table vs table
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt&&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 1);
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 2);
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 1);
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 2);
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0) {
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 2);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 2, 2);
+							}
 						}
 
 						//Case foltable vs foltable
-						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 1);
+						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0) {
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 2);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 2);
+							}
 						}
-						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 1, 2);
-						}
-						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 1);
-						}
-						if (queryRS[pos[j]].ssTable.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSS(queryRS[pos[j]].ssTable, queryRS[pos[k]].ssTable, 2, 2);
-						}
-
 						//Case foltable vs table
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 1);
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0) {
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 1);
+							}
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 2);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 2);
+							}
 						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 1);
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 1, 2);
-						}
-						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].ssTable.size() > 0 &&
-							queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[k]].ssTable, queryRS[pos[j]].table, 2, 2);
-						}
-
-						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
-							queryRS[pos[k]].firstAtt == queryRS[pos[j]].firstAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 1);
-						}
-						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
-							queryRS[pos[k]].firstAtt == queryRS[pos[j]].secondAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 1);
-						}
-						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
-							queryRS[pos[k]].secondAtt == queryRS[pos[j]].firstAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 2);
-						}
-						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0 &&
-							queryRS[pos[k]].secondAtt == queryRS[pos[j]].secondAtt) {
-							changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 2);
+						if (queryRS[pos[k]].table.size() > 0 && queryRS[pos[j]].ssTable.size() > 0) {
+							if (queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].secondAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 1);
+							}
+							if (queryRS[pos[j]].secondAtt == queryRS[pos[k]].firstAtt &&
+								queryRS[pos[j]].firstAtt == queryRS[pos[k]].secondAtt) {
+								changed += utility.specialPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 1);
+							}
+							if (queryRS[pos[k]].firstAtt == queryRS[pos[j]].firstAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 1);
+							}
+							if (queryRS[pos[k]].firstAtt == queryRS[pos[j]].secondAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 1);
+							}
+							if (queryRS[pos[k]].secondAtt == queryRS[pos[j]].firstAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 1, 2);
+							}
+							if (queryRS[pos[k]].secondAtt == queryRS[pos[j]].secondAtt) {
+								changed += utility.intersectionPPSM(queryRS[pos[j]].ssTable, queryRS[pos[k]].table, 2, 2);
+							}
 						}
 					}
 				}

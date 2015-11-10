@@ -797,7 +797,7 @@ int HUtility::specialPPSS(vector<pair<string, string>> &vec1, vector<pair<string
 	vector<pair<string, string>> ansVec2;
 	if (att1 == 1 && att2 == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec1[i].first == vec2[j].first && vec1[i].second == vec2[j].second) {
 					ansVec1.push_back(vec1[i]);
 				}
@@ -811,7 +811,7 @@ int HUtility::specialPPSS(vector<pair<string, string>> &vec1, vector<pair<string
 	}
 	if (att1 == 2 || att2 == 2) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec1[i].second == vec2[j].first && vec1[i].first == vec2[j].second) {
 					ansVec1.push_back(vec1[i]);
 					ansVec2.push_back(vec2[j]);
@@ -834,7 +834,7 @@ int HUtility::specialPPSM(vector<pair<string, string>> &vec1, vector<pair<string
 
 	if (att1 = 1 && att2 == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec1[i].first == vec2[j].first) {
 					if (HUtility().contain(vec2[j].second, vec1[i].second)) {
 						ansVec1.push_back(vec1[i]);
@@ -853,7 +853,7 @@ int HUtility::specialPPSM(vector<pair<string, string>> &vec1, vector<pair<string
 	}
 	if (att1 == 2 || att2 == 2) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec1[i].second == vec2[j].first) {
 					if (HUtility().contain(vec2[j].second, vec1[i].first)) {
 						ansVec1.push_back(vec1[i]);
@@ -882,10 +882,10 @@ int HUtility::specialPPSV(vector<pair<string, vector<string>>> &vec1, vector<pai
 
 	if (att1 == 1 && att2 == 1) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (vec1[i].first == vec2[j].first) {
 					temp1.first = vec1[i].first;
-					for (size_t k; k < vec1[i].second.size(); k++) {
+					for (size_t k=0; k < vec1[i].second.size(); k++) {
 						if (HUtility().contain(vec2[j].second, vec1[i].second[k])) {
 							temp1.second.push_back(vec1[i].second[k]);
 						}
@@ -893,6 +893,7 @@ int HUtility::specialPPSV(vector<pair<string, vector<string>>> &vec1, vector<pai
 					if (temp1.second.size()>0) {
 						ansVec1.push_back(temp1);
 					}
+					temp1.second.clear();
 				}
 			}
 		}
@@ -904,7 +905,7 @@ int HUtility::specialPPSV(vector<pair<string, vector<string>>> &vec1, vector<pai
 	}
 	if (att1 == 2 || att2 == 2) {
 		for (size_t i = 0; i < vec1.size(); i++) {
-			for (size_t j = 0; j < vec2.size; j++) {
+			for (size_t j = 0; j < vec2.size(); j++) {
 				if (HUtility().contain(vec1[i].second, vec2[j].first)) {
 					temp1.second.push_back(vec2[j].first);
 					temp2.first = vec2[j].first;
