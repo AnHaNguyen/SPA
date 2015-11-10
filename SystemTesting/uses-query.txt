@@ -1,0 +1,25 @@
+1 -
+assign a1;
+Select a1 such that Uses(a1, "x");
+4, 5, 10, 13, 14, 18, 20, 21
+5000
+2 -
+variable v1;
+Select v1 such that Uses(5, v1);
+a, x, y, z
+5000
+3 -
+stmt s1;
+Select s1 such that Uses(s1, "z");
+5, 7, 8, 11, 17, 19, 22, 23, 25
+5000
+4 -
+stmt s1;
+Select s1 such that Uses(s1, "k");
+7, 17, 19, 22, 23
+5000
+5 -
+variable v1;
+Select v1 such that Uses(17, v1)
+a, i, k, x, y, z
+5000

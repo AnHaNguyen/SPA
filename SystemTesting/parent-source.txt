@@ -1,0 +1,19 @@
+procedure First{
+  x=1;
+  z=3;
+  while x{
+    x=x-1;
+    while x{
+      y=x-1;
+      while y{
+        x=x+2;
+        while y{
+        y=1+1;
+          while x{
+            x=2;}}}}}}
+procedure Second{
+a=1;
+while a{
+  b=1+a;
+  while a{
+    b=b-1;}}}

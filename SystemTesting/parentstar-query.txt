@@ -1,0 +1,20 @@
+1 -
+stmt s1,s2;
+Select s1 such that Parent*(s1, s2);
+3, 5, 7, 9, 11, 14, 16
+5000
+2 -
+stmt s1;
+Select s1 such that Parent*(s1, 8);
+3, 5, 7
+5000
+3-
+stmt s1;
+Select s1 such that Parent*(8, s1);
+
+5000
+4 -
+stmt s1;
+Select s1 such that Parent*(7, s1);
+8, 9, 10, 11, 12
+5000

@@ -193,6 +193,7 @@ void QueryTree::setWith(vector<string> table) {
 	if (table.size() == 0) return;
 
 	PreWithNode* withPtr = with;
+	PreWithNode* prevPtr = withPtr;
 	for (int i = 0; i<table.size(); i++) {
 		string str = table[i];
 		str = removeSpace(str);
@@ -230,9 +231,11 @@ void QueryTree::setWith(vector<string> table) {
 		}
 
 		PreWithNode* nextNode = new PreWithNode();
+		prevPtr = withPtr;
 		withPtr->setNext(nextNode);
 		withPtr = withPtr->getNext();
 	}
+	prevPtr->setNext(NULL);
 }
 
 bool QueryTree::isAssign(string str) {

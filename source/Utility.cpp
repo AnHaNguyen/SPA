@@ -53,3 +53,23 @@ void Utility::sort(vector<string> origin) {
 void Utility::sort(vector<int> origin) {
 	sort(origin);
 }
+
+vector<pair<string, string>> Utility::removeDuplicate(vector<pair<string, string>> origin) {
+	vector<pair<string, string>> returnList;
+	bool isSame = false;
+	for (unsigned i = 0; i < origin.size()-1; i++) {
+		pair<string, string> pr = origin.at(i);
+		isSame = false;
+		for (unsigned j = i+1; j < origin.size(); j++) {
+			pair<string, string> cmpPr = origin.at(j);
+			if (pr.first == cmpPr.first && pr.second == cmpPr.second) {
+				isSame = true;
+			}
+		}
+		if (!isSame) {
+			returnList.push_back(pr);
+		}
+	}
+	returnList.push_back(origin.at(origin.size()-1));
+	return returnList;
+}

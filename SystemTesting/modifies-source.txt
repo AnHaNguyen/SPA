@@ -1,0 +1,29 @@
+procedure First{
+  x=3;
+  y=2;
+  z=1;
+  a=x+y;
+  b=x+y+z+a+5;
+  c=a+b;
+  call Second;
+  while y{
+    y=y-1;
+    z=y+x;
+    b=y+z;}
+    while x{
+      x=x-1;}}
+procedure Second{
+  x=4+x;
+  y=1+y;
+  a=a-1;
+  while x{
+    z=x-1;
+    call Third;}}
+procedure Third{
+  z=x+1;
+  i=x+y;
+  while i{
+    while x{
+      z=i-1;
+      j=1+1;
+      x=1+1;}}}

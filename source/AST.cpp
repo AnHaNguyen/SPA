@@ -186,3 +186,14 @@ bool AST::compareSubtree(TNode* root1, TNode* root2) {
 	}
 	return false;
 }
+
+vector<TNode*> AST::getStmtNode() {
+	vector<TNode*> returnNode;
+	for (unsigned i = 0; i < tree.size(); i++) {
+		string type = tree.at(i)->getType();
+		if (type == "assign" || type == "call" || type == "if" || type == "while") {
+			returnNode.push_back(tree.at(i));
+		}
+	}
+	return returnNode;
+}

@@ -39,6 +39,7 @@ private: static FollowTable* followTable;
 
 		 static vector<string> getAffectS(string n1);
 		 static vector<string> getAffectSReverse(string n2);
+		 static bool isEqualType(string n1, string n2);
 public:
 		 PKB();
 		 ~PKB();
@@ -96,6 +97,15 @@ public:
 		//Optimization
 		 //static void updateProgLine();
 		 //static void updateProgLineParent();
+		 static vector<string> contains(string n1, bool isInt1, string n2,bool isInt2);
+		 static vector<pair<string, string>> contains(string n1, string n2);
+		 
+		 static vector<string> containsS(string n1, bool isInt1, string n2, bool isInt2);
+		 static vector<pair<string, string>> containsS(string n1, string n2);
+		 
+		 static vector<string> sibling(string n1,bool isInt1, string n2, bool isInt2);
+		 static vector<pair<string,string>> sibling(string n1,string n2);
+		 static string returnValue(TNode* tnode);
 };
 
 #endif

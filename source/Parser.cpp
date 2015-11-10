@@ -45,7 +45,7 @@ vector<string> Parser::processFile(string fName) {
 		file.close();
 	}
 	else {
-		error("File cannot open ");
+		error("File cannot open 48");
 	}
 
 	stringList1 = moveCloseCurlyBracket(trimmedList(stringList));
@@ -66,14 +66,14 @@ vector<string> Parser::checkSyntax(vector<string> stringList) {
 	string str, type, errorMsg;
 
 	if (checkAllBrackets(stringList) == false) {
-		error(errorTypeList[1]);
+		error(errorTypeList[1] + "62");
 	}
 
 	str = stringList[i++];
 	errorMsg = checkFirstLine(stringList);
 
 	if (!errorMsg.empty()) {
-		error(errorMsg);
+		error(errorMsg + "check first line 69");
 	}
 
 	errorMsg = processStmtType(stringList);
@@ -94,14 +94,13 @@ string Parser::processStmtType(vector<string> stringList) {
 
 		stringstream  sentence(str);
 		sentence >> type;
-
+		//cout <<"type is " <<type << "\n";
 		if (type == "procedure") {
 			errorMsg = checkProcedure(stringList, i);
 
 		}
 		else if (type == "call") {
 			errorMsg = checkCall(stringList, i);
-
 		}
 		else if (type == "if") {
 			errorMsg = checkIf(stringList, i);
@@ -118,7 +117,6 @@ string Parser::processStmtType(vector<string> stringList) {
 		else {
 
 			errorMsg = checkAssign(stringList[i]);
-
 		}
 		if (!errorMsg.empty()) {
 			return errorMsg;
@@ -132,11 +130,11 @@ string Parser::checkFirstLine(vector<string> stringList) {
 	stringstream  sentence(stringList[0]);
 	sentence >> type;
 	if (type != "procedure") {
-		return errorTypeList[6];
+		return errorTypeList[6] + "126";
 	}
 	else {
 		error = checkProcedure(stringList, 0);
-		return error;
+		return error;//+"check procedure at 131    ";
 	}
 }
 
@@ -159,13 +157,13 @@ string Parser::checkProcedure(vector<string> stringList, int startLine) {
 			sentenceNew >> word3;
 		}
 		else if (word3 != "{") {
-			return errorTypeList[1];
+			return errorTypeList[1] + "153";
 		}
 		if (!isName(word2)) {
-			return errorTypeList[5];
+			return errorTypeList[5] + "156";
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 159    ";
 		}
 		return "";
 	}
@@ -174,12 +172,12 @@ string Parser::checkProcedure(vector<string> stringList, int startLine) {
 			return errorTypeList[5];
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 168    ";
 		}
 		return "";
 	}
 	else {
-		return errorTypeList[4];
+		return errorTypeList[4] + "173";
 	}
 }
 
@@ -189,7 +187,7 @@ string Parser::checkCall(vector<string> stringList, int startLine) {
 	string str = stringList[startLine];
 	stringstream sentence(str);
 	sentence >> type >> word2;
-
+	//	cout << "\n\n" << "The string at 224 is " << str << "\n\n";
 	if (word2.empty()) {
 		startLine++;
 		stringstream  sentenceNew(stringList[startLine]);
@@ -204,10 +202,10 @@ string Parser::checkCall(vector<string> stringList, int startLine) {
 			sentenceNew >> word3;
 		}
 		else if (word3 != ";") {
-			return errorTypeList[8];
+			return errorTypeList[8] + "197";
 		}
 		if (!isName(word2)) {
-			return errorTypeList[5];
+			return errorTypeList[5] + "200";
 		}
 		return "";
 	}
@@ -219,14 +217,14 @@ string Parser::checkCall(vector<string> stringList, int startLine) {
 		return "";
 	}
 	else {
-		return errorTypeList[7];
+		return errorTypeList[7] + "211";
 	}
 
 }
 
 string Parser::checkAssign(string str) {
 	string varName, expr;
-
+	//	cout <<"\n\n"<< "The string at 224 is "<<str<<"\n\n";
 	size_t found1, found2;
 	found1 = str.find('=');
 	found2 = str.find(';');
@@ -237,12 +235,12 @@ string Parser::checkAssign(string str) {
 		}
 		expr = str.substr(found1 + 1, found2 - (found1 + 1));
 		if (!isExpression(expr)) {
-			return errorTypeList[2];
+			return errorTypeList[2] + "229";
 		}
 		return "";
 	}
 	else {
-		return errorTypeList[13];
+		return errorTypeList[13] + "234";
 	}
 
 }
@@ -251,7 +249,7 @@ string Parser::checkIf(vector<string> stringList, int startLine) {
 	string type, word2, word3, word4;
 	stringstream  sentence(stringList[startLine]);
 	sentence >> type >> word2 >> word3;
-
+	//cout << stringList[startLine] << "End here \n\n";
 	if (word2.empty()) {
 		startLine++;
 		stringstream  sentenceNew(stringList[startLine]);
@@ -273,13 +271,13 @@ string Parser::checkIf(vector<string> stringList, int startLine) {
 			sentenceNew >> word4;
 		}
 		else if (word4 != "{") {
-			return errorTypeList[1];
+			return errorTypeList[1] + "265";
 		}
 		if (!isName(word2)) {
 			return " " + word2 + errorTypeList[5];
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 271    ";
 		}
 		return "";
 	}
@@ -291,13 +289,13 @@ string Parser::checkIf(vector<string> stringList, int startLine) {
 		}
 		//	cout << "REACH HERE2";
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 280    ";
 		}
 		//cout << "REACH HERE3";
 		return "";
 	}
 	else {
-		return errorTypeList[11];
+		return errorTypeList[11] + "285";
 	}
 	return "Should not reach here";
 }
@@ -318,18 +316,18 @@ string Parser::checkElse(vector<string> stringList, int startLine) {
 
 	if (elseStmt.find('{') != string::npos && elseStmt.find('{') > elseStmt.find("else")) {
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 306    ";
 		}
 		return "";
 	}
 	else if (elseStmt1.find('{') != string::npos) {
 		if (isStmtLst(stringList, startLine + 1) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 312    ";
 		}
 		return "";
 	}
 	else {
-		return errorTypeList[12];
+		return errorTypeList[12] + "317";
 	}
 }
 
@@ -352,13 +350,13 @@ string Parser::checkWhile(vector<string> stringList, int startLine) {
 			sentenceNew >> word3;
 		}
 		else if (word3 != "{") {
-			return errorTypeList[1];
+			return errorTypeList[1] + "340";
 		}
 		if (!isName(word2)) {
-			return errorTypeList[5];
+			return errorTypeList[5] + "344";
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 346    ";
 		}
 		return "";
 	}
@@ -367,12 +365,12 @@ string Parser::checkWhile(vector<string> stringList, int startLine) {
 			return errorTypeList[5];
 		}
 		if (isStmtLst(stringList, startLine) == -1) {
-			return errorTypeList[3];
+			return errorTypeList[3] + "error at 355    ";
 		}
 		return "";
 	}
 	else {
-		return errorTypeList[10];
+		return errorTypeList[10] + "error at 361";
 	}
 
 }
@@ -531,6 +529,7 @@ int Parser::isStmtLst(vector<string> stringList, int startLine) {
 	int endLine = pairedCurlyBracketsPos(stringList, startLine);
 
 	if (endLine == -1) {
+		//	cout << "512";
 		return -1;
 	}
 	start = stringList[startLine];
@@ -715,8 +714,9 @@ string Parser::trim(string str) {
 	}
 
 	for (j = str.size() - 1; j >= i; j--) {
-		if (str[j] != ' ')
+		if (str[j] != ' ' && str[j] != '	') {
 			break;
+		}
 	}
 
 	return str.substr(i, j - i + 1);
