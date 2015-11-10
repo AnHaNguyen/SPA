@@ -714,8 +714,9 @@ string Parser::trim(string str) {
 	}
 
 	for (j = str.size() - 1; j >= i; j--) {
-		if (str[j] != ' ')
+		if (str[j] != ' ' && str[j] != '	') {
 			break;
+		}
 	}
 
 	return str.substr(i, j - i + 1);
