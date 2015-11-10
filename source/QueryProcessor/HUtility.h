@@ -63,6 +63,9 @@ public:
 	int intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2);
 	int intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2);
 
+	int specialPPSS(vector<pair<string, string>> &vec1, vector<pair<string, string>> &vec2, int att1, int att2);
+	int specialPPSM(vector<pair<string, string>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2);
+	int specialPPSV(vector<pair<string, vector<string>>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2);
 	void checkQuotation(pair<string, bool> &AttQ, string &Att);
 };
 #endif

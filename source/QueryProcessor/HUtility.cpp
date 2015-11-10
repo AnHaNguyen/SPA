@@ -576,7 +576,7 @@ int HUtility::intersectionPPSM(vector<pair<string, string>> &vec1, vector<pair<s
 			if (!HUtility().contain(total1, vec1[i].second)) {
 				vec1.erase(vec1.begin() + i);
 			}
-			else{
+			else {
 				i++;
 			}
 		}
@@ -790,6 +790,145 @@ int HUtility::intersectionPPSV(vector<pair<string, vector<string>>> &vec1, vecto
 	}
 	return 1;
 }
+
+
+int HUtility::specialPPSS(vector<pair<string, string>> &vec1, vector<pair<string, string>> &vec2, int att1, int att2) {
+	vector<pair<string, string>> ansVec1;
+	vector<pair<string, string>> ansVec2;
+	if (att1 == 1 && att2 == 1) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (vec1[i].first == vec2[j].first && vec1[i].second == vec2[j].second) {
+					ansVec1.push_back(vec1[i]);
+				}
+			}
+		}
+		if (vec1.size() != ansVec1.size() || vec2.size() != ansVec1.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec1;
+			return 1;
+		}
+	}
+	if (att1 == 2 || att2 == 2) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (vec1[i].second == vec2[j].first && vec1[i].first == vec2[j].second) {
+					ansVec1.push_back(vec1[i]);
+					ansVec2.push_back(vec2[j]);
+				}
+			}
+		}
+		if (vec1.size() != ansVec1.size() || vec2.size() != ansVec1.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec1;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int HUtility::specialPPSM(vector<pair<string, string>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2) {
+	vector<pair<string, string>> ansVec1;
+	vector<pair<string, vector<string>>> ansVec2;
+	pair<string, vector<string>> temp2;
+
+	if (att1 = 1 && att2 == 1) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (vec1[i].first == vec2[j].first) {
+					if (HUtility().contain(vec2[j].second, vec1[i].second)) {
+						ansVec1.push_back(vec1[i]);
+						temp2.first = vec1[i].first;
+						temp2.second.push_back(vec1[i].second);
+						ansVec2.push_back(temp2);
+					}
+				}
+			}
+		}
+		if (ansVec1.size() != vec1.size() || ansVec1.size() != vec2.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec2;
+			return 1;
+		}
+	}
+	if (att1 == 2 || att2 == 2) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (vec1[i].second == vec2[j].first) {
+					if (HUtility().contain(vec2[j].second, vec1[i].first)) {
+						ansVec1.push_back(vec1[i]);
+						temp2.first = vec1[i].second;
+						temp2.second.push_back(vec1[i].first);
+						ansVec2.push_back(temp2);
+					}
+				}
+			}
+		}
+		if (ansVec1.size() != vec1.size() || ansVec1.size() != vec2.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec2;
+			return 1;
+		}
+	}
+}
+
+
+
+int HUtility::specialPPSV(vector<pair<string, vector<string>>> &vec1, vector<pair<string, vector<string>>> &vec2, int att1, int att2) {
+	vector<pair<string, vector<string>>> ansVec1;
+	vector<pair<string, vector<string>>> ansVec2;
+	pair<string, vector<string>> temp1;
+	pair<string, vector<string>> temp2;
+
+	if (att1 == 1 && att2 == 1) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (vec1[i].first == vec2[j].first) {
+					temp1.first = vec1[i].first;
+					for (size_t k; k < vec1[i].second.size(); k++) {
+						if (HUtility().contain(vec2[j].second, vec1[i].second[k])) {
+							temp1.second.push_back(vec1[i].second[k]);
+						}
+					}
+					if (temp1.second.size()>0) {
+						ansVec1.push_back(temp1);
+					}
+				}
+			}
+		}
+		if (ansVec1.size() != vec1.size() || ansVec1.size() != vec2.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec1;
+			return 1;
+		}
+	}
+	if (att1 == 2 || att2 == 2) {
+		for (size_t i = 0; i < vec1.size(); i++) {
+			for (size_t j = 0; j < vec2.size; j++) {
+				if (HUtility().contain(vec1[i].second, vec2[j].first)) {
+					temp1.second.push_back(vec2[j].first);
+					temp2.first = vec2[j].first;
+				}
+				if (HUtility().contain(vec2[j].second, vec1[i].first)) {
+					temp1.first = vec1[i].first;
+					temp2.second.push_back(vec1[i].first);
+				}
+				if (temp2.second.size()>0 && temp1.second.size() >0) {
+					ansVec1.push_back(temp1);
+					ansVec2.push_back(temp2);
+				}
+			}
+		}
+		if (ansVec1.size() != vec1.size() || ansVec1.size() != vec2.size()) {
+			vec1 = ansVec1;
+			vec2 = ansVec2;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 
 void HUtility::checkQuotation(pair<string, bool> &AttQ, string &Att) {
 

@@ -40,13 +40,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 
 	//Initialize symtable for HUtility
-	if (queryTree->getSymbolTable().empty()) {
-		//final.push_back("invalid2");
-		return final;
-	}
-	else {
-		utility.setSymTable(queryTree->getSymbolTable());
-	}
+	utility.setSymTable(queryTree->getSymbolTable());
 
 	//Handle select
 	string selType = HandleRS().handleSelect(queryTree, result);
@@ -355,14 +349,14 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 			//Populate queryRS
 			RSEntry_t currentRS;
 			currentRS.synCount = 0;
-			if (utility.getSymMean(stFirst) != "") {
+			if (utility.getSymMean(stFirst) != "" || stFirst == "_") {
 				currentRS.firstAtt = stFirst;
 				currentRS.synCount++;
 			}
 			else {
 				currentRS.firstAtt = "";
 			}
-			if (utility.getSymMean(stSecond) != "") {
+			if (utility.getSymMean(stSecond) != "" || stSecond == "_") {
 				currentRS.secondAtt = stSecond;
 				currentRS.synCount++;
 			}
@@ -586,7 +580,7 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 					currentRS.synCount = 2;
 				}
 				//Case c.stmt# = ...
-				if (utility.getSymMean(withSecond) !="" &&
+				if (utility.getSymMean(withSecond) != "" &&
 					utility.getSymMean(withSecond) != "variable" && utility.getSymMean(withSecond) != "procedure") {
 					if (queryWith->getLeftAttrRef().getAttr() == "stmt#") {
 						currentRS.firstAtt = withFirst;
@@ -735,6 +729,10 @@ vector<string> QueryHandler::queryRec(QueryTree* queryTree) {
 
 					if (queryRS[pos[k]].synCount == 2) {
 						//case table vs table
+						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt&&
+							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
+						}
 						if (queryRS[pos[j]].table.size() > 0 && queryRS[pos[k]].table.size() > 0 &&
 							queryRS[pos[j]].firstAtt == queryRS[pos[k]].firstAtt) {
 							changed += utility.intersectionPPSV(queryRS[pos[j]].table, queryRS[pos[k]].table, 1, 1);
