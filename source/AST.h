@@ -33,6 +33,7 @@ public:
 
 	static bool compare(TNode* root1, TNode* root2);		//use for pattern
 	static bool compareSubtree(TNode* root1, TNode* root2);
+	vector<TNode*> getStmtNode();
 };
 
 #endif

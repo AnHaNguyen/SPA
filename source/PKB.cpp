@@ -591,3 +591,281 @@ vector<string> PKB::getExistMod(string start, string var, vector<string> process
 	}
 	return returnList;
 }
+
+vector<string> PKB::contains(string n1, bool isInt1, string n2, bool isInt2) {
+	vector<string> returnList;
+	if (isInt1 && isInt2) {		//contains(1,2) never happen
+		returnList.push_back("false");
+		return returnList;
+	}
+	else if (isInt1 && !isInt2){		//contains(1, if)
+		bool isDone = false;
+		if (n2 == "variable" || n2 == "stmtLst" || n2 == "constant" ) {
+			for (unsigned i = 0; i < astList.size(); i++) {
+				AST* tree = astList.at(i);
+				vector<TNode*> lineList = tree->getLine(atoi(n1.c_str()));
+				for (unsigned j = 0; j < lineList.size(); j++) {
+					if (lineList.at(j)->getParent()->getType() == "stmtLst") {
+						vector<TNode*> childList = lineList.at(j)->getChildList();
+						for (unsigned k = 0; k < childList.size(); k++) {
+							if (childList.at(k)->getType() == n2) {
+								returnList.push_back(returnValue(childList.at(k)));
+								isDone = true;
+							}
+						}
+					}
+					if (isDone) {
+						return Utility::removeDuplicate(returnList);
+					}
+				}
+			}
+		}	//do
+		else {
+			return returnList;
+		}
+	}
+	else if (!isInt1 && isInt2)	{		//contains(if ,2)
+		if (n1 == "stmtLst") {
+			for (unsigned i = 0; i < astList.size(); i++) {
+				AST* tree = astList.at(i);
+				vector<TNode*> stmtList = tree->getType("stmtLst");
+				for (unsigned j = 0; j < stmtList.size(); j++) {
+					vector<TNode*> childList = stmtList.at(j)->getChildList();
+					for (unsigned k = 0; k < childList.size(); k++) {
+						if (to_string(childList.at(k)->getLine()) == n2) {
+							returnList.push_back(returnValue(stmtList.at(j)));
+							return returnList;
+						}
+					}
+				}
+			}
+		}//do
+		else {
+			return returnList;
+		}
+	}
+	return returnList;
+}
+
+vector<pair<string, string>> PKB::contains(string n1, string n2) {		//need check stmt
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> tree = astList.at(i)->getTree();
+		for (unsigned j = 0; j < tree.size(); j++) {
+			TNode* par = tree.at(j);
+			if (isEqualType(par->getType(), n1)) {
+				vector<TNode*> childList = par->getChildList();
+				for (unsigned k = 0; k < childList.size(); k++) {
+					if (isEqualType(childList.at(k)->getType(), n2)) {
+						pair<string, string> pr;
+						pr.first = returnValue(par);
+						pr.second = returnValue(childList.at(k));
+						returnList.push_back(pr);
+					}
+				}
+			}
+		}
+	}
+	return Utility::removeDuplicate(returnList);
+}
+
+vector<string> PKB::sibling(string n1, bool isInt1, string n2, bool isInt2) {
+	vector<string> returnList;
+	if (isInt1 && isInt2) {		//sibling(1,2)
+		if (followSTable->isFollowS(n1, n2) || followSTable->isFollowS(n2, n1)) {
+			returnList.push_back("true");
+		}
+		else {
+			returnList.push_back("false");
+		}
+		return returnList;
+	}
+	else if (!isInt1 && isInt2) {		//sibling (if ,2)
+		vector<string> thisList = followSTable->getNextS(n2);
+		vector<string> thatList = followSTable->getPrevS(n2);
+		for (unsigned i = 0; i < thisList.size(); i++) {
+			if (isEqualType(progLine->getType(thisList.at(i)), n1)) {
+				returnList.push_back(thisList.at(i));
+			}
+		}
+		for (unsigned i = 0; i < thatList.size(); i++) {
+			if (isEqualType(progLine->getType(thatList.at(i)), n1)) {
+				returnList.push_back(thatList.at(i));
+			}
+		}
+		return returnList;
+	}
+	else if (isInt1 && !isInt2) {		//sibling (1, if)
+		vector<string> thisList= followSTable->getNextS(n1);
+		vector<string> thatList = followSTable->getPrevS(n1);
+		for (unsigned i = 0; i < thisList.size(); i++) {
+			if (isEqualType(progLine->getType(thisList.at(i)), n2)) {
+				returnList.push_back(thisList.at(i));
+			}
+		}
+		for (unsigned i = 0; i < thatList.size(); i++) {
+			if (isEqualType(progLine->getType(thatList.at(i)), n2)) {
+				returnList.push_back(thatList.at(i));
+			}
+		}
+		return returnList;
+	}
+	return returnList;
+}
+
+vector<pair<string, string>> PKB::sibling(string n1, string n2) {	//need check stmt
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		vector<TNode*> tree = astList.at(i)->getTree();
+		for (unsigned j = 0; j < tree.size(); j++) {
+			if (tree.at(j)->getChildList().size() > 1) {
+				vector<TNode*> childList = tree.at(j)->getChildList();
+				for (unsigned k = 0; k < childList.size(); k++) {
+					if (isEqualType(childList.at(k)->getType(),n1)) {
+						for (unsigned t = 0; t < childList.size(); t++) {
+							if (isEqualType(childList.at(t)->getType(),n2) && t != k) {
+								pair<string, string> pr;
+								pr.first = returnValue(childList.at(k));
+								pr.second = returnValue(childList.at(t));
+								returnList.push_back(pr);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Utility::removeDuplicate(returnList);
+}
+
+string PKB::returnValue(TNode* tnode) {
+	string type = tnode->getType();
+	if (type == "procedure" || type == "variable" || type == "constant") {
+		return tnode->getValue();
+	}
+	else if (type == "stmt" || type == "assign" || type == "call" || type == "if" || type == "while") {
+		return to_string(tnode->getLine());
+	}
+	else if (type == "stmtLst") {
+		return to_string(tnode->getChildList().at(0)->getLine());
+	}
+	else {
+		return type;
+	}
+}
+
+vector<string> PKB::containsS(string n1, bool isInt1, string n2, bool isInt2) {
+	vector<string> returnList;
+	if (isInt1 && isInt2) {		//Contains*(1,2)
+		if (parentSTable->isParentS(n1, n2)) {
+			returnList.push_back("true");
+		}
+		else {
+			returnList.push_back("false");
+		}
+		return returnList;
+	}
+	else if (isInt1 && !isInt2) {		//Contains*(1,if)	need check stmt
+		vector<TNode*> lineList;
+		for (unsigned i = 0; i < astList.size(); i++) {
+			AST* tree = astList.at(i);
+			lineList = tree->getLine(atoi(n1.c_str()));
+			if (lineList.size() > 0) {
+				break;
+			}
+		}
+		TNode* node;
+		for (unsigned i = 0; i < lineList.size(); i++) {
+			if (lineList.at(i)->getParent()->getType() == "stmtLst") {
+				node = lineList.at(i);
+				break;
+			}
+		}
+		queue<TNode*> q;
+		q.push(node);
+		while (!q.empty()) {
+			vector<TNode*> childList = q.front()->getChildList();
+			q.pop();
+			for (unsigned i = 0; i < childList.size(); i++) {
+				if (isEqualType(childList.at(i)->getType(),n2)) {
+					returnList.push_back(returnValue(childList.at(i)));
+				}
+				q.push(childList.at(i));
+			}
+		}
+		return Utility::removeDuplicate(returnList);
+	}
+	else if (!isInt1 && isInt2) {	//contains*(if,2)		need check stmt
+		vector<TNode*> lineList;
+		for (unsigned i = 0; i < astList.size(); i++) {
+			AST* tree = astList.at(i);
+			lineList = tree->getLine(atoi(n2.c_str()));
+			if (lineList.size() > 0) {
+				break;
+			}
+		}
+		TNode* node;
+		for (unsigned i = 0; i < lineList.size(); i++) {
+			if (lineList.at(i)->getParent()->getType() == "stmtLst") {
+				node = lineList.at(i);
+				break;
+			}
+		}
+		queue<TNode*> q;
+		q.push(node);
+		while (!q.empty()) {
+			TNode* par = q.front()->getParent();
+			q.pop();
+		
+			if (isEqualType(par->getType(),n1)) {
+				returnList.push_back(returnValue(par));
+			}
+			if (par->getType() != "procedure") {
+				q.push(par);
+			}
+		}
+		return Utility::removeDuplicate(returnList);
+	}
+	return returnList;
+}
+
+vector<pair<string, string>> PKB::containsS(string n1, string n2) {		//need check stmt
+	vector<pair<string, string>> returnList;
+	for (unsigned i = 0; i < astList.size(); i++) {
+		AST* tree = astList.at(i);
+		vector<TNode*> typeList;
+		if (n1 != "stmt") {
+			typeList = tree->getType(n1);
+		}
+		else {
+			typeList = tree->getStmtNode();
+		}
+		for (unsigned j = 0; j < typeList.size(); j++) {
+			queue<TNode*> q;
+			q.push(typeList.at(j));
+			while (!q.empty()) {
+				vector<TNode*> childList = q.front()->getChildList();
+				q.pop();
+				for (unsigned k = 0; k < childList.size(); k++) {
+					if (isEqualType(childList.at(k)->getType(),n2)) {
+						pair<string, string> pr;
+						pr.first = returnValue(typeList.at(j));
+						pr.second = returnValue(childList.at(k));
+						returnList.push_back(pr);
+					}
+					q.push(childList.at(k));
+				}
+			}
+		}
+	}
+	return Utility::removeDuplicate(returnList);
+}
+
+bool PKB::isEqualType(string type1, string type2) {
+	if (type2 != "stmt") {
+		return (type1 == type2);
+	}
+	else {
+		return (type1 == "assign" || type1 == "call" || type1 == "if" || type1 == "while");
+	}
+}

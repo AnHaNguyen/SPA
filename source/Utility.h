@@ -15,6 +15,7 @@ public: Utility();
 		static void sort(vector<string> origin);
 		static bool isContained(vector<string> list, string element);
 		static bool isContained(vector<int> list, int element);
+		static vector<pair<string, string>> removeDuplicate(vector<pair<string, string>> origin);
 };
 
 #endif
