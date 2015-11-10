@@ -484,6 +484,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"Modifies", tree37->getSuchThat()->getNext()->getSynonym());
 			Assert::AreEqual((string)"Follows", tree37->getSuchThat()->getNext()->getNext()->getSynonym());
 			Assert::AreEqual((string)"Uses", tree37->getSuchThat()->getNext()->getNext()->getNext()->getSynonym());
+			Assert::IsNull(tree37->getSuchThat()->getNext()->getNext()->getNext()->getNext());
 		}
 
 		TEST_METHOD(pattern_table)
@@ -509,6 +510,7 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"a2", tree39->getPattern()->getNext()->getSynonym());
 			Assert::AreEqual((string)"a3", tree39->getPattern()->getNext()->getNext()->getSynonym());
 			Assert::AreEqual((string)"a4", tree39->getPattern()->getNext()->getNext()->getNext()->getSynonym());
+			Assert::IsNull(tree39->getPattern()->getNext()->getNext()->getNext()->getNext());
 		}
 
 		TEST_METHOD(select_Boolean)
@@ -662,6 +664,8 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"p1", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getLeftAttrRef().getSynonym());
 			Assert::AreEqual((string)"procName", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getLeftAttrRef().getAttr());
 			Assert::AreEqual((string)"\"main\"", tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getRightType());
+
+			Assert::IsNull(tree52->getWith()->getNext()->getNext()->getNext()->getNext()->getNext());
 		}
 
 		TEST_METHOD(with_invalid_refType_1)
@@ -720,6 +724,8 @@ namespace TestPreprocessor
 			Assert::AreEqual((string)"s1", tree57->getResult()->getNext()->getNext()->getResult().getSynonym());
 			Assert::AreEqual((string)"c1", tree57->getResult()->getNext()->getNext()->getNext()->getResult().getSynonym());
 			Assert::AreEqual((string)"value", tree57->getResult()->getNext()->getNext()->getNext()->getResult().getAttr());
+
+			Assert::IsNull(tree57->getResult()->getNext()->getNext()->getNext()->getNext());
 		}
 
 		TEST_METHOD(result_invalid_ref_1)

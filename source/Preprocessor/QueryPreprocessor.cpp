@@ -594,11 +594,11 @@ string QueryPreprocessor::trim(string str){
 	int i=0;
 	int j=0;
 	for (i=0;i<str.size();i++){
-		if (str[i]!=' ')
+		if (str[i]!=' ' && str[i]!='	')
 			break;
 	}
 	for (j=str.size()-1;j>=i;j--){
-		if (str[j]!=' ')
+		if (str[j]!=' ' && str[j] != '	')
 			break;
 	}
 	return str.substr(i,j-i+1);

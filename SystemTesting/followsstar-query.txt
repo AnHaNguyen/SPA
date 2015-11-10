@@ -20,11 +20,11 @@ Select s1 such that Follows*(13, s1);
 5000
 5 -
 stmt s1;
-Select s1 such that Follows(s1, 12);
-10
+Select s1 such that Follows*(s1, 12);
+
 5000
 6 -
 stmt s1;
-Select s1 such that Follows(s1, 15);
+Select s1 such that Follows*(s1, 15);
 10, 11
 5000
