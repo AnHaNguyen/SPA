@@ -2,9 +2,9 @@
 HandleWith::HandleWith() {}
 HandleWith::~HandleWith() {}
 
-void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, string>> &withCall, string firstAtt, string secondAtt) {
+void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, vector<string>>> &withCall, string firstAtt, string secondAtt) {
 	ProgLine* progLine = PKB::getProgLine();
-	if (HUtility().getSymMean(secondAtt) == "" || HUtility().getSymMean(firstAtt) == "call") {
+	if (HUtility().getSymMean(secondAtt) == "" && HUtility().getSymMean(firstAtt) != "call") {
 		withVec.push_back(secondAtt);
 	}
 	else {
@@ -153,22 +153,26 @@ void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, string>
 
 		//Case call
 		if (HUtility().getSymMean(firstAtt) == "call") {
-			pair<string, string> temp;
+			pair<string, vector<string>> temp;
 			CallLine* callLine = PKB::getCallLine();
 			vector<string> callers;
+			pair<string, bool> secondAttQ;
+			HUtility().checkQuotation(secondAttQ, secondAtt);
 
 			//Case secondAtt is not a syn
 			if (HUtility().getSymMean(secondAtt) == "") {
 				if (HUtility().isInt(secondAtt)) {
 					temp.first = callLine->getCallee(secondAtt);
-					temp.second = secondAtt;
+					temp.second.push_back(secondAtt);
 					withCall.push_back(temp);
 				}
-				else{
-					temp.first = firstAtt;
-					callers = callLine->getCallers(firstAtt);
+				else {
+					temp.first = secondAtt;
+					callers = callLine->getCallers(secondAttQ.first);
 					for (size_t i = 0; i < callers.size(); i++) {
-						temp.second = callers[i];
+						temp.second.push_back(callers[i]);
+					}
+					if (temp.second.size()>0) {
 						withCall.push_back(temp);
 					}
 				}
@@ -176,17 +180,39 @@ void HandleWith::handleWith(vector<string> &withVec, vector<pair<string, string>
 
 			//Other cases
 			if (HUtility().getSymMean(secondAtt) == "stmt" || HUtility().getSymMean(secondAtt) == "prog_line") {
-				withCall = callLine->getTable();
+				vector<pair<string, string>> callTab = callLine->getTable();
+				vector<int> visited;
+				for (size_t i = 0; i < callTab.size(); i++) {
+					if (!HUtility().contain(visited, i)) {
+						temp.first = callTab[i].second;
+						for (size_t j = 0; j < callTab.size(); j++) {
+							if (callTab[i].second == callTab[j].second) {
+								temp.second.push_back(callTab[j].first);
+							}
+						}
+						visited.push_back(i);
+					}
+				}
 			}
 			if (HUtility().getSymMean(secondAtt) == "variable") {
-				callers = progLine->getLinesOfType("calls");
+				callers = progLine->getLinesOfType("call");
 				vector<string> varTab = PKB::getVarTable()->getTable();
 				string callee;
 				for (size_t i = 0; i < callers.size(); i++) {
 					callee = callLine->getCallee(callers[i]);
+					temp.second = callers;
 					if (HUtility().contain(varTab, callee)) {
-						temp.first = callers[i];
-						temp.second = callee;
+						temp.first = callee;
+						withCall.push_back(temp);
+					}
+				}
+			}
+			if (HUtility().getSymMean(secondAtt) == "procedure") {
+				vector<string> procTable = PKB::getProcTable()->getTable();
+				for (size_t i = 0; i < procTable.size(); i++) {
+					temp.first = procTable[i];
+					temp.second = callLine->getCallers(procTable[i]);
+					if (temp.second.size()>0) {
 						withCall.push_back(temp);
 					}
 				}

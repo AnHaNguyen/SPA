@@ -241,6 +241,10 @@ void HandleST::handleAffect(string firstAtt, string secondAtt, vector<string> &a
 	}
 }
 
+void HandleST::handleContain(vector<string> &conVec, vector<pair<string, string>> &sibVec, string firstAtt, string secondAtt) {
+
+}
+
 bool HandleST::isFollowsS(string firstAtt, string secondAtt) {
 	string nextFol = PKB::getFollowTable()->getNext(firstAtt);
 	if (nextFol == "" || stoi(nextFol) > stoi(secondAtt)) {
@@ -268,4 +272,3 @@ bool HandleST::isParentS(string firstAtt, string secondAtt) {
 	}
 	return false;
 }
-

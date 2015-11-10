@@ -18,6 +18,8 @@ public:
 	void handleNext(string &firstAtt, string &secondAtt, vector<string> &nextVec);
 	void handleCalls(string firstAtt, string secondAtt, vector<string> &callVec);
 	void handleAffect(string firstAtt, string secondAtt, vector<string> &affVec);
+	void handleContain(vector<string> &conVec, vector<pair<string, string>> &sibVec, string firstAtt, string secondAtt);
+
 
 	bool isFollowsS(string firstAtt, string secondAtt);
 	bool isParentS(string firstAtt, string secondAtt);
