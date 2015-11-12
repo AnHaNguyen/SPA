@@ -433,13 +433,6 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 		}
 
 		TNode* signNode = new TNode(NO_VALUE, signType2, lineNumber);
-		if (i == 1) {
-			signNode->setValue("node 7");
-		}
-		else if (i == 2) {
-			signNode->setValue("node 9");
-		}
-		
 		curProcAst->addToTree(signNode);
 
 		if ((signType1 == TIMES_TEXT && signType2 == TIMES_TEXT) ||

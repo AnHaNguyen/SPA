@@ -344,9 +344,6 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(1)->getValue(), (string) "e1");
 			
 			Assert::AreEqual(ast->getTree().at(6)->getValue(), (string) "e1");
-
-			Assert::AreEqual(ast->getTree().at(7)->getValue(), (string) "node 7");
-			Assert::AreEqual(ast->getTree().at(9)->getValue(), (string) "node 9");
 			Assert::AreEqual(ast->getTree().at(7)->getType(), TIMES_TEXT);
 
 			Assert::AreEqual(ast->getTree().at(7)->getChildList().size(), (unsigned) 2);
