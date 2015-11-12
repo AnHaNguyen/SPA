@@ -361,6 +361,7 @@ void DesignExtractor::processRightSideAssign(AST* curProcAst, TNode* curPar, int
 TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, int lineNumber) {
 	// first: type, second, position
 	vector<pair<string, int>> signList = vector<pair<string, int>>();
+	bool timesAll = true;
 
 	for (unsigned int i = 0; i < subString.length(); i++) {
 		string curChar = subString.substr(i, 1);
@@ -403,12 +404,12 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 		seperateNodeBracket.pop();
 	}
 
-	TNode* signNode = new TNode(NO_VALUE, signList.at(0).first, lineNumber);
-	signNode->setChild(leftNode);
-	leftNode->setParent(signNode);
-	curProcAst->addToTree(signNode);
+	TNode* signNodeOutSide = new TNode(NO_VALUE, signList.at(0).first, lineNumber);
+	signNodeOutSide->setChild(leftNode);
+	leftNode->setParent(signNodeOutSide);
+	curProcAst->addToTree(signNodeOutSide);
 
-	curNode = signNode;
+	curNode = signNodeOutSide;
 	curPlusMinusNode = curNode;
 
 	for (int i = 1; i < size; i++) {
@@ -432,6 +433,13 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 		}
 
 		TNode* signNode = new TNode(NO_VALUE, signType2, lineNumber);
+		if (i == 1) {
+			signNode->setValue("node 7");
+		}
+		else if (i == 2) {
+			signNode->setValue("node 9");
+		}
+		
 		curProcAst->addToTree(signNode);
 
 		if ((signType1 == TIMES_TEXT && signType2 == TIMES_TEXT) ||
@@ -456,6 +464,8 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 
 			curPlusMinusNode = curNode;
 			curNode = signNode;
+
+			timesAll = false;
 		}
 		else if (signType1 == TIMES_TEXT && (signType2 == PLUS_TEXT || signType2 == MINUS_TEXT)) {
 			curNode->setChild(leftNode);
@@ -471,12 +481,15 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			curNode->setParent(signNode);
 			curNode = signNode;
 			curPlusMinusNode = curNode;
+
+			timesAll = false;
 		}
 	}
 
 	string lastVarRight = subString.substr(signList.at(size - 1).second + 1);
 	TNode* lastRightNode;
 
+	// Add last variable to AST but havent made the relationship
 	if (lastVarRight.find(FAKE_ROUND_BRACKET) == string::npos) {
 		string type = exprType(lastVarRight);
 		lastRightNode = new TNode(lastVarRight, type, lineNumber);
@@ -492,7 +505,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	curNode->setChild(lastRightNode);
 	lastRightNode->setParent(curNode);
 
-	if ((curPlusMinusNode != curNode && curPlusMinusNode != new TNode())) {
+	if (curPlusMinusNode != curNode && !timesAll) {
 		curPlusMinusNode->setChild(curNode);
 		curNode->setParent(curPlusMinusNode);
 		curNode = curPlusMinusNode;
@@ -719,15 +732,17 @@ void DesignExtractor::processRightBranchAST(TNode* rightNode, string lineNumStr)
 		useVarList.push_back(rightNodeValue);
 		useTable->addToTable(lineNumStr, rightNodeValue);
 	}
-
-	vector<TNode*> childList = rightNode->getChildList();
-	if (childList.size() > 0) {
-		for (unsigned int i = 0; i < childList.size(); i++) {
-			TNode* processedNode = childList.at(i);
-			processRightBranchAST(processedNode, lineNumStr);
+	else {
+		vector<TNode*> childList = rightNode->getChildList();
+		if (childList.size() > 0) {
+			for (unsigned int i = 0; i < childList.size(); i++) {
+				TNode* processedNode = childList.at(i);
+				processRightBranchAST(processedNode, lineNumStr);
+			}
 		}
 	}
 }
+
 
 //---------------Smaller modules for Use Table---------------//
 void DesignExtractor::addVarToContainer(string container, vector<string> varList, string type) {

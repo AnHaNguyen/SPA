@@ -331,6 +331,34 @@ namespace UnitTesting
 			Assert::AreEqual(ast->getTree().at(4)->getParent()->getType(), ASSIGN);
 		}
 
+		TEST_METHOD(DE_AST_RightBranch) {
+			vector<string> code = { "procedureFirst{", "x=y*e1*cs2*cs3;}" };
+
+			DesignExtractor ext = DesignExtractor(code);
+			AST* ast = ext.getASTList().at(0);
+
+			Assert::AreEqual(ast->getTree().at(4)->getValue(), (string) "y");
+
+			Assert::AreEqual(ast->getTree().at(5)->getChildList().size(), (unsigned) 2);
+			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(0)->getValue(), (string) "y");
+			Assert::AreEqual(ast->getTree().at(5)->getChildList().at(1)->getValue(), (string) "e1");
+			
+			Assert::AreEqual(ast->getTree().at(6)->getValue(), (string) "e1");
+
+			Assert::AreEqual(ast->getTree().at(7)->getValue(), (string) "node 7");
+			Assert::AreEqual(ast->getTree().at(9)->getValue(), (string) "node 9");
+			Assert::AreEqual(ast->getTree().at(7)->getType(), TIMES_TEXT);
+
+			Assert::AreEqual(ast->getTree().at(7)->getChildList().size(), (unsigned) 2);
+			Assert::AreEqual(ast->getTree().at(7)->getChildList().at(1)->getValue(), (string) "cs2");
+
+			Assert::AreEqual(ast->getTree().at(8)->getValue(), (string) "cs2");
+			Assert::AreEqual(ast->getTree().at(9)->getChildList().size(), (unsigned) 2);
+			Assert::AreEqual(ast->getTree().at(9)->getChildList().at(1)->getValue(), (string) "cs3");
+
+			Assert::AreEqual(ast->getTree().at(10)->getValue(), (string) "cs3");
+		}
+
 		TEST_METHOD(DE_AST_WithAllPlus) {
 			vector<string> code = { "procedureFirst{", "x=x+1+y+z;}" };
 
