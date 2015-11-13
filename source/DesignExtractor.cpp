@@ -377,7 +377,8 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	}
 
 	TNode* curNode = new TNode();
-	TNode* curPlusMinusNode = new TNode();
+	TNode* defaultNode = new TNode(NO_VALUE, NO_VALUE, -1);
+	TNode* curPlusMinusNode = defaultNode;
 	int size = signList.size();
 
 	// only 1 variable in right side
@@ -410,7 +411,9 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	curProcAst->addToTree(signNodeOutSide);
 
 	curNode = signNodeOutSide;
-	curPlusMinusNode = curNode;
+	if (curNode->getType() == PLUS_TEXT || curNode->getType() == MINUS_TEXT) {
+		curPlusMinusNode = curNode;
+	}
 
 	for (int i = 1; i < size; i++) {
 		string signType1 = signList.at(i - 1).first;
@@ -433,6 +436,18 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 		}
 
 		TNode* signNode = new TNode(NO_VALUE, signType2, lineNumber);
+		/*if (i == 1) {
+			signNode->setValue("error1");
+		}
+		if (i == 2) {
+			signNode->setValue("error22");
+		}
+		if (i == 3) {
+			signNode->setValue("error333");
+		}
+		if (i == 4) {
+			signNode->setValue("error4444");
+		}*/
 		curProcAst->addToTree(signNode);
 
 		if ((signType1 == TIMES_TEXT && signType2 == TIMES_TEXT) ||
@@ -464,7 +479,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 			curNode->setChild(leftNode);
 			leftNode->setParent(curNode);
 
-			if (curPlusMinusNode != curNode) {
+			if (curPlusMinusNode != curNode && curPlusMinusNode != defaultNode) {
 				curPlusMinusNode->setChild(curNode);
 				curNode->setParent(curPlusMinusNode);
 				curNode = curPlusMinusNode;
@@ -472,6 +487,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 
 			signNode->setChild(curNode);
 			curNode->setParent(signNode);
+
 			curNode = signNode;
 			curPlusMinusNode = curNode;
 
@@ -498,7 +514,7 @@ TNode* DesignExtractor::processInsideBracket(AST* curProcAst, string subString, 
 	curNode->setChild(lastRightNode);
 	lastRightNode->setParent(curNode);
 
-	if (curPlusMinusNode != curNode && !timesAll) {
+	if ((curPlusMinusNode != curNode && curPlusMinusNode != defaultNode) && !timesAll) {
 		curPlusMinusNode->setChild(curNode);
 		curNode->setParent(curPlusMinusNode);
 		curNode = curPlusMinusNode;
